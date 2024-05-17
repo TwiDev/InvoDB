@@ -5,13 +5,38 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ch.twidev.invodb</groupId>
-    <artifactId>InvoDB</artifactId>
+    <artifactId>invodb-parent</artifactId>
+    <name>InvoDB Parent</name>
+    <modules>
+        <module>invodb-core</module>
+        <module>invodb-driver</module>
+        <module>invodb-example</module>
+    </modules>
     <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <properties>
         <maven.compiler.source>22</maven.compiler.source>
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <global.version.group>SNAPSHOT</global.version.group>
+        <global.version>1.0.0-${global.version.group}</global.version>
     </properties>
+
+    <developers>
+        <developer>
+            <id>TwiDev</id>
+            <name>Matteo Preziuso</name>
+            <email>prezmatteo@gmail.com</email>
+            <roles>
+                <role>
+                    Software Engineer
+                </role>
+            </roles>
+            <timezone>(UTC+01:00)</timezone>
+            <organization>InvoDB</organization>
+            <url>https://twidev.ch</url>
+        </developer>
+    </developers>
 
 </project>
