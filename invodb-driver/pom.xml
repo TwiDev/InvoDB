@@ -19,4 +19,21 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.scylladb</groupId>
+            <artifactId>scylla-driver-core</artifactId>
+            <version>3.11.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.scylladb</groupId>
+            <artifactId>java-driver-query-builder</artifactId>
+            <version>4.17.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>3.0.0-beta2</version>
+        </dependency>
+    </dependencies>
 </project>
