@@ -4,11 +4,17 @@ import ch.twidev.invodb.drivers.DriverConfig;
 import ch.twidev.invodb.drivers.DriverType;
 import ch.twidev.invodb.drivers.InvoDriver;
 import ch.twidev.invodb.exceptions.DriverConnectionException;
+import com.datastax.driver.core.Session;
 import com.datastax.oss.driver.api.core.CqlSession;
 
 import java.net.InetSocketAddress;
 
 public class InvoSessionDriver extends InvoDriver<CqlSession> {
+
+    public static InvoSessionDriver fromScyllaSession(Session session) {
+        return null;
+    }
+
     public InvoSessionDriver(DriverConfig driverConfig, DriverType driverType, String name) {
         super(driverConfig, driverType, name);
     }
