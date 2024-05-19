@@ -5,28 +5,30 @@ import ch.twidev.invodb.authentication.NoneAuthenticator;
 import ch.twidev.invodb.cluster.ClusterPoint;
 import ch.twidev.invodb.cluster.ClusterPoints;
 import ch.twidev.invodb.drivers.DriverConfig;
+import ch.twidev.invodb.drivers.DriverConnection;
 import ch.twidev.invodb.drivers.DriverType;
 import ch.twidev.invodb.drivers.InvoDriver;
+import ch.twidev.invodb.drivers.statements.PreparedStatementConnection;
 import ch.twidev.invodb.environment.EnvVar;
 import ch.twidev.invodb.exceptions.DriverConfigMissingException;
 import ch.twidev.invodb.exceptions.DriverConnectionException;
-import com.datastax.driver.core.AuthProvider;
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.PlainTextAuthProvider;
-import com.datastax.driver.core.Session;
+import ch.twidev.invodb.exceptions.PrepareStatementException;
+import ch.twidev.invodb.utils.Callback;
+import ch.twidev.invodb.utils.NonNull;
+import com.datastax.driver.core.*;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
-@SuppressWarnings("unchecked")
-public class InvoClusterDriver extends InvoDriver<Cluster> {
+@SuppressWarnings({"UnstableApiUsage"})
+public class ScyllaClusterDriver extends InvoDriver<Cluster> {
 
     private static final String CLUSTER_DRIVER_KEY = "ScyllaClusterDriver";
 
 
-    public InvoClusterDriver(DriverConfig driverConfig) {
+    public ScyllaClusterDriver(DriverConfig driverConfig) {
         super(driverConfig, DriverType.SCYLLA, CLUSTER_DRIVER_KEY);
     }
 
@@ -58,26 +60,83 @@ public class InvoClusterDriver extends InvoDriver<Cluster> {
     }
 
 
-    public CompletableFuture<InvoSessionDriver> asyncConnect(String keyspace) {
-        CompletableFuture<InvoSessionDriver> invoSessionDriverFutureCallback = new CompletableFuture<>();
+    public CompletableFuture<ScyllaSession> asyncConnect(String keyspace) {
+        CompletableFuture<ScyllaSession> invoSessionDriverFutureCallback = new CompletableFuture<>();
+        ScyllaClusterDriver scyllaClusterDriver = this;
 
         ListenableFuture<Session> asyncTask = this.getConnection().connectAsync(keyspace);
         Futures.addCallback(asyncTask, new com.google.common.util.concurrent.FutureCallback<>() {
             @Override
             public void onSuccess(@Nullable Session session) {
                 invoSessionDriverFutureCallback.complete(
-                        InvoSessionDriver.fromScyllaSession(session)
+                        new ScyllaSession(scyllaClusterDriver, session)
                 );
             }
 
             @Override
-            public void onFailure(Throwable throwable) {
+            public void onFailure(@NonNull Throwable throwable) {
                 invoSessionDriverFutureCallback.completeExceptionally(throwable);
             }
         });
 
         return invoSessionDriverFutureCallback;
     };
+
+    public static class ScyllaSession implements DriverConnection<ScyllaClusterDriver>, PreparedStatementConnection<PreparedStatement> {
+
+        private final ScyllaClusterDriver clusterDriver;
+        private final Session session;
+
+        public ScyllaSession(ScyllaClusterDriver scyllaClusterDriver, Session session) {
+            this.clusterDriver = scyllaClusterDriver;
+            this.session = session;
+        }
+
+        public Session getSession() {
+            return session;
+        }
+
+        @Override
+        public ScyllaClusterDriver getDriver() {
+            return clusterDriver;
+        }
+
+        @Override
+        public boolean isConnected() {
+            return !session.isClosed();
+        }
+
+        @Override
+        public void asyncQuery(String query, Callback<?> callback, Object... vars) {
+
+        }
+
+        @Override
+        public void query(String query, Callback<?> callback, Object... vars) {
+
+        }
+
+        @Override
+        public void execute(String query, Object... vars) {
+            PreparedStatement preparedStatement = this.prepareStatement(query, vars);
+            ResultSet rows = this.session.execute(preparedStatement.bind());
+            System.out.println(rows.all());
+        }
+
+        @Override
+        public void asyncExecute(String query, Object... vars) {
+
+        }
+
+        @Override
+        public PreparedStatement prepareStatement(String query, Object... vars) throws PrepareStatementException {
+            try {
+                return session.prepare(new SimpleStatement(query, vars));
+            } catch (Exception cause) {
+                throw new PrepareStatementException(cause);
+            }
+        }
+    }
 
     @Override
     public void closeConnection() {
