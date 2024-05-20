@@ -13,11 +13,10 @@
     <packaging>pom</packaging>
     <name>InvoDB Driver</name>
     <modules>
-        <module>invodb-driver-common</module>
         <module>invodb-driver-scylla</module>
         <module>invodb-driver-mysql</module>
         <module>invodb-driver-mongodb</module>
-        <module>iinvodb-driver-redis</module>
+        <module>invodb-driver-redis</module>
     </modules>
     <version>${global.version}</version>
 

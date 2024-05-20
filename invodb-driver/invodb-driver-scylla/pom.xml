@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>ch.twidev.invodb</groupId>
-            <artifactId>invodb-driver-common</artifactId>
+            <artifactId>invodb-common</artifactId>
             <version>${global.version}</version>
         </dependency>
     </dependencies>

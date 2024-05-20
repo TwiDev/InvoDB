@@ -9,6 +9,7 @@
     <name>InvoDB Parent</name>
     <modules>
         <module>invodb-core</module>
+        <module>invodb-common</module>
         <module>invodb-driver</module>
         <module>invodb-example</module>
     </modules>

@@ -9,7 +9,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>invodb-driver-common</artifactId>
+    <artifactId>invodb-common</artifactId>
     <name>InvoDB Driver Common</name>
     <version>${global.version}</version>
 
