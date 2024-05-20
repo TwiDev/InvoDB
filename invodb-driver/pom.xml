@@ -10,7 +10,12 @@
     </parent>
 
     <artifactId>invodb-driver</artifactId>
+    <packaging>pom</packaging>
     <name>InvoDB Driver</name>
+    <modules>
+        <module>invodb-driver-common</module>
+        <module>invodb-driver-scylla</module>
+    </modules>
     <version>${global.version}</version>
 
     <properties>
