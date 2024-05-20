@@ -1,20 +1,17 @@
-package ch.twidev.invodb.common.drivers.driver;
+package ch.twidev.invodb.driver.scylla;
 
 import ch.twidev.invodb.common.authentication.AuthenticatorProvider;
 import ch.twidev.invodb.common.authentication.NoneAuthenticator;
 import ch.twidev.invodb.common.cluster.ClusterPoint;
 import ch.twidev.invodb.common.cluster.ClusterPoints;
-import ch.twidev.invodb.common.drivers.DriverConnection;
-import ch.twidev.invodb.common.exceptions.DriverConfigMissingException;
-import ch.twidev.invodb.common.utils.Callback;
-import ch.twidev.invodb.common.utils.NonNull;
-import ch.twidev.invodb.common.drivers.DriverConfig;
-import ch.twidev.invodb.common.drivers.DriverType;
-import ch.twidev.invodb.common.drivers.InvoDriver;
+import ch.twidev.invodb.common.drivers.*;
 import ch.twidev.invodb.common.drivers.statements.PreparedStatementConnection;
 import ch.twidev.invodb.common.environment.EnvVar;
+import ch.twidev.invodb.common.exceptions.DriverConfigMissingException;
 import ch.twidev.invodb.common.exceptions.DriverConnectionException;
 import ch.twidev.invodb.common.exceptions.PrepareStatementException;
+import ch.twidev.invodb.common.utils.Callback;
+import ch.twidev.invodb.common.utils.NonNull;
 import com.datastax.driver.core.*;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -24,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
 @SuppressWarnings({"UnstableApiUsage"})
-public class ScyllaClusterDriver extends InvoDriver<Cluster> {
+public class ScyllaClusterDriver extends InvoDriver<Cluster> implements ClusterDriver<ScyllaClusterDriver.ScyllaSession> {
 
     private static final String CLUSTER_DRIVER_KEY = "ScyllaClusterDriver";
 
@@ -61,6 +58,12 @@ public class ScyllaClusterDriver extends InvoDriver<Cluster> {
     }
 
 
+    @Override
+    public ScyllaSession connect(String space) {
+        return null;
+    }
+
+    @Override
     public CompletableFuture<ScyllaSession> asyncConnect(String keyspace) {
         CompletableFuture<ScyllaSession> invoSessionDriverFutureCallback = new CompletableFuture<>();
         ScyllaClusterDriver scyllaClusterDriver = this;

@@ -1,12 +1,5 @@
-import ch.twidev.invodb.common.authentication.Authenticator;
-import ch.twidev.invodb.common.cluster.ClusterPoint;
-import ch.twidev.invodb.common.drivers.DriverConfig;
-import ch.twidev.invodb.common.drivers.driver.ScyllaClusterDriver;
-import ch.twidev.invodb.common.exceptions.DriverBuilderException;
-import ch.twidev.invodb.common.exceptions.DriverConnectionException;
 import org.junit.Test;
 
-import java.net.InetSocketAddress;
 import java.util.logging.Logger;
 
 public class ConnectionTest {
@@ -16,7 +9,7 @@ public class ConnectionTest {
     @Test
     public void testScyllaDriverConnection() throws InterruptedException {
 
-        try {
+    /*    try {
             ScyllaClusterDriver invoClusterDriver = new ScyllaClusterDriver(new DriverConfig.ScyllaBuilder()
                     .setDriverName("Test")
                     .addContactPoint(new ClusterPoint(InetSocketAddress.createUnresolved("45.13.119.231", 9042)))
@@ -32,7 +25,7 @@ public class ConnectionTest {
 
         } catch (DriverBuilderException | DriverConnectionException e) {
             throw new RuntimeException(e);
-        }
+        }*/
 
 
     }

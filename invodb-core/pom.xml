@@ -19,4 +19,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>ch.twidev.invodb</groupId>
+            <artifactId>invodb-driver-common</artifactId>
+            <version>${global.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>
