@@ -54,7 +54,7 @@ public class ConnectionTest {
         */
 
         System.out.println(
-                prepareSearch(SearchFilter.and(SearchFilter.eq("user_name","TwiDev"), SearchFilter.or(SearchFilter.not_eq("user_id",2), SearchFilter.not_eq("user_id",3))))
+                prepareSearch(and(eq("user_name","TwiDev"), or(not_eq("user_id",2),not_eq("user_id",3))))
         );
 
     }
