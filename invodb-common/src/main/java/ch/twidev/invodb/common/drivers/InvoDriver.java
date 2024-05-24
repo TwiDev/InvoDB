@@ -4,7 +4,7 @@ import ch.twidev.invodb.common.session.DriverConnection;
 
 import java.util.concurrent.CompletableFuture;
 
-public abstract class InvoDriver<Session extends DriverConnection> {
+public abstract class InvoDriver<Session extends DriverConnection<?>> {
 
     private final InvoDriverType driverType;
 

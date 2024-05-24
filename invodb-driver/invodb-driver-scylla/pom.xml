@@ -23,6 +23,11 @@
             <artifactId>invodb-common</artifactId>
             <version>${global.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.scylladb</groupId>
+            <artifactId>scylla-driver-core</artifactId>
+            <version>3.11.5.0</version>
+        </dependency>
     </dependencies>
 
 </project>

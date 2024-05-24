@@ -1,4 +1,4 @@
-package ch.twidev.invodb.common.query.operations;
+package ch.twidev.invodb.common.query.operations.search;
 
 import ch.twidev.invodb.common.query.FieldMap;
 

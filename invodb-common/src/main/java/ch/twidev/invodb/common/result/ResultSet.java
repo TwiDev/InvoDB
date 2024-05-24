@@ -1,4 +1,4 @@
 package ch.twidev.invodb.common.result;
 
-public class ResultSet {
+public class ResultSet implements OperationResult {
 }
