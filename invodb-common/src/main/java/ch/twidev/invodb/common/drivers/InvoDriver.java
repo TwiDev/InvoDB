@@ -1,48 +1,31 @@
 package ch.twidev.invodb.common.drivers;
 
-import ch.twidev.invodb.common.exceptions.DriverConnectionException;
-import ch.twidev.invodb.common.logs.DriverLogger;
+import ch.twidev.invodb.common.session.DriverConnection;
 
-public abstract class InvoDriver<C> {
+import java.util.concurrent.CompletableFuture;
 
-    protected final DriverConfig driverConfig;
+public abstract class InvoDriver<Session extends DriverConnection> {
 
-    private final DriverType driverType;
-    public final DriverLogger logs;
+    private final InvoDriverType driverType;
 
-    public C connection = null;
+    private Session openedDriverConnection;
 
-    public InvoDriver(DriverConfig driverConfig, DriverType driverType, String name) {
-        this.driverConfig = driverConfig;
+    public InvoDriver(InvoDriverType driverType) {
         this.driverType = driverType;
-
-        this.logs = new DriverLogger(name);
     }
 
-    protected void setConnection(C connection) {
-        this.connection = connection;
-    }
-
-    public C getConnection() {
-        return connection;
-    }
-
-    public DriverType getDriverType() {
+    public InvoDriverType getDriverType() {
         return driverType;
     }
 
-    public DriverLogger getLog() {
-        return logs;
+    public Session getOpenedDriverConnection() {
+        return openedDriverConnection;
     }
 
-    public DriverConfig getDriverConfig() {
-        return driverConfig;
+    public void setOpenedDriverConnection(Session openedDriverConnection) {
+        this.openedDriverConnection = openedDriverConnection;
     }
 
-    public abstract void initConnection() throws DriverConnectionException;
-
-    public abstract void closeConnection();
-
-    public abstract boolean isConnected();
-
+    public abstract Session connectSession(String keyname);
+    public abstract CompletableFuture<Session> asyncConnectSession(String keyname);
 }

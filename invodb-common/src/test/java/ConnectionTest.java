@@ -1,4 +1,9 @@
+import ch.twidev.invodb.common.query.InvoQuery;
+import ch.twidev.invodb.common.query.operations.SearchFilter;
+import ch.twidev.invodb.common.query.operations.SearchOperation;
 import org.junit.Test;
+
+import static ch.twidev.invodb.common.query.operations.SearchFilter.*;
 
 import java.util.logging.Logger;
 
@@ -27,6 +32,13 @@ public class ConnectionTest {
             throw new RuntimeException(e);
         }*/
 
+        InvoQuery.find("main")
+                .where(and(
+                        eq("user_name", "TwiDev"),
+                        not_eq("user_id", 2)))
+                .run(null /*driver*/, (resultSet, throwable) -> {
+
+                });
 
     }
 
