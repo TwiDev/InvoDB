@@ -1,4 +1,6 @@
-package ch.twidev.invodb.common.query.operations.search;
+package ch.twidev.invodb.common.query.operations;
+
+import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 
 public interface SearchOperation<Builder> {
 

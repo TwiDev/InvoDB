@@ -1,8 +1,7 @@
-import ch.twidev.invodb.common.query.InvoQuery;
-import ch.twidev.invodb.common.query.operations.search.ObjectSearchFilter;
+import ch.twidev.invodb.common.query.operations.search.FieldSearchFilter;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.common.query.operations.search.SearchFilterType;
-import ch.twidev.invodb.common.query.operations.search.SubSearchFilter;
+import ch.twidev.invodb.common.query.operations.search.CompositeSearchFilter;
 import org.junit.Test;
 
 import static ch.twidev.invodb.common.query.operations.search.SearchFilter.*;
@@ -64,7 +63,7 @@ public class ConnectionTest {
         if(!CQL_OPERATORS.containsKey(searchFilterType)) return "";
 
         String operator = CQL_OPERATORS.get(searchFilterType);
-        if(searchFilter instanceof SubSearchFilter subSearchFilter) {
+        if(searchFilter instanceof CompositeSearchFilter subSearchFilter) {
             StringBuilder stringBuilder = new StringBuilder();
 
             for (int i = 0; i < subSearchFilter.getSearchFilters().size(); i++) {
@@ -78,7 +77,7 @@ public class ConnectionTest {
             }
 
             return stringBuilder.toString();
-        }else if(searchFilter instanceof ObjectSearchFilter objectSearchFilter) {
+        }else if(searchFilter instanceof FieldSearchFilter objectSearchFilter) {
             return "%s %s %s ".formatted(objectSearchFilter.getValue(), operator, objectSearchFilter.getObject()/*TODO: format string, number,...*/);
         }
 

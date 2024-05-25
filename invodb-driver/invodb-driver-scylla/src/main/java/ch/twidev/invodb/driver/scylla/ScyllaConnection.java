@@ -2,10 +2,10 @@ package ch.twidev.invodb.driver.scylla;
 
 import ch.twidev.invodb.common.exceptions.PrepareStatementException;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
-import ch.twidev.invodb.common.query.operations.search.ObjectSearchFilter;
+import ch.twidev.invodb.common.query.operations.search.FieldSearchFilter;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.common.query.operations.search.SearchFilterType;
-import ch.twidev.invodb.common.query.operations.search.SubSearchFilter;
+import ch.twidev.invodb.common.query.operations.search.CompositeSearchFilter;
 import ch.twidev.invodb.common.result.ResultSet;
 import ch.twidev.invodb.common.session.DriverConnection;
 import ch.twidev.invodb.common.statement.PreparedStatementConnection;
@@ -47,7 +47,7 @@ public class ScyllaConnection extends DriverConnection<Session> implements Prepa
 
         String operator = CQL_OPERATORS.get(searchFilterType);
 
-        if(searchFilter instanceof SubSearchFilter subSearchFilter) {
+        if(searchFilter instanceof CompositeSearchFilter subSearchFilter) {
             StringBuilder stringBuilder = new StringBuilder(operator).append(" ");
 
             subSearchFilter.getSearchFilters().forEach(filter -> {
@@ -57,7 +57,7 @@ public class ScyllaConnection extends DriverConnection<Session> implements Prepa
             });
 
             return stringBuilder.toString();
-        }else if(searchFilter instanceof ObjectSearchFilter objectSearchFilter) {
+        }else if(searchFilter instanceof FieldSearchFilter objectSearchFilter) {
             return "%s=%s ".formatted(objectSearchFilter.getValue(), objectSearchFilter.getObject()/*TODO: format string, number,...*/);
         }
 

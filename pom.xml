@@ -12,6 +12,7 @@
         <module>invodb-common</module>
         <module>invodb-driver</module>
         <module>invodb-example</module>
+        <module>invodb-bridge</module>
     </modules>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
