@@ -1,4 +1,4 @@
-package ch.twidev.invodb.common.exceptions;
+package ch.twidev.invodb.bridge.exceptions;
 
 public class PrepareStatementException extends RuntimeException{
 

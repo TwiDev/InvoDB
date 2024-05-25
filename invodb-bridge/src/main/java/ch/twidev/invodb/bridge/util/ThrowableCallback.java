@@ -1,4 +1,4 @@
-package ch.twidev.invodb.common.util;
+package ch.twidev.invodb.bridge.util;
 
 public interface ThrowableCallback<T> {
 

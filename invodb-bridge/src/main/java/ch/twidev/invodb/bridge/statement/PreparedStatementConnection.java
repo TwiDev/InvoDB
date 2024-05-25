@@ -1,4 +1,4 @@
-package ch.twidev.invodb.common.statement;
+package ch.twidev.invodb.bridge.statement;
 
 import ch.twidev.invodb.common.exceptions.PrepareStatementException;
 

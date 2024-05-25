@@ -1,4 +1,4 @@
-package ch.twidev.invodb.common.query.operations.search;
+package ch.twidev.invodb.bridge.contexts;
 
 public enum SearchFilterType {
 

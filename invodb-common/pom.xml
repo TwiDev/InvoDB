@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ch.twidev.invodb</groupId>
-        <artifactId>invodb-driver</artifactId>
+        <artifactId>invodb-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
@@ -18,5 +18,13 @@
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>ch.twidev.invodb</groupId>
+            <artifactId>invodb-bridge</artifactId>
+            <version>${global.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

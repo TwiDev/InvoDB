@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>invodb-bridge</artifactId>
+    <version>${global.version}</version>
 
     <properties>
         <maven.compiler.source>22</maven.compiler.source>

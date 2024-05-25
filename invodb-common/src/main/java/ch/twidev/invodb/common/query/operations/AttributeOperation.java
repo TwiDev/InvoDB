@@ -1,6 +1,6 @@
 package ch.twidev.invodb.common.query.operations;
 
-import ch.twidev.invodb.common.query.Attributes;
+import ch.twidev.invodb.bridge.contexts.Attributes;
 
 public interface AttributeOperation<Builder> {
 

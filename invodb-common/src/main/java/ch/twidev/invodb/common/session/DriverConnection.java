@@ -1,21 +1,22 @@
 package ch.twidev.invodb.common.session;
 
+import ch.twidev.invodb.bridge.session.ISession;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.result.OperationResult;
 import ch.twidev.invodb.common.result.ResultSet;
-import ch.twidev.invodb.common.util.ThrowableCallback;
+import ch.twidev.invodb.bridge.util.ThrowableCallback;
 
 @SuppressWarnings("unchecked")
 public abstract class DriverConnection<Session> {
 
-    protected final Session session;
+    protected final ISession<Session> session;
 
-    public DriverConnection(Session session) {
+    public DriverConnection(ISession<Session> session) {
         this.session = session;
     }
 
-    public Session getSession() {
+    public ISession<Session> getSession() {
         return session;
     }
 
@@ -25,7 +26,7 @@ public abstract class DriverConnection<Session> {
 
         switch (invoQuery) {
             case FindOperationBuilder findOperationBuilder -> {
-                this.find(findOperationBuilder, (ThrowableCallback<ResultSet>) throwableCallback);
+                session.find(findOperationBuilder, (ThrowableCallback<ResultSet>) throwableCallback);
             }
             default -> throw new IllegalStateException("Unexpected value: " + invoQuery);
         }
@@ -37,9 +38,5 @@ public abstract class DriverConnection<Session> {
                                   ThrowableCallback<R> throwableCallback) {
 
     }
-
-    public abstract boolean isConnected();
-
-    public abstract void find(FindOperationBuilder findOperationBuilder, ThrowableCallback<ResultSet> throwableCallback);
 
 }

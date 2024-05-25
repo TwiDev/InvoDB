@@ -1,4 +1,4 @@
-package ch.twidev.invodb.common.query;
+package ch.twidev.invodb.bridge.contexts;
 
 import java.util.HashMap;
 

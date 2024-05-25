@@ -1,10 +1,7 @@
-import ch.twidev.invodb.common.query.operations.search.FieldSearchFilter;
-import ch.twidev.invodb.common.query.operations.search.SearchFilter;
-import ch.twidev.invodb.common.query.operations.search.SearchFilterType;
-import ch.twidev.invodb.common.query.operations.search.CompositeSearchFilter;
+import ch.twidev.invodb.bridge.contexts.SearchDictionary;
+import ch.twidev.invodb.bridge.contexts.SearchFilterType;
+import ch.twidev.invodb.common.query.operations.search.*;
 import org.junit.Test;
-
-import static ch.twidev.invodb.common.query.operations.search.SearchFilter.*;
 
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -52,9 +49,35 @@ public class ConnectionTest {
                 });
         */
 
-        System.out.println(
-                prepareSearch(and(eq("user_name","TwiDev"), or(not_eq("user_id",2),not_eq("user_id",3))))
+        SearchDictionary searchDictionary = new SearchDictionary(){{
+            put(SearchFilterType.ALL, new SearchCompositeParameter("*"));
+            put(SearchFilterType.AND, new SearchCompositeParameter("AND"));
+            put(SearchFilterType.OR, new SearchCompositeParameter("OR"));
+            put(SearchFilterType.EQUAL, new SearchFieldParameter() {
+                @Override
+                public String parse(String key, Object value) {
+                    return key + " = '" + value + "'";
+                }
+            });
+            put(SearchFilterType.NOT_EQUAL, new SearchFieldParameter() {
+                @Override
+                public String parse(String key, Object value) {
+                    return key + " = '" + value + "'";
+                }
+            });
+        }};
+
+        SearchFilter filter = SearchFilter.and(
+                SearchFilter.eq("name", "John"),
+                SearchFilter.or(
+                        SearchFilter.eq("age", 30),
+                        SearchFilter.not_eq("city", "New York")
+                )
         );
+
+        System.out.println(filter.toQuery(searchDictionary)); /* OUTPUT : (name = 'John' AND (age = '30' OR city = 'New York'))*/
+
+
 
     }
 

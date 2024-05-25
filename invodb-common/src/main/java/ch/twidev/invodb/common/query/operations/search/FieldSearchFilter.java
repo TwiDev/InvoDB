@@ -1,5 +1,9 @@
 package ch.twidev.invodb.common.query.operations.search;
 
+import ch.twidev.invodb.bridge.contexts.SearchDictionary;
+import ch.twidev.invodb.bridge.contexts.SearchFilterType;
+import ch.twidev.invodb.bridge.search.SearchCondition;
+
 public class FieldSearchFilter extends SearchFilter{
 
     private final String value;
