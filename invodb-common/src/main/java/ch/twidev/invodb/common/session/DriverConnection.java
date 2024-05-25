@@ -6,7 +6,7 @@ import ch.twidev.invodb.bridge.util.ThrowableCallback;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.result.OperationResult;
-import ch.twidev.invodb.common.result.ResultSet;
+
 @SuppressWarnings("unchecked")
 public abstract class DriverConnection<Session> {
 
@@ -26,7 +26,7 @@ public abstract class DriverConnection<Session> {
 
         switch (invoQuery) {
             case FindOperationBuilder findOperationBuilder -> {
-                session.find(findOperationBuilder, (ThrowableCallback<ResultSet>) throwableCallback);
+                session.find(findOperationBuilder, null);
             }
             default -> throw new IllegalStateException("Unexpected value: " + invoQuery);
         }

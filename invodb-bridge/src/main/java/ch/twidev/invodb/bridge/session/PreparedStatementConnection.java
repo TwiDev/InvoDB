@@ -1,6 +1,7 @@
 package ch.twidev.invodb.bridge.session;
 
-import ch.twidev.invodb.common.exceptions.PrepareStatementException;
+
+import ch.twidev.invodb.bridge.exceptions.PrepareStatementException;
 
 public interface PreparedStatementConnection<Statement> {
 
