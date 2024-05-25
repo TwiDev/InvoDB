@@ -1,4 +1,6 @@
 package ch.twidev.invodb.common.result;
 
-public class ResultSet implements OperationResult {
+import ch.twidev.invodb.bridge.result.ElementSet;
+
+public class ResultSet implements OperationResult, ElementSet {
 }

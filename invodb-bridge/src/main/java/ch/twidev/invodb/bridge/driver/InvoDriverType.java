@@ -1,4 +1,4 @@
-package ch.twidev.invodb.common.drivers;
+package ch.twidev.invodb.bridge.driver;
 
 public enum InvoDriverType {
 
