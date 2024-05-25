@@ -5,9 +5,9 @@ import ch.twidev.invodb.bridge.operations.FindContext;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
-
 import ch.twidev.invodb.bridge.session.PreparedStatementConnection;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
+
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.SimpleStatement;
@@ -54,6 +54,8 @@ public class ScyllaConnection implements DriverSession<Session>, PreparedStateme
                 findOperationBuilder.getAttributes().toString(),
                 findOperationBuilder.getCollection(),
                 findOperationBuilder.getSearchFilter().toQuery(searchDictionary));
+
+        session.execute(ps.bind());
     }
 
     @Override

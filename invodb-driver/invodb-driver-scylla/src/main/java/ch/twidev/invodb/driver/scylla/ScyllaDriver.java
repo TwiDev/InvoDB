@@ -3,6 +3,7 @@ package ch.twidev.invodb.driver.scylla;
 import ch.twidev.invodb.bridge.driver.InvoDriver;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.session.DriverSession;
+
 import com.datastax.driver.core.Session;
 
 import java.util.concurrent.CompletableFuture;
