@@ -1,22 +1,22 @@
 package ch.twidev.invodb.common.session;
 
-import ch.twidev.invodb.bridge.session.ISession;
+import ch.twidev.invodb.bridge.session.DriverSession;
+import ch.twidev.invodb.bridge.util.ThrowableCallback;
+
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.result.OperationResult;
 import ch.twidev.invodb.common.result.ResultSet;
-import ch.twidev.invodb.bridge.util.ThrowableCallback;
-
 @SuppressWarnings("unchecked")
 public abstract class DriverConnection<Session> {
 
-    protected final ISession<Session> session;
+    protected final DriverSession<Session> session;
 
-    public DriverConnection(ISession<Session> session) {
+    public DriverConnection(DriverSession<Session> session) {
         this.session = session;
     }
 
-    public ISession<Session> getSession() {
+    public DriverSession<Session> getSession() {
         return session;
     }
 

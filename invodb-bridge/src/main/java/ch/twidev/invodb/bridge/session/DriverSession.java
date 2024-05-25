@@ -3,7 +3,7 @@ package ch.twidev.invodb.bridge.session;
 import ch.twidev.invodb.bridge.operations.FindContext;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
 
-public interface ISession<Session> {
+public interface DriverSession<Session> {
 
     void find(FindContext findOperationBuilder, ThrowableCallback<Object> throwableCallback);
 

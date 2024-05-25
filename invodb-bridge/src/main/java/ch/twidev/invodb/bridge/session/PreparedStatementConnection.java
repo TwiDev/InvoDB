@@ -1,4 +1,4 @@
-package ch.twidev.invodb.bridge.statement;
+package ch.twidev.invodb.bridge.session;
 
 import ch.twidev.invodb.common.exceptions.PrepareStatementException;
 

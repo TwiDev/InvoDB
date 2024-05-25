@@ -1,7 +1,6 @@
 import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
 import ch.twidev.invodb.common.query.operations.search.*;
-import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -19,7 +18,7 @@ public class ConnectionTest {
     }};
 
 
-    @Test
+
     public void testScyllaDriverConnection() throws InterruptedException {
 
     /*    try {

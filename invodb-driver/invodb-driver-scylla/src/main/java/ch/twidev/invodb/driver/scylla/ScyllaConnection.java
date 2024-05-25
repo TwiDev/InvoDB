@@ -2,17 +2,17 @@ package ch.twidev.invodb.driver.scylla;
 
 import ch.twidev.invodb.bridge.exceptions.PrepareStatementException;
 import ch.twidev.invodb.bridge.operations.FindContext;
-import ch.twidev.invodb.bridge.session.ISession;
+import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
 
-import ch.twidev.invodb.bridge.statement.PreparedStatementConnection;
+import ch.twidev.invodb.bridge.session.PreparedStatementConnection;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.SimpleStatement;
 
-public class ScyllaConnection implements ISession<Session>, PreparedStatementConnection<PreparedStatement> {
+public class ScyllaConnection implements DriverSession<Session>, PreparedStatementConnection<PreparedStatement> {
 
     private static final SearchDictionary searchDictionary = new SearchDictionary(){{
         put(SearchFilterType.ALL, new SearchCompositeParameter("*"));
