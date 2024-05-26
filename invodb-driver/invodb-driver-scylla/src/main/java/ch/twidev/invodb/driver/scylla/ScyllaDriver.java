@@ -1,5 +1,6 @@
 package ch.twidev.invodb.driver.scylla;
 
+import ch.twidev.invodb.bridge.driver.DriverConfig;
 import ch.twidev.invodb.bridge.driver.InvoDriver;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.session.DriverSession;
@@ -10,8 +11,12 @@ import java.util.concurrent.CompletableFuture;
 
 public class ScyllaDriver extends InvoDriver<Session, DriverSession<Session>> {
 
-    public ScyllaDriver(InvoDriverType invoDriverType) {
-        super(invoDriverType);
+    public ScyllaDriver(DriverConfig driverConfig, InvoDriverType invoDriverType) {
+        /**
+         * Parse {@link URLDriverConfig or CassandraDriver}
+         */
+
+        super(driverConfig, invoDriverType);
     }
 
     @Override

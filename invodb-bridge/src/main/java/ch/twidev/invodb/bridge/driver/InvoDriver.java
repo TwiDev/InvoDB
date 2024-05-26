@@ -10,7 +10,7 @@ public abstract class InvoDriver<Session, Conn extends DriverSession<Session>> {
 
     private DriverSession<Session> currentSession = null;
 
-    public InvoDriver(InvoDriverType invoDriverType) {
+    public InvoDriver(DriverConfig driverConfig, InvoDriverType invoDriverType) {
         this.invoDriverType = invoDriverType;
     }
 

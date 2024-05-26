@@ -1,9 +1,12 @@
 import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
+import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.operations.search.*;
 
 import java.util.HashMap;
 import java.util.logging.Logger;
+
+import static ch.twidev.invodb.common.query.operations.search.SearchFilter.*;
 
 public class ConnectionTest {
 
@@ -39,14 +42,15 @@ public class ConnectionTest {
             throw new RuntimeException(e);
         }*/
 
-       /* InvoQuery.find("main")
+        InvoQuery.find("main")
                 .where(and(
                         eq("user_name", "TwiDev"),
                         not_eq("user_id", 2)))
-                .run(null  (resultSet, throwable) -> {
+                .attribute("user_email")
+                .run(null, (resultSet, throwable) -> {
 
                 });
-        */
+
 
         SearchDictionary searchDictionary = new SearchDictionary(){{
             put(SearchFilterType.ALL, new SearchCompositeParameter("*"));
@@ -66,7 +70,7 @@ public class ConnectionTest {
             });
         }};
 
-        SearchFilter filter = SearchFilter.and(
+        SearchFilter filter = and(
                 SearchFilter.eq("name", "John"),
                 SearchFilter.or(
                         SearchFilter.eq("age", 30),

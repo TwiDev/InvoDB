@@ -1,8 +1,5 @@
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Sorts;
 import org.bson.Document;
@@ -35,6 +32,8 @@ public class MongoDB {
                 System.out.println(doc.toJson());
             }
         }
+
+
     }
 
 }
