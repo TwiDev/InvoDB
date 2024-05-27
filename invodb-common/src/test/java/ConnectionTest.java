@@ -86,30 +86,4 @@ public class ConnectionTest {
 
     }
 
-    public String prepareSearch(SearchFilter searchFilter) {
-        SearchFilterType searchFilterType = searchFilter.getSearchFilterType();
-        if(!CQL_OPERATORS.containsKey(searchFilterType)) return "";
-
-        String operator = CQL_OPERATORS.get(searchFilterType);
-        if(searchFilter instanceof CompositeSearchFilter subSearchFilter) {
-            StringBuilder stringBuilder = new StringBuilder();
-
-            for (int i = 0; i < subSearchFilter.getSearchFilters().size(); i++) {
-                stringBuilder.append(
-                        prepareSearch(subSearchFilter.getSearchFilters().get(i))
-                );
-
-                if(i < subSearchFilter.getSearchFilters().size() - 1) {
-                    stringBuilder.append(operator).append(" ");
-                }
-            }
-
-            return stringBuilder.toString();
-        }else if(searchFilter instanceof FieldSearchFilter objectSearchFilter) {
-            return "%s %s %s ".formatted(objectSearchFilter.getValue(), operator, objectSearchFilter.getObject()/*TODO: format string, number,...*/);
-        }
-
-        return "";
-    }
-
 }
