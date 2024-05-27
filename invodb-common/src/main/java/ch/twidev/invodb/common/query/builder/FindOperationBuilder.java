@@ -1,21 +1,22 @@
 package ch.twidev.invodb.common.query.builder;
 
 import ch.twidev.invodb.bridge.contexts.Attributes;
+import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.operations.FindContext;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.operations.AttributeOperation;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.common.query.operations.SearchOperation;
-import ch.twidev.invodb.common.result.ResultSet;
+import ch.twidev.invodb.common.documents.ResultSet;
 
-public class FindOperationBuilder extends InvoQuery<ResultSet> implements FindContext, AttributeOperation<FindOperationBuilder>, SearchOperation<FindOperationBuilder> {
+public class FindOperationBuilder extends InvoQuery<ElementSet> implements FindContext, AttributeOperation<FindOperationBuilder>, SearchOperation<FindOperationBuilder> {
 
     private final Attributes attributes = new Attributes();
     private SearchFilter searchFilter = SearchFilter.all();
 
     public FindOperationBuilder(String collection) {
-        super(ResultSet.class, collection, QueryOperation.FIND);
+        super(ElementSet.class, collection, QueryOperation.FIND);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package ch.twidev.invodb.driver.scylla;
 
+import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.exceptions.PrepareStatementException;
 import ch.twidev.invodb.bridge.operations.FindContext;
 import ch.twidev.invodb.bridge.session.DriverSession;
@@ -9,6 +10,7 @@ import ch.twidev.invodb.bridge.session.PreparedStatementConnection;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
 
 import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.SimpleStatement;
 
@@ -49,13 +51,22 @@ public class ScyllaConnection implements DriverSession<Session>, PreparedStateme
     }
 
     @Override
-    public void find(FindContext findOperationBuilder, ThrowableCallback<Object> throwableCallback) {
-        PreparedStatement ps = this.prepareStatement("SELECT ? FROM ? WHERE ?",
-                findOperationBuilder.getAttributes().toString(),
-                findOperationBuilder.getCollection(),
-                findOperationBuilder.getSearchFilter().toQuery(searchDictionary));
+    public void find(FindContext findOperationBuilder, ThrowableCallback<ElementSet> throwableCallback) {
+        try {
+            PreparedStatement ps = this.prepareStatement("SELECT ? FROM ? WHERE ?",
+                    findOperationBuilder.getAttributes().toString(),
+                    findOperationBuilder.getCollection(),
+                    findOperationBuilder.getSearchFilter().toQuery(searchDictionary));
 
-        session.execute(ps.bind());
+            ResultSet resultSet = session.execute(ps.bind());
+
+            ScyllaResultSet scyllaResultSet = new ScyllaResultSet(resultSet);
+            throwableCallback.run(scyllaResultSet, null);
+        } catch (Exception e) {
+
+        } finally {
+
+        }
     }
 
     @Override

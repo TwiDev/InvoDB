@@ -5,7 +5,6 @@ import ch.twidev.invodb.bridge.util.ThrowableCallback;
 
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
-import ch.twidev.invodb.common.result.OperationResult;
 
 @SuppressWarnings("unchecked")
 public abstract class DriverConnection<Session> {
@@ -20,9 +19,9 @@ public abstract class DriverConnection<Session> {
         return session;
     }
 
-    public <R extends OperationResult> void runQuery(Class<R> resultInstance,
-                                                     InvoQuery<R> invoQuery,
-                                                     ThrowableCallback<R> throwableCallback) {
+    public <R> void runQuery(Class<R> resultInstance,
+                             InvoQuery<R> invoQuery,
+                             ThrowableCallback<R> throwableCallback) {
 
         switch (invoQuery) {
             case FindOperationBuilder findOperationBuilder -> {
@@ -33,7 +32,7 @@ public abstract class DriverConnection<Session> {
 
     }
 
-    public <R extends OperationResult> void runQueryAsync(Class<R> resultInstance,
+    public <R> void runQueryAsync(Class<R> resultInstance,
                                   InvoQuery<R> invoQuery,
                                   ThrowableCallback<R> throwableCallback) {
 

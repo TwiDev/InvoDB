@@ -2,11 +2,10 @@ package ch.twidev.invodb.common.query;
 
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
-import ch.twidev.invodb.common.result.OperationResult;
 import ch.twidev.invodb.common.session.DriverConnection;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
 
-public abstract class InvoQuery<Result extends OperationResult> {
+public abstract class InvoQuery<Result> {
 
     public static FindOperationBuilder find(String collection) {
         return new FindOperationBuilder(collection);
