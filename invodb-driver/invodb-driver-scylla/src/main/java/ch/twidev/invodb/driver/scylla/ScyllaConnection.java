@@ -52,6 +52,9 @@ public class ScyllaConnection implements DriverSession<Session>, PreparedStateme
 
     @Override
     public void find(FindContext findOperationBuilder, ThrowableCallback<ElementSet> throwableCallback) {
+        ElementSet elements = null;
+        Throwable throwable = null;
+
         try {
             PreparedStatement ps = this.prepareStatement("SELECT ? FROM ? WHERE ?",
                     findOperationBuilder.getAttributes().toString(),
@@ -60,19 +63,18 @@ public class ScyllaConnection implements DriverSession<Session>, PreparedStateme
 
             ResultSet resultSet = session.execute(ps.bind());
 
-            ScyllaResultSet scyllaResultSet = new ScyllaResultSet(resultSet);
-            throwableCallback.run(scyllaResultSet, null);
-        } catch (Exception e) {
-
+            elements = new ScyllaResultSet(resultSet);
+        } catch (Exception exception) {
+            throwable = exception;
         } finally {
-
+            throwableCallback.run(elements, throwable);
         }
     }
 
     @Override
     public PreparedStatement prepareStatement(String query, Object... vars) throws PrepareStatementException {
         try {
-            return session.prepare(new SimpleStatement(query, vars));
+            return session.prepare(new SimpleStatement(query, vars)).enableTracing();
         } catch (Exception cause) {
             throw new PrepareStatementException(cause);
         }
