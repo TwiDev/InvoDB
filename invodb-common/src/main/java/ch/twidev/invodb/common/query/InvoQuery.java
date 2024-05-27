@@ -4,6 +4,7 @@ import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
 import ch.twidev.invodb.common.session.DriverConnection;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class InvoQuery<Result> {
 
@@ -21,7 +22,7 @@ public abstract class InvoQuery<Result> {
         this.resultInstance = resultInstance;
     }
 
-    public void run(DriverConnection<?> driverConnection, ThrowableCallback<Result> resultSet) {
+    public void run(@NotNull DriverConnection<?> driverConnection, ThrowableCallback<Result> resultSet) {
         driverConnection.runQuery(resultInstance, this, resultSet);
     }
 

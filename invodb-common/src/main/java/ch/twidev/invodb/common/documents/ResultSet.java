@@ -1,6 +1,5 @@
 package ch.twidev.invodb.common.documents;
 
-import ch.twidev.invodb.bridge.documents.Element;
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.documents.Elements;
 

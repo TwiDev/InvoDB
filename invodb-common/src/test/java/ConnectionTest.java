@@ -48,7 +48,9 @@ public class ConnectionTest {
                         not_eq("user_id", 2)))
                 .attribute("user_email")
                 .run(null, (resultSet, throwable) -> {
+                    if(throwable != null) {
 
+                    }
                 });
 
 

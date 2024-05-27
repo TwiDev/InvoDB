@@ -1,5 +1,7 @@
 package ch.twidev.invodb.common.session;
 
+import ch.twidev.invodb.bridge.documents.ElementSet;
+import ch.twidev.invodb.bridge.operations.FindContext;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
 
@@ -25,7 +27,7 @@ public abstract class DriverConnection<Session> {
 
         switch (invoQuery) {
             case FindOperationBuilder findOperationBuilder -> {
-                session.find(findOperationBuilder, null);
+                session.find(findOperationBuilder, (ThrowableCallback<ElementSet>) throwableCallback);
             }
             default -> throw new IllegalStateException("Unexpected value: " + invoQuery);
         }
