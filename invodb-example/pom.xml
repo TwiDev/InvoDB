@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>ch.twidev.invodb</groupId>
-            <artifactId>invodb-core</artifactId>
+            <artifactId>invodb-common</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>

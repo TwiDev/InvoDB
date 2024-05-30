@@ -1,3 +1,5 @@
 package ch.twidev.invodb.bridge.documents;
 
-public interface ElementSet extends Iterable<Elements>, OperationResult {}
+import java.util.Iterator;
+
+public interface ElementSet extends Iterator<Elements>, OperationResult {}

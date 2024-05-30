@@ -22,11 +22,6 @@ public class ScyllaResultSet implements ElementSet {
                 .iterator();
     }
 
-    @Override
-    public Iterator<Elements> iterator() {
-        return parsedElements;
-    }
-
     public ResultSet getResultSet() {
         return resultSet;
     }
@@ -34,6 +29,16 @@ public class ScyllaResultSet implements ElementSet {
     @Override
     public long getTime() {
         return resultSet.getExecutionInfo().getQueryTrace().getDurationMicros();
+    }
+
+    @Override
+    public boolean hasNext() {
+        return parsedElements.hasNext();
+    }
+
+    @Override
+    public Elements next() {
+        return parsedElements.next();
     }
 
     public static class ScyllaElements implements Elements {

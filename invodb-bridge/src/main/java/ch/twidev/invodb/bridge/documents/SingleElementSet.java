@@ -1,10 +1,5 @@
 package ch.twidev.invodb.bridge.documents;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
-import java.util.Iterator;
-
 public class SingleElementSet implements ElementSet {
 
     public Elements elements;
@@ -14,14 +9,17 @@ public class SingleElementSet implements ElementSet {
     }
 
     @Override
-    @NotNull
-
-    public Iterator<Elements> iterator() {
-        return Collections.singleton(elements).iterator();
+    public long getTime() {
+        return 0;
     }
 
     @Override
-    public long getTime() {
-        return 0;
+    public boolean hasNext() {
+        return false;
+    }
+
+    @Override
+    public Elements next() {
+        return elements;
     }
 }

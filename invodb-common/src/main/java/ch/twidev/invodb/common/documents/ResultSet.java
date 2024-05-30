@@ -7,14 +7,18 @@ import java.util.Iterator;
 
 public class ResultSet implements ElementSet {
 
-
-    @Override
-    public Iterator<Elements> iterator() {
-        return null;
-    }
-
     @Override
     public long getTime() {
         return 0;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return false;
+    }
+
+    @Override
+    public Elements next() {
+        return null;
     }
 }
