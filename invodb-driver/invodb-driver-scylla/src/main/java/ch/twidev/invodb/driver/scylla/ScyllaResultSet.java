@@ -9,7 +9,6 @@ import java.util.Iterator;
 
 public class ScyllaResultSet implements ElementSet {
 
-
     private final ResultSet resultSet;
     private final Iterator<Elements> parsedElements;
 
@@ -31,6 +30,12 @@ public class ScyllaResultSet implements ElementSet {
     public ResultSet getResultSet() {
         return resultSet;
     }
+
+    @Override
+    public long getTime() {
+        return resultSet.getExecutionInfo().getQueryTrace().getDurationMicros();
+    }
+
     public static class ScyllaElements implements Elements {
 
         private final Row row;

@@ -1,6 +1,7 @@
 package ch.twidev.invodb.common.driver;
 
 import ch.twidev.invodb.bridge.driver.DriverConfig;
+import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.environment.EnvVar;
 import ch.twidev.invodb.bridge.exceptions.DriverConfigException;
 
@@ -22,6 +23,16 @@ public class InvoDriverConfig implements DriverConfig {
 
 
         return config.get(envVar);
+    }
+
+    @Override
+    public boolean isUrl() {
+        return false;
+    }
+
+    @Override
+    public InvoDriverType getDriverType() {
+        return null;
     }
 
     public HashMap<EnvVar, Object> getConfig() {

@@ -1,21 +1,28 @@
 package ch.twidev.invodb.bridge.driver;
 
+import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
 import ch.twidev.invodb.bridge.session.DriverSession;
 
-import java.util.concurrent.CompletableFuture;
-
-public abstract class InvoDriver<Session, Conn extends DriverSession<Session>> {
+public abstract class InvoDriver<Session> {
 
     private final InvoDriverType invoDriverType;
+
+    private final DriverConfig driverConfig;
 
     private DriverSession<Session> currentSession = null;
 
     public InvoDriver(DriverConfig driverConfig, InvoDriverType invoDriverType) {
         this.invoDriverType = invoDriverType;
+        this.driverConfig = driverConfig;
     }
 
-    public abstract Conn connectSession(String keyname);
-    public abstract CompletableFuture<Conn> asyncConnectSession(String keyname);
+    public DriverConfig getDriverConfig() {
+        return driverConfig;
+    }
+
+    public abstract void initDriver() throws DriverConnectionException;
+
+    public abstract boolean exists();
 
     public InvoDriverType getInvoDriverType() {
         return invoDriverType;

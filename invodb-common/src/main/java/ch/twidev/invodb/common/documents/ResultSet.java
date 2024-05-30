@@ -8,9 +8,13 @@ import java.util.Iterator;
 public class ResultSet implements ElementSet {
 
 
-
     @Override
     public Iterator<Elements> iterator() {
         return null;
+    }
+
+    @Override
+    public long getTime() {
+        return 0;
     }
 }

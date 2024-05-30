@@ -1,4 +1,4 @@
 package ch.twidev.invodb.bridge.exceptions;
 
-public class DriverConfigException extends Exception{
+public class DriverConfigException extends DriverConnectionException{
 }

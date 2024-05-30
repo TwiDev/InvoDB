@@ -19,4 +19,9 @@ public class SingleElementSet implements ElementSet {
     public Iterator<Elements> iterator() {
         return Collections.singleton(elements).iterator();
     }
+
+    @Override
+    public long getTime() {
+        return 0;
+    }
 }

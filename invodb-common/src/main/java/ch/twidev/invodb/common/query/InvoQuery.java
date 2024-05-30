@@ -1,5 +1,6 @@
 package ch.twidev.invodb.common.query;
 
+import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
 import ch.twidev.invodb.common.session.DriverConnection;
@@ -22,12 +23,12 @@ public abstract class InvoQuery<Result> {
         this.resultInstance = resultInstance;
     }
 
-    public void run(@NotNull DriverConnection<?> driverConnection, ThrowableCallback<Result> resultSet) {
-        driverConnection.runQuery(resultInstance, this, resultSet);
+    public void run(@NotNull DriverSession<?> driverConnection, ThrowableCallback<Result> resultSet) {
+        DriverConnection.runQuery(driverConnection, resultInstance, this, resultSet);
     }
 
-    public void runAsync(DriverConnection<?> driverConnection, ThrowableCallback<Result> resultSet) {
-        driverConnection.runQueryAsync(resultInstance, this, resultSet);
+    public void runAsync(DriverSession<?> driverConnection, ThrowableCallback<Result> resultSet) {
+        DriverConnection.runQuery(driverConnection, resultInstance, this, resultSet);
     }
 
     public QueryOperation getQueryOperation() {

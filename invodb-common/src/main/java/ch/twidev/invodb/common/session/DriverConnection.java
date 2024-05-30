@@ -9,19 +9,10 @@ import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 
 @SuppressWarnings("unchecked")
-public abstract class DriverConnection<Session> {
+public class DriverConnection {
 
-    protected final DriverSession<Session> session;
-
-    public DriverConnection(DriverSession<Session> session) {
-        this.session = session;
-    }
-
-    public DriverSession<Session> getSession() {
-        return session;
-    }
-
-    public <R> void runQuery(Class<R> resultInstance,
+    public static <Session, R> void runQuery(DriverSession<Session> session,
+                             Class<R> resultInstance,
                              InvoQuery<R> invoQuery,
                              ThrowableCallback<R> throwableCallback) {
 

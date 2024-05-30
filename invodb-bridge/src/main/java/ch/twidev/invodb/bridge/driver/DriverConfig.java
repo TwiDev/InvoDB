@@ -7,4 +7,8 @@ public interface DriverConfig {
 
     Object get(EnvVar envVar) throws DriverConfigException;
 
+    boolean isUrl();
+
+    InvoDriverType getDriverType();
+
 }
