@@ -1,38 +1,20 @@
 package ch.twidev.invodb.bridge.driver;
 
-import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
 import ch.twidev.invodb.bridge.session.DriverSession;
 
-public abstract class InvoDriver<Session> {
+public abstract class InvoDriver<Session> extends Driver implements DriverSession<Session> {
 
-    private final InvoDriverType invoDriverType;
-
-    private final DriverConfig driverConfig;
-
-    private DriverSession<Session> currentSession = null;
+    private Session currentSession = null;
 
     public InvoDriver(DriverConfig driverConfig, InvoDriverType invoDriverType) {
-        this.invoDriverType = invoDriverType;
-        this.driverConfig = driverConfig;
+        super(driverConfig, invoDriverType);
     }
 
-    public DriverConfig getDriverConfig() {
-        return driverConfig;
-    }
-
-    public abstract void initDriver() throws DriverConnectionException;
-
-    public abstract boolean exists();
-
-    public InvoDriverType getInvoDriverType() {
-        return invoDriverType;
-    }
-
-    public DriverSession<Session> getCurrentSession() {
+    public Session getCurrentSession() {
         return currentSession;
     }
 
-    public void setCurrentSession(DriverSession<Session> currentSession) {
+    public void setCurrentSession(Session currentSession) {
         this.currentSession = currentSession;
     }
 }

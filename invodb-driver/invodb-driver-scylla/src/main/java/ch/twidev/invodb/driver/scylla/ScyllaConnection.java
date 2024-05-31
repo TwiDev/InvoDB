@@ -79,4 +79,9 @@ public class ScyllaConnection implements DriverSession<Session>, PreparedStateme
             throw new PrepareStatementException(cause);
         }
     }
+
+    @Override
+    public void close() throws Exception {
+
+    }
 }

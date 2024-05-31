@@ -3,7 +3,7 @@ package ch.twidev.invodb.driver.scylla;
 import ch.twidev.invodb.bridge.driver.DriverConfig;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.driver.auth.AuthenticatorProvider;
-import ch.twidev.invodb.bridge.driver.cluster.ClusterDriver;
+import ch.twidev.invodb.bridge.driver.InvoClusterDriver;
 import ch.twidev.invodb.bridge.driver.cluster.ClusterPoint;
 import ch.twidev.invodb.bridge.driver.cluster.ClusterPoints;
 import ch.twidev.invodb.bridge.environment.EnvVar;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
-public class ScyllaCluster extends ClusterDriver<Session, ScyllaConnection> {
+public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> {
 
     private Cluster cluster;
 
