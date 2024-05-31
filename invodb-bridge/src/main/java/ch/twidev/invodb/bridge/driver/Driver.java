@@ -27,7 +27,5 @@ public abstract class Driver implements Closeable {
         return invoDriverType;
     }
 
-    public abstract boolean isClosed();
-
 }
 

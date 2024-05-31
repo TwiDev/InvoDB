@@ -18,18 +18,23 @@ public class MySQLDriver extends InvoDriver<HikariDataSource> {
 
     @Override
     public void initDriver() throws DriverConnectionException {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new DriverConnectionException(e);
+        }
+
+
+    }
+
+    @Override
+    public void find(FindContext findOperationBuilder, ThrowableCallback<ElementSet> throwableCallback) {
 
     }
 
     @Override
     public boolean exists() {
         return false;
-    }
-
-
-    @Override
-    public void find(FindContext findOperationBuilder, ThrowableCallback<ElementSet> throwableCallback) {
-
     }
 
     @Override

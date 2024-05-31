@@ -81,7 +81,7 @@ public class ScyllaConnection implements DriverSession<Session>, PreparedStateme
     }
 
     @Override
-    public void close() throws Exception {
-
+    public void close() {
+        session.close();
     }
 }

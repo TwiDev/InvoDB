@@ -9,4 +9,8 @@ public class DriverConnectionException extends Exception{
     public DriverConnectionException(String message) {
         super(message);
     }
+
+    public DriverConnectionException(Throwable cause) {
+        super(cause);
+    }
 }
