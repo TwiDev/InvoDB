@@ -1,7 +1,7 @@
 package ch.twidev.invodb.driver.mysql;
 
 import ch.twidev.invodb.bridge.documents.ElementSet;
-import ch.twidev.invodb.bridge.driver.DriverConfig;
+import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.driver.InvoDriver;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
@@ -12,7 +12,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
 
 public class MySQLDriver extends InvoDriver<HikariDataSource> {
-    public MySQLDriver(DriverConfig driverConfig, InvoDriverType invoDriverType) {
+    public MySQLDriver(MySQLConfigBuilder driverConfig, InvoDriverType invoDriverType) {
         super(driverConfig, invoDriverType);
     }
 

@@ -1,6 +1,6 @@
 package ch.twidev.invodb.bridge.exceptions;
 
-import ch.twidev.invodb.bridge.driver.DriverConfig;
+import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.environment.EnvVar;
 
 public class DriverConfigMissingException extends DriverConnectionException{

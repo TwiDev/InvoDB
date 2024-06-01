@@ -1,6 +1,6 @@
 package ch.twidev.invodb.common.driver;
 
-import ch.twidev.invodb.bridge.driver.DriverConfig;
+import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.environment.EnvVar;
 import ch.twidev.invodb.bridge.exceptions.DriverConfigException;

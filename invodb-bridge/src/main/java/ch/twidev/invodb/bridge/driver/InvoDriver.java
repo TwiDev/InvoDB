@@ -1,5 +1,6 @@
 package ch.twidev.invodb.bridge.driver;
 
+import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.session.DriverSession;
 
 public abstract class InvoDriver<Session> extends Driver implements DriverSession<Session> {

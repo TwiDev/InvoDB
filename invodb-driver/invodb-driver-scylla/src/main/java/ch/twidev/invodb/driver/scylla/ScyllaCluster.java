@@ -1,6 +1,6 @@
 package ch.twidev.invodb.driver.scylla;
 
-import ch.twidev.invodb.bridge.driver.DriverConfig;
+import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.driver.auth.AuthenticatorProvider;
 import ch.twidev.invodb.bridge.driver.InvoClusterDriver;
@@ -9,6 +9,7 @@ import ch.twidev.invodb.bridge.driver.cluster.ClusterPoints;
 import ch.twidev.invodb.bridge.environment.EnvVar;
 import ch.twidev.invodb.bridge.exceptions.DriverConfigMissingException;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
+
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 import com.google.common.util.concurrent.FutureCallback;
@@ -62,7 +63,7 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
 
     @Override
     public boolean exists() {
-        return cluster != null && !isClosed();
+        return cluster != null && !cluster.isClosed();
     }
 
     @Override
@@ -100,8 +101,4 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
         cluster.close();
     }
 
-    @Override
-    public boolean isClosed() {
-        return cluster.isClosed();
-    }
 }

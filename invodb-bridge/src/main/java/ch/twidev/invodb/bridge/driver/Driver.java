@@ -1,5 +1,6 @@
 package ch.twidev.invodb.bridge.driver;
 
+import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
 
 import java.io.Closeable;
