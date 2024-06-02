@@ -2,25 +2,19 @@ package ch.twidev.invodb.driver.scylla;
 
 import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
+import ch.twidev.invodb.bridge.driver.config.DriverConfigBuilder;
 import ch.twidev.invodb.bridge.environment.EnvVar;
 import ch.twidev.invodb.bridge.exceptions.DriverConfigException;
 
-public class ScyllaConfigBuilder implements DriverConfig {
-
-    
+public class ScyllaConfigBuilder implements DriverConfigBuilder<ScyllaConfigBuilder> {
 
     @Override
-    public Object get(EnvVar envVar) throws DriverConfigException {
+    public ScyllaConfigBuilder setDriverType(InvoDriverType invoDriverType) {
         return null;
     }
 
     @Override
-    public boolean isUrl() {
-        return false;
-    }
-
-    @Override
-    public InvoDriverType getDriverType() {
-        return InvoDriverType.SCYLLA;
+    public DriverConfig build() {
+        return null;
     }
 }

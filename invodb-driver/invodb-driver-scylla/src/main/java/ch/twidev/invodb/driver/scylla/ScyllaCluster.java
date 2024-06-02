@@ -68,7 +68,7 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
 
     @Override
     public ScyllaConnection connectSession(String keyname) {
-        return null;
+        return new ScyllaConnection(this.cluster.connect(keyname));
     }
 
     @Override
