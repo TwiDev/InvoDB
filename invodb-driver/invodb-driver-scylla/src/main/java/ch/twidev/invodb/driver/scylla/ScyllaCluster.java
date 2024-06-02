@@ -18,6 +18,7 @@ import com.datastax.driver.core.AuthProvider;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.PlainTextAuthProvider;
 import com.datastax.driver.core.Session;
+import com.datastax.oss.driver.api.core.CqlSession;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -81,21 +82,6 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public void asyncConnectSession(String keyname, ThrowableCallback<ScyllaConnection> scyllaConnectionThrowableCallback) {
-        ListenableFuture<Session> asyncTask = this.cluster.connectAsync(keyname);
-
-        Futures.addCallback(asyncTask, new FutureCallback<>() {
-            @Override
-            public void onSuccess(Session session) {
-                scyllaConnectionThrowableCallback.run(new ScyllaConnection(session), null);
-            }
-
-            @Override
-            public void onFailure(@NotNull Throwable throwable) {
-                scyllaConnectionThrowableCallback.run(null, throwable);
-            }
-        }, executorService);
-    }
 
     @Override
     public CompletableFuture<ScyllaConnection> asyncConnectSession(String keyname) {
@@ -106,10 +92,10 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
         Futures.addCallback(asyncTask, new FutureCallback<>() {
             @Override
             public void onSuccess(Session session) {
-                System.out.println("hello");
-
+                ScyllaConnection scyllaConnection = new ScyllaConnection(session);
+                System.out.println("Current Thread: (1-2) " +Thread.currentThread().getName());
                 invoSessionDriverFutureCallback.complete(
-                        new ScyllaConnection(session)
+                        scyllaConnection
                 );
             }
 
@@ -117,14 +103,17 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
             public void onFailure(@NotNull Throwable throwable) {
                 invoSessionDriverFutureCallback.completeExceptionally(throwable);
             }
-        }, executorService);
+        }, Executors.newSingleThreadExecutor());
 
         return invoSessionDriverFutureCallback;
     }
 
     @Override
     public void close() {
-        //cluster.close();
+        cluster.close();
     }
 
+    public Cluster getCluster() {
+        return cluster;
+    }
 }

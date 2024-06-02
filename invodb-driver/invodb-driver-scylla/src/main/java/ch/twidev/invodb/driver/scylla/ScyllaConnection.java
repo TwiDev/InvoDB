@@ -57,19 +57,16 @@ public class ScyllaConnection implements DriverSession<Session>, PreparedStateme
         String searchQuery = findOperationBuilder.getSearchFilter().toQuery(searchDictionary);
 
         try {
-            PreparedStatement ps = this.prepareStatement(
+            String statement =
                     "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
-                            + ((searchQuery == null) ? "" : "WHERE ?"));
+                            + ((searchQuery == null) ? "" : "WHERE ?");
 
-            ResultSet resultSet = session.execute(
-                            searchQuery == null ? ps.bind() : ps.bind(searchQuery)
-                    );
+            ResultSet resultSet = searchQuery == null ? session.execute(statement) : session.execute(statement, searchQuery);
 
             elements = new ScyllaResultSet(resultSet);
         } catch (Exception exception) {
             throwable = exception;
         } finally {
-            System.out.println(elements);
             throwableCallback.run(elements, throwable);
         }
 
