@@ -49,9 +49,7 @@ public class ConnectionTest {
                 .attribute("user_email")
                 .run(null, (resultSet, throwable) -> {
                     if(throwable != null) {
-                        resultSet.forEach(elements -> {
-                            String email = elements.getObject("user_email", String.class);
-                        });
+
                     }
                 });
 

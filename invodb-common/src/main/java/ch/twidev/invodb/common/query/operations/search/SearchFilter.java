@@ -16,7 +16,7 @@ public abstract class SearchFilter implements ISearchFilter {
         return new SearchFilter(SearchFilterType.ALL, searchField -> true) {
             @Override
             public String toQuery(SearchDictionary searchDictionary) {
-                return searchDictionary.getComposite(SearchFilterType.ALL).value();
+                return null;
             }
         };
     }

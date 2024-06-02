@@ -1,38 +1,35 @@
 import ch.twidev.invodb.bridge.documents.Elements;
+import ch.twidev.invodb.bridge.driver.auth.PlainTextAuth;
 import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
 import ch.twidev.invodb.bridge.driver.config.DriverConfig;
+import ch.twidev.invodb.bridge.environment.EnvVar;
+import ch.twidev.invodb.bridge.exceptions.DriverConfigException;
+import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
 import ch.twidev.invodb.common.query.InvoQuery;
+import ch.twidev.invodb.driver.scylla.ScyllaCluster;
 import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
 import ch.twidev.invodb.driver.scylla.ScyllaConnection;
-import ch.twidev.invodb.driver.scylla.ScyllaCluster;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
 
-import static ch.twidev.invodb.common.query.operations.search.SearchFilter.*;
-
 public class ScyllaExample {
 
-    public void run() {
+    @Test
+    public void run() throws DriverConfigException {
 
         DriverConfig driverConfig = new ScyllaConfigBuilder()
                 .setDriverName("ScyllaDriver")
-                .addContactPoint(new ContactPoint(InetSocketAddress.createUnresolved("127.0.0.1",56640)))
+                .addContactPoint(new ContactPoint(InetSocketAddress.createUnresolved("45.13.119.231", 9042)))
+                .setAuthProvider(new PlainTextAuth("cassandra","cassandra"))
                 .build();
 
         try (ScyllaCluster scyllaDriver = new ScyllaCluster(driverConfig)) {
-            try (ScyllaConnection scyllaConnection = scyllaDriver.connectSession("test")) {
-
-                InvoQuery.find("main")
-                        .where(and(
-                                eq("user_name", "TwiDev"),
-                                or(
-                                        not_eq("user_id", 2),
-                                        not_eq("user_id", 3)
-                                )))
-                        .attribute("user_email")
-                        .attribute("user_age")
+            try (ScyllaConnection scyllaConnection = scyllaDriver.connectSession("main")) {
+                InvoQuery.find("users")
+                        .attribute("email")
                         .run(scyllaConnection, (resultSet, throwable) -> {
-                            if (throwable != null) {
+                            if (throwable != null && resultSet != null) {
                                 while (resultSet.hasNext()) {
                                     Elements elements = resultSet.next();
 
@@ -45,6 +42,8 @@ public class ScyllaExample {
                             }
                         });
             }
+        } catch (DriverConnectionException e) {
+            throw new RuntimeException(e);
         }
     }
 

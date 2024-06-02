@@ -9,10 +9,10 @@ import ch.twidev.invodb.bridge.contexts.SearchFilterType;
 import ch.twidev.invodb.bridge.session.PreparedStatementConnection;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
 
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.SimpleStatement;
+import com.datastax.driver.core.*;
+
+import java.util.Collections;
+import java.util.logging.Logger;
 
 public class ScyllaConnection implements DriverSession<Session>, PreparedStatementConnection<PreparedStatement> {
 
@@ -29,7 +29,7 @@ public class ScyllaConnection implements DriverSession<Session>, PreparedStateme
         put(SearchFilterType.NOT_EQUAL, new SearchFieldParameter() {
             @Override
             public String parse(String key, Object value) {
-                return key + " = '" + value + "'";
+                return key + " != '" + value + "'";
             }
         });
     }};
@@ -55,26 +55,31 @@ public class ScyllaConnection implements DriverSession<Session>, PreparedStateme
         ElementSet elements = null;
         Throwable throwable = null;
 
-        try {
-            PreparedStatement ps = this.prepareStatement("SELECT ? FROM ? WHERE ?",
-                    findOperationBuilder.getAttributes().toString(),
-                    findOperationBuilder.getCollection(),
-                    findOperationBuilder.getSearchFilter().toQuery(searchDictionary));
+        String searchQuery = findOperationBuilder.getSearchFilter().toQuery(searchDictionary);
 
-            ResultSet resultSet = session.execute(ps.bind());
+        try {
+            PreparedStatement ps = this.prepareStatement(
+                    "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
+                            + ((searchQuery == null) ? "" : "WHERE ?"));
+
+            ResultSet resultSet = session.execute(
+                            searchQuery == null ? ps.bind() : ps.bind(searchQuery)
+                    );
 
             elements = new ScyllaResultSet(resultSet);
         } catch (Exception exception) {
             throwable = exception;
         } finally {
+            System.out.println(elements);
             throwableCallback.run(elements, throwable);
         }
+
     }
 
     @Override
     public PreparedStatement prepareStatement(String query, Object... vars) throws PrepareStatementException {
         try {
-            return session.prepare(new SimpleStatement(query, vars)).enableTracing();
+            return session.prepare((RegularStatement) new SimpleStatement(query).enableTracing());
         } catch (Exception cause) {
             throw new PrepareStatementException(cause);
         }

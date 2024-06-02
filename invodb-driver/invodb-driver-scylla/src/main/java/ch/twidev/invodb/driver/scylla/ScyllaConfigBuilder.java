@@ -1,5 +1,6 @@
 package ch.twidev.invodb.driver.scylla;
 
+import ch.twidev.invodb.bridge.driver.auth.AuthenticatorProvider;
 import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
 import ch.twidev.invodb.bridge.driver.cluster.ClusterPoints;
 import ch.twidev.invodb.bridge.driver.config.DriverConfig;
@@ -15,10 +16,18 @@ public class ScyllaConfigBuilder implements DriverConfigBuilder<ScyllaConfigBuil
 
     private final ClusterPoints contactPoints = new ClusterPoints();
     private String driverName;
+    private AuthenticatorProvider authenticatorProvider;
 
     @Required
     public ScyllaConfigBuilder addContactPoint(ContactPoint contactPoint) {
         contactPoints.add(contactPoint);
+
+        return this;
+    }
+
+    @Override
+    public ScyllaConfigBuilder setAuthProvider(AuthenticatorProvider authenticatorProvider) {
+        this.authenticatorProvider = authenticatorProvider;
 
         return this;
     }
@@ -36,7 +45,7 @@ public class ScyllaConfigBuilder implements DriverConfigBuilder<ScyllaConfigBuil
 
             private final HashMap<EnvVar, Object> config = new HashMap<>(){{
                 put(EnvVar.SCYLLA_HOSTS, contactPoints);
-                put(EnvVar.SCYLLA_AUTHENTICATOR, contactPoints);
+                put(EnvVar.SCYLLA_AUTHENTICATOR, authenticatorProvider);
             }};
 
             @Override
@@ -44,7 +53,7 @@ public class ScyllaConfigBuilder implements DriverConfigBuilder<ScyllaConfigBuil
                 if(!config.containsKey(envVar))
                     throw new DriverConfigException();
 
-                return config;
+                return config.get(envVar);
             }
 
             @Override
