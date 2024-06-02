@@ -1,18 +1,19 @@
 package ch.twidev.invodb.driver.scylla;
 
-import ch.twidev.invodb.bridge.driver.auth.PlainTextAuth;
-import ch.twidev.invodb.bridge.driver.config.DriverConfig;
-import ch.twidev.invodb.bridge.driver.InvoDriverType;
-import ch.twidev.invodb.bridge.driver.auth.AuthenticatorProvider;
+import ch.twidev.invodb.bridge.documents.Elements;
 import ch.twidev.invodb.bridge.driver.InvoClusterDriver;
-import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
+import ch.twidev.invodb.bridge.driver.InvoDriverType;
+import ch.twidev.invodb.bridge.driver.auth.PlainTextAuth;
 import ch.twidev.invodb.bridge.driver.cluster.ClusterPoints;
+import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
+import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.driver.config.URLDriverConfig;
 import ch.twidev.invodb.bridge.environment.EnvVar;
 import ch.twidev.invodb.bridge.exceptions.DriverConfigMissingException;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
-
+import ch.twidev.invodb.bridge.scheduler.Scheduler;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
+import ch.twidev.invodb.common.query.InvoQuery;
 import com.datastax.driver.core.AuthProvider;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.PlainTextAuthProvider;
@@ -22,10 +23,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> {
 
@@ -86,32 +84,17 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
     public void asyncConnectSession(String keyname, ThrowableCallback<ScyllaConnection> scyllaConnectionThrowableCallback) {
         ListenableFuture<Session> asyncTask = this.cluster.connectAsync(keyname);
 
-
-
-        CountDownLatch latch = new CountDownLatch(1);
         Futures.addCallback(asyncTask, new FutureCallback<>() {
             @Override
             public void onSuccess(Session session) {
-                synchronized (this) {
-                    scyllaConnectionThrowableCallback.run(new ScyllaConnection(session), null);
-                    latch.countDown();
-                }
+                scyllaConnectionThrowableCallback.run(new ScyllaConnection(session), null);
             }
 
             @Override
             public void onFailure(@NotNull Throwable throwable) {
-                synchronized (this) {
-                    scyllaConnectionThrowableCallback.run(null, throwable);
-                    latch.countDown();
-                }
+                scyllaConnectionThrowableCallback.run(null, throwable);
             }
         }, executorService);
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 
     @Override
@@ -134,14 +117,14 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
             public void onFailure(@NotNull Throwable throwable) {
                 invoSessionDriverFutureCallback.completeExceptionally(throwable);
             }
-        });
+        }, executorService);
 
         return invoSessionDriverFutureCallback;
     }
 
     @Override
     public void close() {
-        cluster.close();
+        //cluster.close();
     }
 
 }

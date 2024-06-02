@@ -4,12 +4,14 @@ import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.operations.FindContext;
+import ch.twidev.invodb.bridge.scheduler.Scheduler;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.bridge.session.PreparedStatementConnection;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class ScyllaConnection implements DriverSession<Session>, PreparedStatementConnection<PreparedStatement> {
 
@@ -74,8 +76,20 @@ public class ScyllaConnection implements DriverSession<Session>, PreparedStateme
     }
 
     @Override
+    public void findAsync(FindContext findOperationBuilder, ThrowableCallback<ElementSet> throwableCallback) {
+        Scheduler.runTask(() -> {
+            find(findOperationBuilder, throwableCallback);
+        });
+    }
+
+    @Override
     public PreparedStatement prepareStatement(String query, Object... vars) {
         return session.prepare(query);
+    }
+
+    @Override
+    public ListenableFuture<PreparedStatement> prepareStatementAsync(String query, Object... vars) {
+        return session.prepareAsync(query);
     }
 
     @Override

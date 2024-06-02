@@ -2,6 +2,7 @@ package ch.twidev.invodb.common.session;
 
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.operations.FindContext;
+import ch.twidev.invodb.bridge.scheduler.Scheduler;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
 
@@ -25,10 +26,14 @@ public class DriverConnection {
 
     }
 
-    public <R> void runQueryAsync(Class<R> resultInstance,
+    public static <Session, R> void runQueryAsync(DriverSession<Session> session,
+                                         Class<R> resultInstance,
                                   InvoQuery<R> invoQuery,
                                   ThrowableCallback<R> throwableCallback) {
 
+        Scheduler.runTask(() -> {
+            runQuery(session,resultInstance,invoQuery,throwableCallback);
+        });
     }
 
 }

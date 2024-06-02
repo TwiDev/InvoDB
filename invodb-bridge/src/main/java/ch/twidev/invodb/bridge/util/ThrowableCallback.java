@@ -1,6 +1,6 @@
 package ch.twidev.invodb.bridge.util;
 
-public interface ThrowableCallback<T> {
+public interface ThrowableCallback<T>{
 
     void run(T t, Throwable throwable);
 

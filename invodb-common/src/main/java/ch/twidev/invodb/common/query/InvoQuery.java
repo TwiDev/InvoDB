@@ -28,7 +28,7 @@ public abstract class InvoQuery<Result> {
     }
 
     public void runAsync(DriverSession<?> driverConnection, ThrowableCallback<Result> resultSet) {
-        DriverConnection.runQuery(driverConnection, resultInstance, this, resultSet);
+        DriverConnection.runQueryAsync(driverConnection, resultInstance, this, resultSet);
     }
 
     public QueryOperation getQueryOperation() {

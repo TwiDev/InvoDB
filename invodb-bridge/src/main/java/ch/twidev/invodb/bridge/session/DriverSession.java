@@ -9,6 +9,7 @@ import java.io.Closeable;
 public interface DriverSession<Session> extends Closeable {
 
     void find(FindContext findOperationBuilder, ThrowableCallback<ElementSet> throwableCallback);
+    void findAsync(FindContext findOperationBuilder, ThrowableCallback<ElementSet> throwableCallback);
 
     boolean isConnected();
 

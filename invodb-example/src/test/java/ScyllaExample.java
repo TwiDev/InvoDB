@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 public class ScyllaExample {
 
     @Test
-    public void run() throws DriverConfigException {
+    public void run() throws DriverConnectionException {
 
         DriverConfig driverConfig = new ScyllaConfigBuilder()
                 .setDriverName("ScyllaDriver")
@@ -26,28 +26,28 @@ public class ScyllaExample {
                 .setAuthProvider(new PlainTextAuth("cassandra","cassandra"))
                 .build();
 
-        try (ScyllaCluster scyllaDriver = new ScyllaCluster(driverConfig)) {
-            scyllaDriver.asyncConnectSession("main", (scyllaConnection, e) -> {
-                    InvoQuery.find("users")
-                            .attribute("email")
-                            .run(scyllaConnection, (resultSet, throwable) -> {
-                                if (throwable == null) {
-                                    while (resultSet.hasNext()) {
-                                        Elements elements = resultSet.next();
+        System.out.println("yo");
 
-                                        System.out.println(
-                                                elements.getObject("email", String.class)
-                                        );
-                                    }
-                                } else {
-                                    throwable.printStackTrace();
+            ScyllaCluster scyllaDriver = new ScyllaCluster(driverConfig);
+            scyllaDriver.asyncConnectSession("main", (scyllaConnection, e) -> {
+                System.out.println("hello");
+                InvoQuery.find("users")
+                        .attribute("email")
+                        .run(scyllaConnection, (resultSet, throwable) -> {
+                            if (throwable == null) {
+                                while (resultSet.hasNext()) {
+                                    Elements elements = resultSet.next();
+
+                                    System.out.println(
+                                            elements.getObject("email", String.class)
+                                    );
                                 }
-                            });
+                            } else {
+                                throwable.printStackTrace();
+                            }
+                        });
             });
 
-        } catch (DriverConnectionException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }
