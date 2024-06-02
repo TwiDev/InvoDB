@@ -12,6 +12,8 @@ import ch.twidev.invodb.driver.scylla.ScyllaConnection;
 import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class ScyllaExample {
 
@@ -25,23 +27,24 @@ public class ScyllaExample {
                 .build();
 
         try (ScyllaCluster scyllaDriver = new ScyllaCluster(driverConfig)) {
-            try (ScyllaConnection scyllaConnection = scyllaDriver.connectSession("main")) {
-                InvoQuery.find("users")
-                        .attribute("email")
-                        .run(scyllaConnection, (resultSet, throwable) -> {
-                            if (throwable != null && resultSet != null) {
-                                while (resultSet.hasNext()) {
-                                    Elements elements = resultSet.next();
+            scyllaDriver.asyncConnectSession("main", (scyllaConnection, e) -> {
+                    InvoQuery.find("users")
+                            .attribute("email")
+                            .run(scyllaConnection, (resultSet, throwable) -> {
+                                if (throwable == null) {
+                                    while (resultSet.hasNext()) {
+                                        Elements elements = resultSet.next();
 
-                                    System.out.println(
-                                            elements.getObject("email", String.class)
-                                    );
+                                        System.out.println(
+                                                elements.getObject("email", String.class)
+                                        );
+                                    }
+                                } else {
+                                    throwable.printStackTrace();
                                 }
-                            } else {
-                                throwable.printStackTrace();
-                            }
-                        });
-            }
+                            });
+            });
+
         } catch (DriverConnectionException e) {
             throw new RuntimeException(e);
         }

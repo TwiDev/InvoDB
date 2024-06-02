@@ -1,18 +1,15 @@
 package ch.twidev.invodb.driver.scylla;
 
-import ch.twidev.invodb.bridge.documents.ElementSet;
-import ch.twidev.invodb.bridge.exceptions.PrepareStatementException;
-import ch.twidev.invodb.bridge.operations.FindContext;
-import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
+import ch.twidev.invodb.bridge.documents.ElementSet;
+import ch.twidev.invodb.bridge.operations.FindContext;
+import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.bridge.session.PreparedStatementConnection;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
-
-import com.datastax.driver.core.*;
-
-import java.util.Collections;
-import java.util.logging.Logger;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Session;
 
 public class ScyllaConnection implements DriverSession<Session>, PreparedStatementConnection<PreparedStatement> {
 
@@ -77,12 +74,8 @@ public class ScyllaConnection implements DriverSession<Session>, PreparedStateme
     }
 
     @Override
-    public PreparedStatement prepareStatement(String query, Object... vars) throws PrepareStatementException {
-        try {
-            return session.prepare((RegularStatement) new SimpleStatement(query).enableTracing());
-        } catch (Exception cause) {
-            throw new PrepareStatementException(cause);
-        }
+    public PreparedStatement prepareStatement(String query, Object... vars) {
+        return session.prepare(query);
     }
 
     @Override

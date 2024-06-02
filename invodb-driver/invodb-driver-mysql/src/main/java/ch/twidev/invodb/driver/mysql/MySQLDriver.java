@@ -12,7 +12,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
 
 public class MySQLDriver extends InvoDriver<HikariDataSource> {
-    public MySQLDriver(MySQLConfigBuilder driverConfig, InvoDriverType invoDriverType) {
+    public MySQLDriver(DriverConfig driverConfig, InvoDriverType invoDriverType) {
         super(driverConfig, invoDriverType);
     }
 
