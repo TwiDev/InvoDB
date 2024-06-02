@@ -1,11 +1,9 @@
 package ch.twidev.invodb.bridge.driver.config;
 
-import ch.twidev.invodb.bridge.driver.InvoDriverType;
+public interface DriverConfigBuilder<Builder, Config extends DriverConfig> {
 
-public interface DriverConfigBuilder<Builder> {
+    Builder setDriverName(String name);
 
-    Builder setDriverType(InvoDriverType invoDriverType);
-
-    DriverConfig build();
+    Config build();
 
 }

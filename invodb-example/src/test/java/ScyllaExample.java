@@ -1,7 +1,12 @@
 import ch.twidev.invodb.bridge.documents.Elements;
+import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
+import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.common.query.InvoQuery;
+import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
 import ch.twidev.invodb.driver.scylla.ScyllaConnection;
 import ch.twidev.invodb.driver.scylla.ScyllaCluster;
+
+import java.net.InetSocketAddress;
 
 import static ch.twidev.invodb.common.query.operations.search.SearchFilter.*;
 
@@ -9,7 +14,12 @@ public class ScyllaExample {
 
     public void run() {
 
-        try (ScyllaCluster scyllaDriver = new ScyllaCluster(null)) {
+        DriverConfig driverConfig = new ScyllaConfigBuilder()
+                .setDriverName("ScyllaDriver")
+                .addContactPoint(new ContactPoint(InetSocketAddress.createUnresolved("127.0.0.1",56640)))
+                .build();
+
+        try (ScyllaCluster scyllaDriver = new ScyllaCluster(driverConfig)) {
             try (ScyllaConnection scyllaConnection = scyllaDriver.connectSession("test")) {
 
                 InvoQuery.find("main")

@@ -35,6 +35,11 @@ public class InvoDriverConfig implements DriverConfig {
         return null;
     }
 
+    @Override
+    public String getDriverName() {
+        return null;
+    }
+
     public HashMap<EnvVar, Object> getConfig() {
         return config;
     }

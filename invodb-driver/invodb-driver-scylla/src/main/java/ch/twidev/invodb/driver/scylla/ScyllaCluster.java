@@ -4,7 +4,7 @@ import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.driver.auth.AuthenticatorProvider;
 import ch.twidev.invodb.bridge.driver.InvoClusterDriver;
-import ch.twidev.invodb.bridge.driver.cluster.ClusterPoint;
+import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
 import ch.twidev.invodb.bridge.driver.cluster.ClusterPoints;
 import ch.twidev.invodb.bridge.environment.EnvVar;
 import ch.twidev.invodb.bridge.exceptions.DriverConfigMissingException;
@@ -49,7 +49,7 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
                 .withClusterName(CLUSTER_DRIVER_KEY)
                 .addContactPointsWithPorts(
                         clusterPoints.stream()
-                                .map(ClusterPoint::inetSocketAddress)
+                                .map(ContactPoint::inetSocketAddress)
                                 .toList());
 
         /*if(authenticator instanceof NoneAuthenticator) {

@@ -12,4 +12,5 @@ public interface DriverConfig {
 
     InvoDriverType getDriverType();
 
+    String getDriverName();
 }

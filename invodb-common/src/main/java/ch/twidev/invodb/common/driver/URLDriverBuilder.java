@@ -1,7 +1,6 @@
 package ch.twidev.invodb.common.driver;
 
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
-import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.driver.config.URLDriverConfig;
 import ch.twidev.invodb.bridge.environment.EnvVar;
 import ch.twidev.invodb.bridge.exceptions.DriverConfigException;
@@ -13,12 +12,12 @@ public class URLDriverBuilder implements URLDriverConfig {
     }
 
     @Override
-    public boolean isUrl() {
-        return false;
+    public InvoDriverType getDriverType() {
+        return null;
     }
 
     @Override
-    public InvoDriverType getDriverType() {
+    public String getDriverName() {
         return null;
     }
 
