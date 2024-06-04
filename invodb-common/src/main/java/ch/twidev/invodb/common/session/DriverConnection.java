@@ -31,9 +31,12 @@ public class DriverConnection {
                                   InvoQuery<R> invoQuery,
                                   ThrowableCallback<R> throwableCallback) {
 
-        Scheduler.runTask(() -> {
-            runQuery(session,resultInstance,invoQuery,throwableCallback);
-        });
+        switch (invoQuery) {
+            case FindOperationBuilder findOperationBuilder -> {
+                session.findAsync(findOperationBuilder, (ThrowableCallback<ElementSet>) throwableCallback);
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + invoQuery);
+        }
     }
 
 }

@@ -4,16 +4,20 @@ import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.operations.FindContext;
-import ch.twidev.invodb.bridge.scheduler.Scheduler;
 import ch.twidev.invodb.bridge.session.DriverSession;
-import ch.twidev.invodb.bridge.session.PreparedStatementConnection;
 import ch.twidev.invodb.bridge.util.ThrowableCallback;
-import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.ResultSetFuture;
 import com.datastax.driver.core.Session;
-import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 
-public class ScyllaConnection implements DriverSession<Session>, PreparedStatementConnection<PreparedStatement> {
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class ScyllaConnection implements DriverSession<Session> {
+
+    private static final ExecutorService QUERY_EXECUTOR = Executors.newCachedThreadPool();
 
     private static final SearchDictionary searchDictionary = new SearchDictionary(){{
         put(SearchFilterType.ALL, new SearchCompositeParameter("*"));
@@ -74,19 +78,29 @@ public class ScyllaConnection implements DriverSession<Session>, PreparedStateme
 
     @Override
     public void findAsync(FindContext findOperationBuilder, ThrowableCallback<ElementSet> throwableCallback) {
-        Scheduler.runTask(() -> {
-            find(findOperationBuilder, throwableCallback);
-        });
-    }
+        String searchQuery = findOperationBuilder.getSearchFilter().toQuery(searchDictionary);
 
-    @Override
-    public PreparedStatement prepareStatement(String query, Object... vars) {
-        return session.prepare(query);
-    }
+        try {
+            String statement =
+                    "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
+                            + ((searchQuery == null) ? "" : "WHERE ?");
 
-    @Override
-    public ListenableFuture<PreparedStatement> prepareStatementAsync(String query, Object... vars) {
-        return session.prepareAsync(query);
+            ResultSetFuture resultSet = searchQuery == null ? session.executeAsync(statement) : session.executeAsync(statement, searchQuery);
+
+            Futures.addCallback(resultSet, new FutureCallback<ResultSet>() {
+                @Override
+                public void onSuccess(ResultSet result) {
+                    throwableCallback.run(new ScyllaResultSet(result), null);
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    throwableCallback.run(null, t);
+                }
+            }, QUERY_EXECUTOR);
+        } catch (Exception exception) {
+            throwableCallback.run(null, exception);
+        }
     }
 
     @Override

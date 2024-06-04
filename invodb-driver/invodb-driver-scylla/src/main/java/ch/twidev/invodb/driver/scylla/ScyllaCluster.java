@@ -20,7 +20,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> {
@@ -75,9 +74,6 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
     public ScyllaConnection connectSession(String keyname) {
         return new ScyllaConnection(this.cluster.connect(keyname));
     }
-
-
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
 
     @Override
