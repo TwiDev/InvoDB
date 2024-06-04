@@ -1,6 +1,5 @@
 package ch.twidev.invodb.driver.scylla;
 
-import ch.twidev.invodb.bridge.documents.Elements;
 import ch.twidev.invodb.bridge.driver.InvoClusterDriver;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.driver.auth.PlainTextAuth;
@@ -11,20 +10,18 @@ import ch.twidev.invodb.bridge.driver.config.URLDriverConfig;
 import ch.twidev.invodb.bridge.environment.EnvVar;
 import ch.twidev.invodb.bridge.exceptions.DriverConfigMissingException;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
-import ch.twidev.invodb.bridge.scheduler.Scheduler;
-import ch.twidev.invodb.bridge.util.ThrowableCallback;
-import ch.twidev.invodb.common.query.InvoQuery;
 import com.datastax.driver.core.AuthProvider;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.PlainTextAuthProvider;
 import com.datastax.driver.core.Session;
-import com.datastax.oss.driver.api.core.CqlSession;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> {
 
@@ -84,7 +81,7 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
 
 
     @Override
-    public CompletableFuture<ScyllaConnection> asyncConnectSession(String keyname) {
+    public CompletableFuture<ScyllaConnection> connectSessionAsync(String keyname) {
         CompletableFuture<ScyllaConnection> invoSessionDriverFutureCallback = new CompletableFuture<>();
 
         ListenableFuture<Session> asyncTask = this.cluster.connectAsync(keyname);
@@ -93,7 +90,6 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
             @Override
             public void onSuccess(Session session) {
                 ScyllaConnection scyllaConnection = new ScyllaConnection(session);
-                System.out.println("Current Thread: (1-2) " +Thread.currentThread().getName());
                 invoSessionDriverFutureCallback.complete(
                         scyllaConnection
                 );

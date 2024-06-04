@@ -33,6 +33,11 @@ public class MySQLDriver extends InvoDriver<HikariDataSource> {
     }
 
     @Override
+    public void findAsync(FindContext findOperationBuilder, ThrowableCallback<ElementSet> throwableCallback) {
+
+    }
+
+    @Override
     public boolean exists() {
         return false;
     }

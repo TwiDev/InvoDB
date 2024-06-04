@@ -13,6 +13,6 @@ public abstract class InvoClusterDriver<Session, Conn extends DriverSession<Sess
 
     public abstract Conn connectSession(String keyname);
 
-    public abstract CompletableFuture<Conn> asyncConnectSession(String keyname);
+    public abstract CompletableFuture<Conn> connectSessionAsync(String keyname);
 
 }
