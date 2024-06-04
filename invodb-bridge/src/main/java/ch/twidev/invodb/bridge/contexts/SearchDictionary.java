@@ -35,7 +35,7 @@ public class SearchDictionary extends HashMap<SearchFilterType, SearchDictionary
 
     public static abstract class SearchFieldParameter implements SearchParameter {
 
-        public abstract String parse(String key, Object value);
+        public abstract String parse(String key);
 
     }
 }

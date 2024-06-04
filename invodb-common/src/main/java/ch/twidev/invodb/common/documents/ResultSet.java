@@ -21,4 +21,9 @@ public class ResultSet implements ElementSet {
     public Elements next() {
         return null;
     }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
 }

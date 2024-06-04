@@ -60,14 +60,14 @@ public class ConnectionTest {
             put(SearchFilterType.OR, new SearchCompositeParameter("OR"));
             put(SearchFilterType.EQUAL, new SearchFieldParameter() {
                 @Override
-                public String parse(String key, Object value) {
-                    return key + " = '" + value + "'";
+                public String parse(String key) {
+                    return key + " = ?";
                 }
             });
             put(SearchFilterType.NOT_EQUAL, new SearchFieldParameter() {
                 @Override
-                public String parse(String key, Object value) {
-                    return key + " = '" + value + "'";
+                public String parse(String key) {
+                    return key + " = ?";
                 }
             });
         }};
@@ -80,7 +80,7 @@ public class ConnectionTest {
                 )
         );
 
-        System.out.println(filter.toQuery(searchDictionary)); /* OUTPUT : (name = 'John' AND (age = '30' OR city = 'New York'))*/
+        System.out.println(filter.toQuery(searchDictionary, null)); /* OUTPUT : (name = 'John' AND (age = '30' OR city = 'New York'))*/
 
 
 

@@ -3,6 +3,7 @@ package ch.twidev.invodb.common.query.builder;
 import ch.twidev.invodb.bridge.contexts.Attributes;
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.operations.FindContext;
+import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.operations.AttributeOperation;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
@@ -10,10 +11,14 @@ import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.common.query.operations.SearchOperation;
 import ch.twidev.invodb.common.documents.ResultSet;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class FindOperationBuilder extends InvoQuery<ElementSet> implements FindContext, AttributeOperation<FindOperationBuilder>, SearchOperation<FindOperationBuilder> {
 
     private final Attributes attributes = new Attributes();
     private SearchFilter searchFilter = SearchFilter.all();
+    private PlaceholderContext placeholderContext = new PlaceholderContext();
 
     public FindOperationBuilder(String collection) {
         super(ElementSet.class, collection, QueryOperation.FIND);
@@ -27,8 +32,20 @@ public class FindOperationBuilder extends InvoQuery<ElementSet> implements FindC
     }
 
     @Override
+    public FindOperationBuilder setPlaceholder(PlaceholderContext placeholderContext) {
+        this.placeholderContext = placeholderContext;
+
+        return this;
+    }
+
+    @Override
     public SearchFilter getSearchFilter() {
         return searchFilter;
+    }
+
+    @Override
+    public PlaceholderContext getPlaceHolder() {
+        return placeholderContext;
     }
 
     @Override
@@ -45,5 +62,10 @@ public class FindOperationBuilder extends InvoQuery<ElementSet> implements FindC
         attributes.add(attribute);
 
         return this;
+    }
+
+    @Override
+    public List<Object> getContexts() {
+        return searchFilter.getContexts();
     }
 }

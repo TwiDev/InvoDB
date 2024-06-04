@@ -2,11 +2,14 @@ package ch.twidev.invodb.common.query.operations.search;
 
 import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
+import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.search.ISearchFilter;
 import ch.twidev.invodb.bridge.contexts.FieldMap;
 import ch.twidev.invodb.bridge.search.SearchCondition;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public abstract class SearchFilter implements ISearchFilter {
 
@@ -15,8 +18,13 @@ public abstract class SearchFilter implements ISearchFilter {
     public static SearchFilter all() {
         return new SearchFilter(SearchFilterType.ALL, searchField -> true) {
             @Override
-            public String toQuery(SearchDictionary searchDictionary) {
+            public String toQuery(SearchDictionary searchDictionary, PlaceholderContext placeholderContext) {
                 return null;
+            }
+
+            @Override
+            public List<Object> getContexts() {
+                return new ArrayList<>();
             }
         };
     }
@@ -62,11 +70,9 @@ public abstract class SearchFilter implements ISearchFilter {
     }
 
     @Override
-    public abstract String toQuery(SearchDictionary searchDictionary /*Add placeholder*/);
+    public abstract String toQuery(SearchDictionary searchDictionary, PlaceholderContext queryPlaceholder);
 
 
-    public FieldMap getSearchMap() {
-        return searchMap;
-    }
+    public abstract List<Object> getContexts();
 
 }

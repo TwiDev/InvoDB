@@ -22,4 +22,9 @@ public class SingleElementSet implements ElementSet {
     public Elements next() {
         return elements;
     }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
 }

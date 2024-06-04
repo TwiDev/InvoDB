@@ -2,12 +2,17 @@ package ch.twidev.invodb.common.query.operations.search;
 
 import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
+import ch.twidev.invodb.bridge.placeholder.QueryPlaceholder;
 import ch.twidev.invodb.bridge.search.SearchCondition;
+import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
+
+import java.util.Collections;
+import java.util.List;
 
 public class FieldSearchFilter extends SearchFilter{
 
     private final String value;
-    private final Object object;
+    private Object object;
 
     public FieldSearchFilter(String value, Object object, SearchFilterType searchFilterType, SearchCondition searchCondition) {
         super(searchFilterType, searchCondition);
@@ -24,8 +29,17 @@ public class FieldSearchFilter extends SearchFilter{
     }
 
     @Override
-    public String toQuery(SearchDictionary searchDictionary) {
+    public String toQuery(SearchDictionary searchDictionary, PlaceholderContext placeholderContext) {
+        if(object instanceof QueryPlaceholder queryPlaceholder) {
+            this.object = placeholderContext.get(queryPlaceholder);
+        }
+
         return searchDictionary.getField(this.getSearchFilterType())
-                .parse(value, object);
+                .parse(value);
+    }
+
+    @Override
+    public List<Object> getContexts() {
+        return Collections.singletonList(object);
     }
 }
