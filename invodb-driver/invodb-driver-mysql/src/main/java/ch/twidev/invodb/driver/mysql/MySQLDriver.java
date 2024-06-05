@@ -6,7 +6,8 @@ import ch.twidev.invodb.bridge.driver.InvoDriver;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
 import ch.twidev.invodb.bridge.operations.FindContext;
-import ch.twidev.invodb.bridge.util.ThrowableCallback;
+import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
+import ch.twidev.invodb.bridge.util.ResultCallback;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.io.IOException;
@@ -27,19 +28,20 @@ public class MySQLDriver extends InvoDriver<HikariDataSource> {
 
     }
 
-    @Override
-    public void find(FindContext findOperationBuilder, ThrowableCallback<ElementSet> throwableCallback) {
-
-    }
-
-    @Override
-    public void findAsync(FindContext findOperationBuilder, ThrowableCallback<ElementSet> throwableCallback) {
-
-    }
 
     @Override
     public boolean exists() {
         return false;
+    }
+
+    @Override
+    public void find(FindContext findOperationBuilder, PlaceholderContext placeholderContext, ResultCallback<ElementSet> throwableCallback) {
+
+    }
+
+    @Override
+    public void findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext, ResultCallback<ElementSet> throwableCallback) {
+
     }
 
     @Override

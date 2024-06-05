@@ -5,30 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ch.twidev.invodb</groupId>
-        <artifactId>invodb-driver-parent</artifactId>
+        <artifactId>invodb-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>invodb-driver-mysql</artifactId>
+    <artifactId>invodb-examples</artifactId>
+    <name>InvoDB Example</name>
+    <version>${global.version}</version>
 
     <properties>
         <maven.compiler.source>22</maven.compiler.source>
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>ch.twidev.invodb</groupId>
-            <artifactId>invodb-bridge</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>5.1.0</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
 
 </project>

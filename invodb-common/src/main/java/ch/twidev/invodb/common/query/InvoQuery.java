@@ -1,10 +1,11 @@
 package ch.twidev.invodb.common.query;
 
+import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
 import ch.twidev.invodb.common.session.DriverConnection;
-import ch.twidev.invodb.bridge.util.ThrowableCallback;
+import ch.twidev.invodb.bridge.util.ResultCallback;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class InvoQuery<Result> {
@@ -23,12 +24,20 @@ public abstract class InvoQuery<Result> {
         this.resultInstance = resultInstance;
     }
 
-    public void run(@NotNull DriverSession<?> driverConnection, ThrowableCallback<Result> resultSet) {
-        DriverConnection.runQuery(driverConnection, resultInstance, this, resultSet);
+    public void run(@NotNull DriverSession<?> driverConnection, ResultCallback<Result> resultSet) {
+        this.run(driverConnection, resultSet, null);
     }
 
-    public void runAsync(DriverSession<?> driverConnection, ThrowableCallback<Result> resultSet) {
-        DriverConnection.runQueryAsync(driverConnection, resultInstance, this, resultSet);
+    public void runAsync(@NotNull DriverSession<?> driverConnection, ResultCallback<Result> resultSet) {
+        this.runAsync(driverConnection, resultSet, null);
+    }
+
+    public void run(@NotNull DriverSession<?> driverConnection, ResultCallback<Result> resultSet, PlaceholderContext placeholderContext) {
+        DriverConnection.runQuery(driverConnection, resultInstance, this, resultSet, placeholderContext);
+    }
+
+    public void runAsync(DriverSession<?> driverConnection, ResultCallback<Result> resultSet, PlaceholderContext placeholderContext) {
+        DriverConnection.runQueryAsync(driverConnection, resultInstance, this, resultSet, placeholderContext);
     }
 
     public QueryOperation getQueryOperation() {

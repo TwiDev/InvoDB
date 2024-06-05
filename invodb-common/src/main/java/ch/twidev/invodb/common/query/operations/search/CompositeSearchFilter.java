@@ -36,4 +36,9 @@ public class CompositeSearchFilter extends SearchFilter{
     public List<Object> getContexts() {
         return searchFilters.stream().map(SearchFilter::getContexts).collect(Collectors.toList());
     }
+
+    @Override
+    public boolean isRequired() {
+        return true;
+    }
 }

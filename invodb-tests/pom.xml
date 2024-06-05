@@ -9,8 +9,8 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>invodb-example</artifactId>
-    <name>InvoDB Example</name>
+    <artifactId>invodb-tests</artifactId>
+    <name>InvoDB Tests</name>
     <version>${global.version}</version>
 
     <properties>

@@ -75,4 +75,8 @@ public abstract class SearchFilter implements ISearchFilter {
 
     public abstract List<Object> getContexts();
 
+    @Override
+    public boolean isRequired() {
+        return searchFilterType != SearchFilterType.ALL;
+    }
 }

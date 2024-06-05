@@ -42,4 +42,9 @@ public class FieldSearchFilter extends SearchFilter{
     public List<Object> getContexts() {
         return Collections.singletonList(object);
     }
+
+    @Override
+    public boolean isRequired() {
+        return true;
+    }
 }

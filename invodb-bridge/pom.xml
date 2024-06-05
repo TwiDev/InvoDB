@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>invodb-bridge</artifactId>
+    <name>InvoDB Bridge</name>
     <version>${global.version}</version>
 
     <properties>

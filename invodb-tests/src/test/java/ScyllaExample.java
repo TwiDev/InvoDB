@@ -1,3 +1,4 @@
+import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.documents.Elements;
 import ch.twidev.invodb.bridge.driver.auth.PlainTextAuth;
 import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
@@ -5,16 +6,19 @@ import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.placeholder.QueryPlaceholder;
+import ch.twidev.invodb.bridge.util.ResultCallback;
 import ch.twidev.invodb.common.query.InvoQuery;
+import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
+import ch.twidev.invodb.common.util.ThrowableCallback;
 import ch.twidev.invodb.driver.scylla.ScyllaCluster;
 import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
+
 import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static ch.twidev.invodb.common.query.operations.search.SearchFilter.*;
+import static ch.twidev.invodb.common.query.operations.search.SearchFilter.eq;
 
 public class ScyllaExample {
 
@@ -33,18 +37,19 @@ public class ScyllaExample {
             logger.info("[Main] Current Thread: " +Thread.currentThread().getName());
 
             scyllaDriver.connectSessionAsync("main").thenAccept(scyllaConnection -> {
-                logger.info("[Async] Before waiting Thread: " +Thread.currentThread().getName());
+                logger.info("[Async] Before waiting Thread: " + Thread.currentThread().getName());
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
 
-                logger.info("[Async] After waiting Thread: " +Thread.currentThread().getName());
+                logger.info("[Async] After waiting Thread: " + Thread.currentThread().getName());
                 InvoQuery.find("users")
                         .attribute("email")
-                        .runAsync(scyllaConnection, (resultSet, t) -> {
-                            if (t == null) {
+                        .runAsync(scyllaConnection, new ResultCallback<>() {
+                            @Override
+                            public void succeed(ElementSet resultSet) {
                                 while (resultSet.hasNext()) {
                                     Elements elements = resultSet.next();
 
@@ -53,9 +58,14 @@ public class ScyllaExample {
                                     );
                                 }
 
-                                logger.info("[Async] Current Thread: " +Thread.currentThread().getName());
-                            } else {
-                                t.printStackTrace();
+                                logger.info("[Async] Current Thread: " + Thread.currentThread().getName());
+                            }
+
+                            @Override
+                            public void failed(Throwable throwable) {
+                                logger.severe("[Async] Error");
+
+                                throwable.printStackTrace();
                             }
                         });
             }).exceptionally(throwable -> {
@@ -63,35 +73,34 @@ public class ScyllaExample {
                 return null;
             });
 
-            InvoQuery.find("users")
+            final FindOperationBuilder findOperationBuilder = InvoQuery.find("users")
                     .attribute("email")
                     .where(
                             eq("name", UserPlaceHolder.USER_NAME)
-                    )
-                    .setPlaceholder(
-                            PlaceholderContext.empty()
-                                    .set(UserPlaceHolder.USER_NAME, "TwiDev")
-                    )
-                    .run(scyllaDriver.connectSession("main"), (resultSet, t) -> {
-                        if (t == null) {
-                            if(resultSet.isEmpty()) {
-                                logger.severe("[Sync] Cannot be found !");
-                                return;
-                            }
+                    );
 
-                            while (resultSet.hasNext()) {
-                                Elements elements = resultSet.next();
+            findOperationBuilder.run(scyllaDriver.connectSession("main"), (ThrowableCallback<ElementSet>) (elementSet, throwable) -> {
+                if(throwable != null) {
+                    throwable.printStackTrace();
+                    return;
+                }
 
-                                logger.info("[Sync] Response: " +
-                                        elements.getObject("email", String.class)
-                                );
-                            }
+                assert elementSet != null;
+                if (elementSet.isEmpty()) {
+                    logger.severe("[Sync] Cannot be found !");
+                    return;
+                }
 
-                            logger.info("[Sync] Current Thread: " +Thread.currentThread().getName());
-                        } else {
-                            t.printStackTrace();
-                        }
-                    });
+                while (elementSet.hasNext()) {
+                    Elements elements = elementSet.next();
+
+                    logger.info("[Sync] Response: " +
+                            elements.getObject("email", String.class)
+                    );
+                }
+
+                logger.info("[Sync] Current Thread: " + Thread.currentThread().getName());
+            }, PlaceholderContext.from(UserPlaceHolder.USER_NAME, "Tests"));
 
             try {
                 Thread.sleep(4000);

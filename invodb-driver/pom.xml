@@ -9,7 +9,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>invodb-driver</artifactId>
+    <artifactId>invodb-driver-parent</artifactId>
     <packaging>pom</packaging>
     <name>InvoDB Driver</name>
     <modules>

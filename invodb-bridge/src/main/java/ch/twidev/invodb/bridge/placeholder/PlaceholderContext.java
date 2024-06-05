@@ -10,6 +10,40 @@ public class PlaceholderContext {
         return new PlaceholderContext();
     }
 
+    public static PlaceholderContext from(QueryPlaceholder k1, Object v1) {
+        return new PlaceholderContext().set(k1, v1);
+    }
+
+    public static PlaceholderContext from(String k1, Object v1) {
+        return new PlaceholderContext().set(k1, v1);
+    }
+
+    public static PlaceholderContext from(QueryPlaceholder k1, Object v1, QueryPlaceholder k2, Object v2) {
+        return new PlaceholderContext()
+                .set(k1, v1)
+                .set(k2, v2);
+    }
+
+    public static PlaceholderContext from(String k1, Object v1, String k2, Object v2) {
+        return new PlaceholderContext()
+                .set(k1,v1)
+                .set(k2,v2);
+    }
+
+    public static PlaceholderContext from(QueryPlaceholder k1, Object v1, QueryPlaceholder k2, Object v2, QueryPlaceholder k3, Object v3) {
+        return new PlaceholderContext()
+                .set(k1, v1)
+                .set(k2, v2)
+                .set(k3, v3);
+    }
+
+    public static PlaceholderContext from(String k1, Object v1, String k2, Object v2, String k3, Object v3) {
+        return new PlaceholderContext()
+                .set(k1,v1)
+                .set(k2,v2)
+                .set(k3,v3);
+    }
+
     private final HashMap<String, Object> context;
 
     public PlaceholderContext() {

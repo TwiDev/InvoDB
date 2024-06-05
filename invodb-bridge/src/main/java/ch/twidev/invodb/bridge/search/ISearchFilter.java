@@ -16,4 +16,6 @@ public interface ISearchFilter {
 
     List<Object> getContexts();
 
+    boolean isRequired();
+
 }

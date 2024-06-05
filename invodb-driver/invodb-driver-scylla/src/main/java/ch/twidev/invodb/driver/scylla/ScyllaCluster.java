@@ -75,7 +75,6 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
         return new ScyllaConnection(this.cluster.connect(keyname));
     }
 
-
     @Override
     public CompletableFuture<ScyllaConnection> connectSessionAsync(String keyname) {
         CompletableFuture<ScyllaConnection> invoSessionDriverFutureCallback = new CompletableFuture<>();
