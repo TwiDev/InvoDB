@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>invodb-driver-scylla</artifactId>
+    <version>1.0.1-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>22</maven.compiler.source>
@@ -18,11 +19,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>ch.twidev.invodb</groupId>
-            <artifactId>invodb-bridge</artifactId>
-            <version>${global.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.scylladb</groupId>
             <artifactId>scylla-driver-core</artifactId>
@@ -35,5 +31,13 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub SwiftLogin Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/twidev/invodb</url>
+        </repository>
+    </distributionManagement>
 
 </project>

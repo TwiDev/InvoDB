@@ -28,16 +28,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.scylladb</groupId>
-            <artifactId>scylla-driver-core</artifactId>
-            <version>3.11.5.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.scylladb</groupId>
-            <artifactId>java-driver-query-builder</artifactId>
-            <version>4.17.0.0</version>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13.2</version>
@@ -47,6 +37,12 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <version>2.23.1</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.twidev.invodb</groupId>
+            <artifactId>invodb-bridge</artifactId>
+            <version>${global.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
