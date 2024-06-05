@@ -43,4 +43,12 @@
         </developer>
     </developers>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub SwiftLogin Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/twidev/invodb</url>
+        </repository>
+    </distributionManagement>
+
 </project>
