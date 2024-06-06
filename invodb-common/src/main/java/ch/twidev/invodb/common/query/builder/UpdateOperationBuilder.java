@@ -57,7 +57,7 @@ public class UpdateOperationBuilder extends InvoQuery<OperationResult> implement
     }
 
     @Override
-    public UpdateOperationBuilder field(String key, String value) {
+    public UpdateOperationBuilder field(String key, Object value) {
         fieldMap.put(key, value);
 
         return this;

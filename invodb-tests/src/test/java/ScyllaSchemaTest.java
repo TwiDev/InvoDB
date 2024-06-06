@@ -1,9 +1,8 @@
 import ch.twidev.invodb.mapper.AspectInvoSchema;
-import ch.twidev.invodb.mapper.InvoSchema;
 import ch.twidev.invodb.mapper.annotations.Async;
 import ch.twidev.invodb.mapper.annotations.Field;
 import ch.twidev.invodb.mapper.annotations.PrimaryField;
-import ch.twidev.invodb.mapper.annotations.Setter;
+import ch.twidev.invodb.mapper.annotations.Update;
 import org.junit.jupiter.api.Test;
 
 public class ScyllaSchemaTest {
@@ -25,7 +24,7 @@ public class ScyllaSchemaTest {
                 scyllaUserSchema.id
         );
     }
-    public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect> {
+    public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect> implements ScyllaUserSchemaAspect {
 
         @Field
         @PrimaryField
@@ -38,11 +37,16 @@ public class ScyllaSchemaTest {
         public int getId() {
             return id;
         }
+
+        @Override
+        public void setId(int id) {
+            this.id = id;
+        }
     }
 
     public interface ScyllaUserSchemaAspect {
 
-        @Setter
+        @Update(field = "id")
         @Async
         void setId(int id);
 

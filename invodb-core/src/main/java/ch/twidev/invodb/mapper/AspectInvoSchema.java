@@ -5,12 +5,12 @@ import ch.twidev.invodb.mapper.handler.SchemaAspectHandler;
 import java.lang.reflect.Proxy;
 
 @SuppressWarnings("unchecked")
-public abstract class AspectInvoSchema<Aspect> extends InvoSchema {
+public abstract class AspectInvoSchema<Aspect, PrimaryKey> extends IndexedInvoSchema<PrimaryKey> {
 
     private final Aspect aspect;
 
-    public AspectInvoSchema(Class<Aspect> aspectInterface, String collection) {
-        super(collection);
+    public AspectInvoSchema(Class<Aspect> aspectInterface, String primaryKey, String collection) {
+        super(primaryKey, collection);
 
         if(!aspectInterface.isInterface()) {
             throw new IllegalArgumentException("Aspect provided isn't an interface");
