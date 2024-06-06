@@ -3,6 +3,7 @@ package ch.twidev.invodb.common.query;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
+import ch.twidev.invodb.common.query.builder.UpdateOperationBuilder;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
 import ch.twidev.invodb.common.session.DriverConnection;
 import ch.twidev.invodb.bridge.util.ResultCallback;
@@ -13,6 +14,11 @@ public abstract class InvoQuery<Result> {
     public static FindOperationBuilder find(String collection) {
         return new FindOperationBuilder(collection);
     }
+
+    public static UpdateOperationBuilder update(String collection) {
+        return new UpdateOperationBuilder(collection);
+    }
+
 
     private final QueryOperation queryOperation;
     private final String collection;

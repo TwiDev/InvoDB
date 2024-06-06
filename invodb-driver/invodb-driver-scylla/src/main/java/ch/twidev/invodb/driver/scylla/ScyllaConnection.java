@@ -3,7 +3,9 @@ package ch.twidev.invodb.driver.scylla;
 import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
 import ch.twidev.invodb.bridge.documents.ElementSet;
+import ch.twidev.invodb.bridge.documents.OperationResult;
 import ch.twidev.invodb.bridge.operations.FindContext;
+import ch.twidev.invodb.bridge.operations.UpdateContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.search.ISearchFilter;
 import ch.twidev.invodb.bridge.session.DriverSession;
@@ -15,8 +17,12 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
 public class ScyllaConnection implements DriverSession<Session> {
 
@@ -100,6 +106,58 @@ public class ScyllaConnection implements DriverSession<Session> {
             }, QUERY_EXECUTOR);
         } catch (Exception exception) {
             throwableCallback.failed(exception);
+        }
+    }
+
+    @Override
+    public void update(UpdateContext updateContext, PlaceholderContext placeholderContext, ResultCallback<OperationResult> callback) {
+        ISearchFilter searchFilter = updateContext.getSearchFilter();
+
+        try {
+            String statement = "UPDATE %s SET %s ".formatted(updateContext.getCollection(), updateContext.getFields().toString())
+                    + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
+
+            List<Object> context = new ArrayList<>(searchFilter.getContexts());
+            context.addAll(updateContext.getFields().values());
+
+            ResultSet resultSet = searchFilter.isRequired() ?
+                    session.execute(statement, context.toArray(new Object[0])) :
+                    session.execute(statement);
+
+            callback.succeed(OperationResult.Ok);
+        } catch (Exception exception) {
+            callback.failed(exception);
+        }
+    }
+
+    @Override
+    public void updateAsync(UpdateContext updateContext, PlaceholderContext placeholderContext, ResultCallback<OperationResult> callback) {
+        ISearchFilter searchFilter = updateContext.getSearchFilter();
+
+        try {
+            String statement = "UPDATE %s SET %s ".formatted(updateContext.getCollection(), updateContext.getFields().toString())
+                    + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
+
+            List<Object> context = new ArrayList<>(searchFilter.getContexts());
+            context.addAll(updateContext.getFields().values());
+
+            ResultSetFuture resultSet = searchFilter.isRequired() ?
+                    session.executeAsync(statement, context.toArray(new Object[0])) :
+                    session.executeAsync(statement);
+
+            Futures.addCallback(resultSet, new FutureCallback<ResultSet>() {
+                @Override
+                public void onSuccess(ResultSet result) {
+                    callback.succeed(OperationResult.Ok);
+                }
+
+                @Override
+                public void onFailure(@NotNull Throwable exception) {
+                    callback.failed(exception);
+                }
+            }, QUERY_EXECUTOR);
+        } catch (Exception exception) {
+            callback.failed(exception);
         }
     }
 

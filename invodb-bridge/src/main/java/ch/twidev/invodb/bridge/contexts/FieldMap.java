@@ -6,4 +6,9 @@ public class FieldMap extends HashMap<String, Object> {
 
     // Todo : Exception manager
 
+
+    @Override
+    public String toString() {
+        return String.join("= ? ," + this.keySet());
+    }
 }

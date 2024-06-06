@@ -1,7 +1,9 @@
 package ch.twidev.invodb.bridge.session;
 
 import ch.twidev.invodb.bridge.documents.ElementSet;
+import ch.twidev.invodb.bridge.documents.OperationResult;
 import ch.twidev.invodb.bridge.operations.FindContext;
+import ch.twidev.invodb.bridge.operations.UpdateContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.util.ResultCallback;
 
@@ -11,6 +13,9 @@ public interface DriverSession<Session> extends Closeable {
 
     void find(FindContext findOperationBuilder, PlaceholderContext placeholderContext, ResultCallback<ElementSet> throwableCallback);
     void findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext, ResultCallback<ElementSet> throwableCallback);
+
+    void update(UpdateContext updateContext, PlaceholderContext placeholderContext, ResultCallback<OperationResult> callback);
+    void updateAsync(UpdateContext updateContext, PlaceholderContext placeholderContext, ResultCallback<OperationResult> callback);
 
     boolean isConnected();
 
