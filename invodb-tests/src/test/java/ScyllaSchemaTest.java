@@ -1,8 +1,6 @@
+import ch.twidev.invodb.bridge.placeholder.QueryPlaceholder;
 import ch.twidev.invodb.mapper.AspectInvoSchema;
-import ch.twidev.invodb.mapper.annotations.Async;
-import ch.twidev.invodb.mapper.annotations.Field;
-import ch.twidev.invodb.mapper.annotations.PrimaryField;
-import ch.twidev.invodb.mapper.annotations.Update;
+import ch.twidev.invodb.mapper.annotations.*;
 import org.junit.jupiter.api.Test;
 
 public class ScyllaSchemaTest {
@@ -12,7 +10,6 @@ public class ScyllaSchemaTest {
         ScyllaUserSchema scyllaUserSchema = new ScyllaUserSchema();
 
         ScyllaUserSchemaAspect scyllaUserSchemaAspect = scyllaUserSchema.getAspect();
-
 
         System.out.println(
                 scyllaUserSchema.getId()
@@ -29,6 +26,10 @@ public class ScyllaSchemaTest {
         @Field
         @PrimaryField
         private int id = 0;
+
+        @Field
+        @Placeholder
+        private String name;
 
         public ScyllaUserSchema() {
             super(ScyllaUserSchemaAspect.class, "id", "test");
@@ -56,5 +57,22 @@ public class ScyllaSchemaTest {
         void setId(int id);
 
     }
+
+    public enum UserPlaceHolder implements QueryPlaceholder {
+
+        USER_ID("id");
+
+        private final String name;
+
+        UserPlaceHolder(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getPlaceholder() {
+            return name;
+        }
+    }
+
 
 }

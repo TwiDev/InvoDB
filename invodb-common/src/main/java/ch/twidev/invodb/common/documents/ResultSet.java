@@ -26,4 +26,9 @@ public class ResultSet implements ElementSet {
     public boolean isEmpty() {
         return false;
     }
+
+    @Override
+    public Elements first() {
+        return null;
+    }
 }

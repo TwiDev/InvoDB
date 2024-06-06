@@ -11,12 +11,14 @@ public class ScyllaResultSet implements ElementSet {
 
     private final boolean isEmpty;
     private final ResultSet resultSet;
+    private final Elements first;
     private final Iterator<Elements> parsedElements;
 
     public ScyllaResultSet(ResultSet resultSet) {
         this.resultSet = resultSet;
 
         this.isEmpty = resultSet.isExhausted();
+        this.first = new ScyllaElements(resultSet.one());
 
         this.parsedElements = resultSet.all()
                 .stream()
@@ -47,6 +49,11 @@ public class ScyllaResultSet implements ElementSet {
     @Override
     public boolean isEmpty() {
         return isEmpty;
+    }
+
+    @Override
+    public Elements first() {
+        return first;
     }
 
     public static class ScyllaElements implements Elements {

@@ -6,4 +6,6 @@ public interface ElementSet extends Iterator<Elements>, OperationResult {
 
     boolean isEmpty();
 
+    Elements first();
+
 }

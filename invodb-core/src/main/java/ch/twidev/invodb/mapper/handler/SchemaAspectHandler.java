@@ -1,5 +1,6 @@
 package ch.twidev.invodb.mapper.handler;
 
+import ch.twidev.invodb.bridge.util.ResultCallback;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.mapper.AspectInvoSchema;
@@ -9,6 +10,7 @@ import ch.twidev.invodb.mapper.annotations.Update;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+@SuppressWarnings("unchecked")
 public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema) implements InvocationHandler {
 
     @Override
@@ -16,8 +18,12 @@ public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema) implements I
         InvoQuery<?> invoQuery = this.parseQuery(method, args);
 
         if(invoQuery != null) {
+            ResultCallback resultCallback = (invoSchema instanceof ResultCallback<?> handler) ? handler : o -> {};
+
             if(method.isAnnotationPresent(Async.class)) {
-                // Run Query
+                invoQuery.runAsync(invoSchema.getDriverSession(), resultCallback);
+            }else{
+                invoQuery.run(invoSchema.getDriverSession(), resultCallback);
             }
         }
 
@@ -25,7 +31,7 @@ public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema) implements I
     }
 
     public InvoQuery<?> parseQuery(Method method, Object[] args) {
-        if(args.length == 0) return null;
+        if(args.length == 0 || !invoSchema.isExists()) return null;
 
         String collection = invoSchema.getCollection();
 
