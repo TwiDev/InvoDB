@@ -38,5 +38,7 @@ public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema) implements I
                     .field(update.field(), args[0])
                     .where(searchFilter);
         }
+
+        return null;
     }
 }

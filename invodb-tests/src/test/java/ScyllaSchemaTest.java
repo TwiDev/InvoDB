@@ -15,23 +15,23 @@ public class ScyllaSchemaTest {
 
 
         System.out.println(
-                scyllaUserSchema.id
+                scyllaUserSchema.getId()
         );
 
         scyllaUserSchemaAspect.setId(3);
 
         System.out.println(
-                scyllaUserSchema.id
+                scyllaUserSchema.getId()
         );
     }
-    public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect> implements ScyllaUserSchemaAspect {
+    public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect, Integer> implements ScyllaUserSchemaAspect {
 
         @Field
         @PrimaryField
         private int id = 0;
 
         public ScyllaUserSchema() {
-            super(ScyllaUserSchemaAspect.class, "test");
+            super(ScyllaUserSchemaAspect.class, "id", "test");
         }
 
         public int getId() {
@@ -41,6 +41,11 @@ public class ScyllaSchemaTest {
         @Override
         public void setId(int id) {
             this.id = id;
+        }
+
+        @Override
+        public Integer getPrimaryValue() {
+            return id;
         }
     }
 
