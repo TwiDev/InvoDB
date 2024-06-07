@@ -1,7 +1,5 @@
 package ch.twidev.invodb.mapper;
 
-import ch.twidev.invodb.mapper.InvoSchema;
-
 public abstract class IndexedInvoSchema<PrimaryKey> extends InvoSchema {
 
     private final String primaryKey;
