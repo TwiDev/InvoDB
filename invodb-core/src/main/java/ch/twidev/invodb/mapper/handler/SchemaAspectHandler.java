@@ -6,6 +6,7 @@ import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.mapper.AspectInvoSchema;
 import ch.twidev.invodb.mapper.annotations.Async;
 import ch.twidev.invodb.mapper.annotations.Update;
+import ch.twidev.invodb.mapper.field.FieldMapper;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -35,13 +36,20 @@ public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema) implements I
 
         String collection = invoSchema.getCollection();
 
-        SearchFilter searchFilter = SearchFilter.eq(invoSchema.getPrimaryKey(), invoSchema.getPrimaryValue());
+        SearchFilter searchFilter = SearchFilter.eq(
+                invoSchema.getPrimaryKey(),
+                invoSchema.getPrimaryValue()
+        );
 
         if (method.isAnnotationPresent(Update.class)) {
             Update update = method.getAnnotation(Update.class);
+            String fieldName = update.field();
+
+            if(!invoSchema.getFields().containsKey(fieldName)) return null;
+            FieldMapper fieldMapper = invoSchema.getFields().get(fieldName);
 
             return InvoQuery.update(collection)
-                    .field(update.field(), args[0])
+                    .field(fieldMapper.queryName(), fieldMapper.getFormattedValue(args[0]))
                     .where(searchFilter);
         }
 

@@ -65,6 +65,11 @@ public class ScyllaResultSet implements ElementSet {
         }
 
         @Override
+        public Object getObject(String name) {
+            return row.getObject(name);
+        }
+
+        @Override
         public <T> T getObject(String name, Class<T> type) {
             return row.get(name, type);
         }

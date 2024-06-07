@@ -2,10 +2,16 @@ package ch.twidev.invodb.mapper;
 
 import ch.twidev.invodb.bridge.documents.Elements;
 import ch.twidev.invodb.bridge.session.DriverSession;
+import ch.twidev.invodb.common.format.DataFormat;
+import ch.twidev.invodb.mapper.annotations.Primitive;
+import ch.twidev.invodb.mapper.field.FieldMapper;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 
 public abstract class InvoSchema {
+
+    private final HashMap<String, FieldMapper> fields = new HashMap<>();
 
     private final String collection;
 
@@ -36,13 +42,29 @@ public abstract class InvoSchema {
                     declaredField.setAccessible(true);
                     String fieldName = annotation.name().isEmpty() ? declaredField.getName() : annotation.name();
 
+                    final Primitive primitive;
+                    final Object object;
+
+                    if(declaredField.isAnnotationPresent(Primitive.class)) {
+                        primitive = declaredField.getAnnotation(Primitive.class);
+
+                        object = DataFormat.getFromPrimitive(
+                                elements.getObject(fieldName),
+                                declaredField.getType(),
+                                primitive.formatter()
+                        );
+                    }else{
+                        primitive = null;
+
+                        object = elements.getObject(fieldName, declaredField.getType());
+                    }
+
                     declaredField.set(
-                            this, elements.getObject(fieldName, declaredField.getType())
+                            this, object
                     );
 
-                    /**
-                     * Todo: Add data format
-                     */
+                    fields.put(declaredField.getName(),
+                            new FieldMapper(this, declaredField.getName(), fieldName, primitive, declaredField));
                 }
             }
 
@@ -62,5 +84,9 @@ public abstract class InvoSchema {
 
     public void setDriverSession(DriverSession<?> driverSession) {
         this.driverSession = driverSession;
+    }
+
+    public HashMap<String, FieldMapper> getFields() {
+        return fields;
     }
 }
