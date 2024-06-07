@@ -9,6 +9,6 @@ public class FieldMap extends HashMap<String, Object> {
 
     @Override
     public String toString() {
-        return String.join("= ? ," + this.keySet());
+        return String.join("= ? ,", this.keySet()) + " = ?";
     }
 }

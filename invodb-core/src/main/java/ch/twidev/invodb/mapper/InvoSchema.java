@@ -26,7 +26,7 @@ public abstract class InvoSchema {
         return exists && driverSession.isConnected() && collection != null;
     }
 
-    public InvoSchema populate(DriverSession<?> driverSession, String collection, Elements elements) {
+    public void populate(DriverSession<?> driverSession, String collection, Elements elements) {
         this.driverSession = driverSession;
         this.collection = collection;
 
@@ -69,7 +69,6 @@ public abstract class InvoSchema {
             throw new RuntimeException(e);
         }
 
-        return this;
     }
 
     public void setExists(boolean exists) {

@@ -26,6 +26,7 @@ public abstract class AspectInvoSchema<Aspect, PrimaryKey> extends IndexedInvoSc
                 this.getClass().getClassLoader(),
                 new Class[]{aspectInterface},
                 schemaAspectHandler);
+
     }
 
     public Aspect getAspect() {

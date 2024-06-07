@@ -18,7 +18,6 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        System.out.println("Method " + method.getName() + " invoked");
 
         CompletableFuture<Schema> schema = this.parseSchema(method, args);
         if(schema != null){
@@ -51,7 +50,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
                             // Query
                             Schema schema = schemaRepository.getSchema().getConstructor().newInstance();
 
-                            schema.populate(schema.getDriverSession(), schema.getCollection(), elementSet.first());
+                            schema.populate(schemaRepository.getDriverSession(), schemaRepository.getCollection(), elementSet.first());
 
                             schemaCompletableFuture.complete(schema);
                         } catch (Exception e) {

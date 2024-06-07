@@ -4,6 +4,7 @@ import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
 import ch.twidev.invodb.bridge.placeholder.QueryPlaceholder;
 import ch.twidev.invodb.bridge.session.DriverSession;
+import ch.twidev.invodb.bridge.util.ResultCallback;
 import ch.twidev.invodb.common.format.DataFormat;
 import ch.twidev.invodb.common.format.JsonFormatter;
 import ch.twidev.invodb.common.format.UUIDFormatter;
@@ -42,13 +43,21 @@ public class ScyllaSchemaTest {
 
                 System.out.println(scyllaUserSchema.toString()); //Output : ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
 
+                scyllaUserSchema.getAspect().setEmail("twidev8@gmail.com");
+
+                System.out.println(scyllaUserSchema.getEmail());
+
+            }).exceptionally(throwable -> {
+                throwable.printStackTrace();
+
+                return null;
             });
         } catch (DriverConnectionException e) {
             throw new RuntimeException(e);
         }
 
     }
-    public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect, Integer> implements ScyllaUserSchemaAspect {
+    public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect, Integer> implements ScyllaUserSchemaAspect, ResultCallback<Object> {
 
         @Field
         @PrimaryField
@@ -74,6 +83,11 @@ public class ScyllaSchemaTest {
         }
 
         @Override
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        @Override
         public Integer getPrimaryValue() {
             return id;
         }
@@ -94,6 +108,16 @@ public class ScyllaSchemaTest {
                     ", name='" + name + '\'' +
                     '}';
         }
+
+        @Override
+        public void succeed(Object o) {
+
+        }
+
+        @Override
+        public void failed(Throwable throwable) {
+            throwable.printStackTrace();
+        }
     }
 
     public interface ScyllaUserSchemaAspect {
@@ -101,6 +125,9 @@ public class ScyllaSchemaTest {
         @Update(field = "id")
         @Async
         void setId(int id);
+
+        @Update(field = "email")
+        void setEmail(String email);
 
     }
 
