@@ -2,27 +2,19 @@ import ch.twidev.invodb.bridge.driver.auth.PlainTextAuth;
 import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
 import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
-import ch.twidev.invodb.bridge.placeholder.QueryPlaceholder;
-import ch.twidev.invodb.bridge.session.DriverSession;
-import ch.twidev.invodb.bridge.util.ResultCallback;
-import ch.twidev.invodb.common.format.DataFormat;
-import ch.twidev.invodb.common.format.JsonFormatter;
-import ch.twidev.invodb.common.format.UUIDFormatter;
-import ch.twidev.invodb.common.query.InvoQuery;
-import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.driver.scylla.ScyllaCluster;
 import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
 import ch.twidev.invodb.driver.scylla.ScyllaConnection;
 import ch.twidev.invodb.mapper.AspectInvoSchema;
-import ch.twidev.invodb.mapper.annotations.*;
+import ch.twidev.invodb.mapper.annotations.Field;
+import ch.twidev.invodb.mapper.annotations.PrimaryField;
+import ch.twidev.invodb.mapper.annotations.Update;
 import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.SchemaRepositoryProvider;
 import ch.twidev.invodb.repository.annotations.Find;
 import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class ScyllaSchemaTest {
@@ -43,7 +35,7 @@ public class ScyllaSchemaTest {
 
                 System.out.println(scyllaUserSchema.toString()); //Output : ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
 
-                scyllaUserSchema.getAspect().setEmail("twidev8@gmail.com");
+                scyllaUserSchema.getAspect().setEmail("twidev394@gmail.com");
 
                 System.out.println(scyllaUserSchema.getEmail());
 
@@ -52,12 +44,14 @@ public class ScyllaSchemaTest {
 
                 return null;
             });
+
+            scyllaCluster.close();
         } catch (DriverConnectionException e) {
             throw new RuntimeException(e);
         }
 
     }
-    public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect, Integer> implements ScyllaUserSchemaAspect, ResultCallback<Object> {
+    public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect, Integer> implements ScyllaUserSchemaAspect {
 
         @Field
         @PrimaryField
@@ -71,15 +65,6 @@ public class ScyllaSchemaTest {
 
         public ScyllaUserSchema() {
             super(ScyllaUserSchemaAspect.class, "id");
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        @Override
-        public void setId(int id) {
-            this.id = id;
         }
 
         @Override
@@ -108,23 +93,9 @@ public class ScyllaSchemaTest {
                     ", name='" + name + '\'' +
                     '}';
         }
-
-        @Override
-        public void succeed(Object o) {
-
-        }
-
-        @Override
-        public void failed(Throwable throwable) {
-            throwable.printStackTrace();
-        }
     }
 
     public interface ScyllaUserSchemaAspect {
-
-        @Update(field = "id")
-        @Async
-        void setId(int id);
 
         @Update(field = "email")
         void setEmail(String email);
@@ -136,22 +107,6 @@ public class ScyllaSchemaTest {
         @Find(by = "name")
         CompletableFuture<ScyllaUserSchema> findByName(String name);
 
-    }
-
-    public enum UserPlaceHolder implements QueryPlaceholder {
-
-        USER_ID("id");
-
-        private final String name;
-
-        UserPlaceHolder(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String getPlaceholder() {
-            return name;
-        }
     }
 
 
