@@ -52,7 +52,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <descriptors>
-                        <descriptor>${pom.parent.basedir}/dist/single-dependency-assembly.xml</descriptor>
+                        <descriptor>${pom.parent.basedir}/assembly/single-dependency-assembly.xml</descriptor>
                     </descriptors>
                     <finalName>${project.artifactId}-${project.version}-with-dependencies</finalName>
                     <appendAssemblyId>false</appendAssemblyId>

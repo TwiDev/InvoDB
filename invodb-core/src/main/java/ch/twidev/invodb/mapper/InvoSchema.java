@@ -13,26 +13,22 @@ public abstract class InvoSchema {
 
     private final HashMap<String, FieldMapper> fields = new HashMap<>();
 
-    private final String collection;
+    private String collection = null;
 
     private boolean exists = false;
 
     private DriverSession<?> driverSession = null;
-
-    public InvoSchema(String collection) {
-        this.collection = collection;
-    }
-
     public String getCollection() {
         return collection;
     }
 
     public boolean isExists() {
-        return exists && driverSession.isConnected();
+        return exists && driverSession.isConnected() && collection != null;
     }
 
-    public void populate(DriverSession<?> driverSession, Elements elements) {
+    public InvoSchema populate(DriverSession<?> driverSession, String collection, Elements elements) {
         this.driverSession = driverSession;
+        this.collection = collection;
 
         try {
             for (Field declaredField : this.getClass().getDeclaredFields()) {
@@ -72,6 +68,8 @@ public abstract class InvoSchema {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+        return this;
     }
 
     public void setExists(boolean exists) {

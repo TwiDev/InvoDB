@@ -4,8 +4,7 @@ public abstract class IndexedInvoSchema<PrimaryKey> extends InvoSchema {
 
     private final String primaryKey;
 
-    public IndexedInvoSchema(String primaryKey, String collection) {
-        super(collection);
+    public IndexedInvoSchema(String primaryKey) {
 
         this.primaryKey = primaryKey;
     }
