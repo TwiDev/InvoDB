@@ -12,10 +12,10 @@ public class ScyllaSchemaTest {
     public void test() {
 
         String key = new MapFormatter().toPrimitive(new HashMap<String, Object>(){{
-            put("test1", 1);
+            put("test3", 1);
             put("taddsa1", 2);
             put("test1", "334324dasd");
-            put("sd", null);
+            put("sd", "d");
         }});
 
         System.out.println(key);
