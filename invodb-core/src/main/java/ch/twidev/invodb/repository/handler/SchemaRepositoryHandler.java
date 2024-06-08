@@ -1,10 +1,14 @@
 package ch.twidev.invodb.repository.handler;
 
+import ch.twidev.invodb.bridge.documents.ElementSet;
+import ch.twidev.invodb.bridge.util.ResultCallback;
 import ch.twidev.invodb.common.format.DataFormat;
 import ch.twidev.invodb.common.query.InvoQuery;
+import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.mapper.InvoSchema;
+import ch.twidev.invodb.mapper.annotations.Async;
 import ch.twidev.invodb.mapper.annotations.Primitive;
 import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.SchemaRepositoryProvider;
@@ -44,23 +48,40 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
 
         CompletableFuture<Schema> schemaCompletableFuture = new CompletableFuture<>();
 
-        // Todo: add async
         // Todo: rework query result (Future)
+        // Todo: add query cache
 
-        InvoQuery.find(schemaRepository.getCollection())
-                .where(SearchFilter.eq(find.by(), searchedValue))
-                .run(schemaRepository.getDriverSession(), elementSet -> {
-                    try {
-                        // Query
-                        Schema schema = schemaRepository.getSchema().getConstructor().newInstance();
+        ResultCallback<ElementSet> resultCallback = new ResultCallback<>() {
+            @Override
+            public void succeed(ElementSet elementSet) {
+                try {
+                    // Query
+                    Schema schema = schemaRepository.getSchema().getConstructor().newInstance();
 
-                        schema.populate(schemaRepository.getDriverSession(), schemaRepository.getCollection(), elementSet.first());
+                    long t = System.nanoTime();
+                    schema.populate(schemaRepository.getDriverSession(), schemaRepository.getCollection(), elementSet.first());
+                    System.out.println("populate : " + (System.nanoTime() - t) / (Math.pow(10, 6)) + " ms");
 
-                        schemaCompletableFuture.complete(schema);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                    schemaCompletableFuture.complete(schema);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void failed(Throwable throwable) {
+                schemaCompletableFuture.completeExceptionally(throwable);
+            }
+        };
+        
+        FindOperationBuilder findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
+                .where(SearchFilter.eq(find.by(), searchedValue));
+
+        if(method.isAnnotationPresent(Async.class)) {
+            findOperationBuilder.runAsync(schemaRepository.getDriverSession(), resultCallback);
+        }else{
+            findOperationBuilder.run(schemaRepository.getDriverSession(), resultCallback);
+        }
 
         return schemaCompletableFuture;
     }

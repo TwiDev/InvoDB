@@ -6,10 +6,7 @@ import ch.twidev.invodb.driver.scylla.ScyllaCluster;
 import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
 import ch.twidev.invodb.driver.scylla.ScyllaConnection;
 import ch.twidev.invodb.mapper.AspectInvoSchema;
-import ch.twidev.invodb.mapper.annotations.Field;
-import ch.twidev.invodb.mapper.annotations.Immutable;
-import ch.twidev.invodb.mapper.annotations.PrimaryField;
-import ch.twidev.invodb.mapper.annotations.Update;
+import ch.twidev.invodb.mapper.annotations.*;
 import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.SchemaRepositoryProvider;
 import ch.twidev.invodb.repository.annotations.Find;
@@ -34,7 +31,16 @@ public class ScyllaSchemaTest {
             ScyllaConnection scyllaCluster = new ScyllaCluster(driverConfig).connectSession("main");
 
             ScyllaUserRepository scyllaUserRepository = new SchemaRepository<>(scyllaCluster, "users", ScyllaUserRepository.class){}.build();
-            scyllaUserRepository.findByName("TwiDev").thenAccept(scyllaUserSchema -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            long started2 = System.nanoTime();
+            /*scyllaUserRepository.findByName("TwiDev").thenAccept(scyllaUserSchema -> {
+
+                System.out.println("found : " + (System.nanoTime() - started2)/(Math.pow(10,6)) + " ms");
 
                 System.out.println(scyllaUserSchema.toString()); //Output : ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
 
@@ -46,13 +52,12 @@ public class ScyllaSchemaTest {
                 throwable.printStackTrace();
 
                 return null;
-            });
+            });*/
 
             long started = System.nanoTime();
             scyllaUserRepository.insertUser(467,"test683@gmail.com", "Hello3343").thenAccept(scyllaUserSchema -> {
-                System.out.println(scyllaUserSchema.toString());
-
                 System.out.println("Inserted : " + (System.nanoTime() - started)/(Math.pow(10,6)) + " ms");
+                System.out.println(scyllaUserSchema.toString());
 
                 long inserted = System.nanoTime();
 
@@ -67,6 +72,22 @@ public class ScyllaSchemaTest {
                 return null;
             });
 
+            long started3 = System.nanoTime();
+            scyllaUserRepository.findByIdAsync(10).thenAccept(scyllaUserSchema -> {
+                System.out.println("found : " + (System.nanoTime() - started3)/(Math.pow(10,6)) + " ms");
+                System.out.println(Thread.currentThread().getName());
+
+            }).exceptionally(throwable -> {
+                throwable.printStackTrace();
+
+                return null;
+            });
+
+            try {
+                Thread.sleep(4000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
 
         } catch (DriverConnectionException e) {
             throw new RuntimeException(e);
@@ -126,6 +147,10 @@ public class ScyllaSchemaTest {
     }
 
     public interface ScyllaUserRepository extends SchemaRepositoryProvider<ScyllaUserSchema> {
+
+        @Find(by = "id")
+        @Async
+        CompletableFuture<ScyllaUserSchema> findByIdAsync(int id);
 
         @Find(by = "name")
         CompletableFuture<ScyllaUserSchema> findByName(String name);
