@@ -6,6 +6,7 @@ import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.driver.mongodb.MongoCluster;
 import ch.twidev.invodb.driver.mongodb.MongoConnection;
 import ch.twidev.invodb.driver.mongodb.URLMongoConfigBuilder;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
