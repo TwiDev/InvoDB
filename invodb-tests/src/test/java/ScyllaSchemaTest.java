@@ -67,6 +67,7 @@ public class ScyllaSchemaTest {
                 Monitoring monitoring = new Monitoring("Find Async");
                 scyllaUserRepository.findByIdAsync(11).thenAccept(scyllaUserSchema -> {
                     monitoring.done();
+
                     logger.info("[AsyncFind] Thread " + Thread.currentThread().getName());
                     logger.info("[AsyncFind] " + scyllaUserSchema.toString());
                 }).exceptionally(throwable -> {
