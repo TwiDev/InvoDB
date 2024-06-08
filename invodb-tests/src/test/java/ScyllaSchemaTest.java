@@ -12,6 +12,8 @@ import ch.twidev.invodb.repository.SchemaRepositoryProvider;
 import ch.twidev.invodb.repository.annotations.Find;
 import ch.twidev.invodb.repository.annotations.FindOrInsert;
 import ch.twidev.invodb.repository.annotations.Insert;
+import ch.twidev.invodb.tests.Monitoring;
+
 import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
@@ -39,25 +41,33 @@ public class ScyllaSchemaTest {
             {
                 ScyllaUserSchema schema = scyllaUserRepository.findByName("TwiDev");
 
-                logger.info(schema.toString()); //Output : ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
+                logger.info("[Find] " + schema.toString()); //Output: ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
+
+                Monitoring monitoring = new Monitoring("Change Email");
                 schema.getAspect().setEmail("twidev398@gmail.com");
-                logger.info(schema.getEmail());
+                logger.info("[Find] " + schema.getEmail());
+                monitoring.done();
             }
 
             // Insert user
             {
+                Monitoring monitoring = new Monitoring("Insert User");
                 ScyllaUserSchema schema = scyllaUserRepository.insertUser(467,"test683@gmail.com", "Hello3343");
+                monitoring.done();
 
-                logger.info(schema.toString());
-                schema.getAspect().setEmail("world@gmail.com");
-                logger.info(schema.toString());
+                logger.info("[Insert] " + schema.toString());
+                //schema.getAspect().setEmail("world@gmail.com");
+                logger.info("[Insert] " + schema.toString());
             }
 
             // Async find user by primary key
             {
+                Monitoring monitoring = new Monitoring("Find Async");
                 scyllaUserRepository.findByIdAsync(10).thenAccept(scyllaUserSchema -> {
-                    logger.info(Thread.currentThread().getName());
-                    logger.info(scyllaUserSchema.toString());
+                    monitoring.done();
+
+                    logger.info("[AsyncFind] Thread " + Thread.currentThread().getName());
+                    logger.info("[AsyncFind] " + scyllaUserSchema.toString());
                 }).exceptionally(throwable -> {
                     throwable.printStackTrace();
 
@@ -65,7 +75,7 @@ public class ScyllaSchemaTest {
                 });
             }
 
-            logger.info(Thread.currentThread().getName());
+            logger.info("[Main] Thread " + Thread.currentThread().getName());
 
             try {
                 // Waiting for async task to finish

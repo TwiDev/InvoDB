@@ -1,7 +1,6 @@
 package ch.twidev.invodb.repository.handler;
 
 import ch.twidev.invodb.bridge.documents.ElementSet;
-import ch.twidev.invodb.bridge.util.ResultCallback;
 import ch.twidev.invodb.common.format.DataFormat;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
@@ -28,10 +27,10 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         CompletableFuture<Schema> schemaCompletableFuture = this.handleQuery(method, args);
 
         if(schemaCompletableFuture != null) {
-            if(method.isAnnotationPresent(Async.class)) {
-                return schemaCompletableFuture;
-            }else {
+            if(schemaCompletableFuture.isDone()) {
                 return schemaCompletableFuture.get();
+            }else {
+                return schemaCompletableFuture;
             }
         }
 
@@ -138,15 +137,27 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
                 schema.getFields().get(fieldName).field().set(schema, value);
             }
 
-            // Sync
+            CompletableFuture<ElementSet> completableFuture;
 
-            operationBuilder.run(schemaRepository.getDriverSession());
-            schema.setExists(true);
-            schema.setDriverSession(schemaRepository.getDriverSession());
-            schema.setCollection(schemaRepository.getCollection());
+            if(method.isAnnotationPresent(Async.class)) {
+                completableFuture = operationBuilder.runAsync(schemaRepository.getDriverSession());
+            }else{
+                completableFuture = CompletableFuture.completedFuture(operationBuilder.run(schemaRepository.getDriverSession()));
+            }
 
-            schemaCompletableFuture.complete(schema);
+            completableFuture.exceptionally(throwable -> {
+                schemaCompletableFuture.completeExceptionally(throwable);
 
+                return null;
+            }).thenAccept(elementSet -> {
+                if(elementSet == null) return;
+
+                schema.setExists(true);
+                schema.setDriverSession(schemaRepository.getDriverSession());
+                schema.setCollection(schemaRepository.getCollection());
+
+                schemaCompletableFuture.complete(schema);
+            });
 
         } catch (Exception e) {
             schemaCompletableFuture.completeExceptionally(e);
