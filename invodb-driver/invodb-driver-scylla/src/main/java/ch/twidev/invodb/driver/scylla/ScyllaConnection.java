@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ScyllaConnection implements DriverSession<Session> {
@@ -75,6 +76,7 @@ public class ScyllaConnection implements DriverSession<Session> {
             ResultSet resultSet = searchFilter.isRequired() ?
                     session.execute(statement, searchFilter.getContexts().toArray(new Object[0])) :
                     session.execute(statement);
+
 
             return new ScyllaResultSet(resultSet);
         } catch (Exception exception) {

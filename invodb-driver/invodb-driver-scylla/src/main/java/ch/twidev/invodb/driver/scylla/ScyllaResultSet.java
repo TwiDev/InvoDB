@@ -18,6 +18,7 @@ public class ScyllaResultSet implements ElementSet {
         this.resultSet = resultSet;
 
         this.isEmpty = resultSet.isExhausted();
+
         this.first = new ScyllaElements(resultSet.one());
 
         this.parsedElements = resultSet.all()
@@ -63,6 +64,11 @@ public class ScyllaResultSet implements ElementSet {
 
         public ScyllaElements(Row row) {
             this.row = row;
+        }
+
+        @Override
+        public boolean isValid() {
+            return row != null;
         }
 
         @Override

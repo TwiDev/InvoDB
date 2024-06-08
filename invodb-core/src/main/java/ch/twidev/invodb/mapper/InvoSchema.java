@@ -3,6 +3,7 @@ package ch.twidev.invodb.mapper;
 import ch.twidev.invodb.bridge.documents.Elements;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.common.format.DataFormat;
+import ch.twidev.invodb.exception.runtime.PopulateSchemaException;
 import ch.twidev.invodb.mapper.annotations.Primitive;
 import ch.twidev.invodb.mapper.field.FieldMapper;
 
@@ -73,7 +74,7 @@ public abstract class InvoSchema {
                         this, object
                 );
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new PopulateSchemaException(e);
             }
         });
 

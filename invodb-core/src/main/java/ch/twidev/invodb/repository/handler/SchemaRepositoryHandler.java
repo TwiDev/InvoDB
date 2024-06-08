@@ -6,6 +6,7 @@ import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
+import ch.twidev.invodb.exception.InvalidRepositoryQueryException;
 import ch.twidev.invodb.mapper.InvoSchema;
 import ch.twidev.invodb.mapper.annotations.Async;
 import ch.twidev.invodb.mapper.annotations.Primitive;
@@ -37,7 +38,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         throw new UnsupportedOperationException("Unsupported method : " + method.getName());
     }
 
-    public CompletableFuture<Schema> handleQuery(Method method, Object[] args) {
+    public CompletableFuture<Schema> handleQuery(Method method, Object[] args) throws InvalidRepositoryQueryException {
         if (method.isAnnotationPresent(Find.class)) {
             return handleFind(method, args);
         }
@@ -49,8 +50,15 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         return null;
     }
 
-    public CompletableFuture<Schema> handleFind(Method method, Object[] args) {
+    public void checkQuery(Object[] args) throws InvalidRepositoryQueryException {
+        if(args == null || args.length == 0) {
+            throw new InvalidRepositoryQueryException("You need to define annotation arguments in the method to define repository functions");
+        }
+    }
+
+    public CompletableFuture<Schema> handleFind(Method method, Object[] args) throws InvalidRepositoryQueryException {
         Find find = method.getAnnotation(Find.class);
+        this.checkQuery(args);
 
         Object searchedValue = args[0];
 
@@ -83,6 +91,11 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         }).thenAccept(elementSet -> {
             if(elementSet == null) return;
 
+            if(elementSet.isEmpty()) {
+                schemaCompletableFuture.complete(null);
+                return;
+            }
+
             try {
                 Schema schema = schemaRepository.getSchema().getConstructor().newInstance();
 
@@ -99,11 +112,12 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         return schemaCompletableFuture;
     }
 
-    public CompletableFuture<Schema> handleInsert(Method method, Object[] args) {
+    public CompletableFuture<Schema> handleInsert(Method method, Object[] args) throws InvalidRepositoryQueryException {
         Insert insert = method.getAnnotation(Insert.class);
+        this.checkQuery(args);
 
         if(args.length < insert.fields().length) {
-            throw new IllegalArgumentException("There is no enough argument provided for the insert " + method.getName());
+            throw new InvalidRepositoryQueryException("There is no enough argument provided for the insert of " + method.getName());
         }
 
         InsertOperationBuilder operationBuilder = InvoQuery.insert(schemaRepository.getCollection());

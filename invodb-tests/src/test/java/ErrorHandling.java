@@ -14,20 +14,19 @@ import ch.twidev.invodb.repository.SchemaRepositoryProvider;
 import ch.twidev.invodb.repository.annotations.Find;
 import ch.twidev.invodb.repository.annotations.FindOrInsert;
 import ch.twidev.invodb.repository.annotations.Insert;
-import ch.twidev.invodb.tests.Monitoring;
-
 import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
-public class ScyllaSchemaTest {
+public class ErrorHandling {
 
     private static final Logger logger = Logger.getLogger("ScyllaExample");
 
     @Test
-    public void test() {
+    public void find() {
         DriverConfig driverConfig = new ScyllaConfigBuilder()
                 .setDriverName("ScyllaDriver")
                 .addContactPoint(new ContactPoint(InetSocketAddress.createUnresolved("45.13.119.231", 9042)))
@@ -37,62 +36,24 @@ public class ScyllaSchemaTest {
         try {
             ScyllaConnection scyllaCluster = new ScyllaCluster(driverConfig).connectSession("main");
 
-            ScyllaUserRepository scyllaUserRepository = new SchemaRepository<>(scyllaCluster, "users", ScyllaUserRepository.class){}.build();
+             ScyllaUserRepository scyllaUserRepository = new SchemaRepository<>(scyllaCluster, "users", ScyllaUserRepository.class){}.build();
 
             // Find user
             {
-                ScyllaUserSchema schema = scyllaUserRepository.findByName("TwiDevw");
+                Optional.ofNullable(scyllaUserRepository.findByName("TwiDev")).ifPresentOrElse(scyllaUserSchema -> {
+                    logger.info(scyllaUserSchema.toString());
 
-                logger.info("[Find] " + schema.toString()); //Output: ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
+                    scyllaUserSchema.getAspect().setEmailAsync(null);
 
-                Monitoring monitoring = new Monitoring("Change Email");
-                schema.getAspect().setEmailAsync("helloworld@gmail.com");
-                logger.info("[Find] " + schema.getEmail());
-                monitoring.done();
+                    logger.info(scyllaUserSchema.toString());
+                    System.out.println(scyllaUserSchema.getEmail());
+                },() -> logger.warning("Schema is null"));
             }
-
-            // Insert user
-            {
-                Monitoring monitoring = new Monitoring("Insert User");
-                ScyllaUserSchema schema = scyllaUserRepository.insertUser(467, "test683@gmail.com", "Hello3343");
-                monitoring.done();
-
-                logger.info("[Insert] " + schema.toString());
-                //schema.getAspect().setEmail("world@gmail.com");
-                logger.info("[Insert] " + schema.toString());
-            }
-
-            // Async find user by primary key
-            {
-                Monitoring monitoring = new Monitoring("Find Async");
-                scyllaUserRepository.findByIdAsync(10).thenAccept(scyllaUserSchema -> {
-                    monitoring.done();
-
-                    logger.info("[AsyncFind] Thread " + Thread.currentThread().getName());
-                    logger.info("[AsyncFind] " + scyllaUserSchema.toString());
-                }).exceptionally(throwable -> {
-                    throwable.printStackTrace();
-
-                    return null;
-                });
-            }
-
-            logger.info("[Main] Thread " + Thread.currentThread().getName());
-
-            try {
-                // Waiting for async task to finish
-                Thread.sleep(4000);
-
-                scyllaCluster.close();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
-        } catch (DriverConnectionException e) {
-            throw new RuntimeException(e);
+        } catch (DriverConnectionException driverConnectionException){
+            throw new RuntimeException(driverConnectionException);
         }
-
     }
+
     public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect, Integer> implements ScyllaUserSchemaAspect, SchemaOperationHandler {
 
         @Field
@@ -152,7 +113,7 @@ public class ScyllaSchemaTest {
 
         @Update(field = "email")
         @Async
-        void setEmailAsync(String email);
+        void setEmailAsync(String name);
 
     }
 
