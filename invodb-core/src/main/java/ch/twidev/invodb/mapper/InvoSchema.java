@@ -3,7 +3,6 @@ package ch.twidev.invodb.mapper;
 import ch.twidev.invodb.bridge.documents.Elements;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.common.format.DataFormat;
-import ch.twidev.invodb.mapper.annotations.Immutable;
 import ch.twidev.invodb.mapper.annotations.Primitive;
 import ch.twidev.invodb.mapper.field.FieldMapper;
 

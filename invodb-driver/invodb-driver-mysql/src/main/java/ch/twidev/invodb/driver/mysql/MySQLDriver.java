@@ -7,6 +7,7 @@ import ch.twidev.invodb.bridge.driver.InvoDriver;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
 import ch.twidev.invodb.bridge.operations.FindContext;
+import ch.twidev.invodb.bridge.operations.InsertContext;
 import ch.twidev.invodb.bridge.operations.UpdateContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.util.ResultCallback;
@@ -53,6 +54,16 @@ public class MySQLDriver extends InvoDriver<HikariDataSource> {
 
     @Override
     public void updateAsync(UpdateContext updateContext, PlaceholderContext placeholderContext, ResultCallback<OperationResult> callback) {
+
+    }
+
+    @Override
+    public void insert(InsertContext updateContext, PlaceholderContext placeholderContext, ResultCallback<ElementSet> callback) {
+
+    }
+
+    @Override
+    public void insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext, ResultCallback<ElementSet> callback) {
 
     }
 
