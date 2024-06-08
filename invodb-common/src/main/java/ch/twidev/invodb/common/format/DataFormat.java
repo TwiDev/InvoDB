@@ -32,6 +32,8 @@ public abstract class DataFormat<Format, Primitive> {
 
     @SuppressWarnings("unchecked")
     public static <F, P> Object getPrimitive(F format, Class<? extends DataFormat> dataFormat) {
+        if(format == null) return null;
+
         Class<F> formatInstance = (Class<F>) format.getClass();
 
         if (staticFormatter.containsKey(formatInstance)) {
@@ -56,6 +58,8 @@ public abstract class DataFormat<Format, Primitive> {
 
     @SuppressWarnings("unchecked")
     public static <F,P> F getFromPrimitive(P primitive, Class<F> format, Class<? extends DataFormat> dataFormat) {
+        if(primitive == null) return null;
+
         if(staticFormatter.containsKey(format)) {
             DataFormat<F,P> formatter = (DataFormat<F, P>) staticFormatter.get(format);
 

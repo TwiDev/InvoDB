@@ -2,6 +2,7 @@ import ch.twidev.invodb.bridge.driver.auth.PlainTextAuth;
 import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
 import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
+import ch.twidev.invodb.common.format.UUIDFormatter;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.driver.scylla.ScyllaCluster;
 import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
@@ -19,6 +20,7 @@ import ch.twidev.invodb.tests.Monitoring;
 import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
@@ -41,7 +43,7 @@ public class ScyllaSchemaTest {
 
             // Find user
             {
-                ScyllaUserSchema schema = scyllaUserRepository.findByName("TwiDevw");
+                ScyllaUserSchema schema = scyllaUserRepository.findByName("TwiDev");
 
                 logger.info("[Find] " + schema.toString()); //Output: ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
 
@@ -54,20 +56,17 @@ public class ScyllaSchemaTest {
             // Insert user
             {
                 Monitoring monitoring = new Monitoring("Insert User");
-                ScyllaUserSchema schema = scyllaUserRepository.insertUser(467, "test683@gmail.com", "Hello3343");
+                ScyllaUserSchema schema = scyllaUserRepository.insertUser(11, "dkmsai@gmail.com", "Hello");
                 monitoring.done();
 
-                logger.info("[Insert] " + schema.toString());
-                //schema.getAspect().setEmail("world@gmail.com");
                 logger.info("[Insert] " + schema.toString());
             }
 
             // Async find user by primary key
             {
                 Monitoring monitoring = new Monitoring("Find Async");
-                scyllaUserRepository.findByIdAsync(10).thenAccept(scyllaUserSchema -> {
+                scyllaUserRepository.findByIdAsync(11).thenAccept(scyllaUserSchema -> {
                     monitoring.done();
-
                     logger.info("[AsyncFind] Thread " + Thread.currentThread().getName());
                     logger.info("[AsyncFind] " + scyllaUserSchema.toString());
                 }).exceptionally(throwable -> {
@@ -106,6 +105,10 @@ public class ScyllaSchemaTest {
         @Field
         private String name;
 
+        @Field
+        @Primitive(formatter = UUIDFormatter.class)
+        private UUID uuid = UUID.randomUUID();
+
         public ScyllaUserSchema() {
             super(ScyllaUserSchemaAspect.class, "id");
         }
@@ -113,6 +116,11 @@ public class ScyllaSchemaTest {
         @Override
         public void setEmailAsync(String email) {
             this.email = email;
+        }
+
+        @Override
+        public void setUuid(UUID uuid) {
+            this.uuid = uuid;
         }
 
         @Override
@@ -128,9 +136,13 @@ public class ScyllaSchemaTest {
             return email;
         }
 
+        public UUID getUuid() {
+            return uuid;
+        }
+
         @Override
         public void onSuccess(InvoQuery<?> invoQuery) {
-            System.out.println("query success " + invoQuery.getQueryOperation());
+            logger.info("query success " + invoQuery.getQueryOperation());
         }
 
         @Override
@@ -144,6 +156,7 @@ public class ScyllaSchemaTest {
                     "id=" + id +
                     ", email='" + email + '\'' +
                     ", name='" + name + '\'' +
+                    ", uuid=" + uuid +
                     '}';
         }
     }
@@ -153,6 +166,10 @@ public class ScyllaSchemaTest {
         @Update(field = "email")
         @Async
         void setEmailAsync(String email);
+
+        @Update(field = "uuid")
+        @Async
+        void setUuid(UUID uuid);
 
     }
 

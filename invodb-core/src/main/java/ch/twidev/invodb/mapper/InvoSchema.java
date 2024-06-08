@@ -74,6 +74,8 @@ public abstract class InvoSchema {
                         this, object
                 );
             } catch (Exception e) {
+                e.printStackTrace();
+
                 throw new PopulateSchemaException(e);
             }
         });
