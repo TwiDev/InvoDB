@@ -144,10 +144,10 @@ public class ScyllaConnection implements DriverSession<Session> {
             ISearchFilter searchFilter = updateContext.getSearchFilter();
 
             String statement = "UPDATE %s SET %s ".formatted(updateContext.getCollection(), updateContext.getFields().toString())
-                    + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
+                    + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) : "");
 
-            List<Object> context = new ArrayList<>(searchFilter.getContexts());
-            context.addAll(updateContext.getFields().values());
+            List<Object> context = new ArrayList<>(updateContext.getFields().values());
+            context.addAll(updateContext.getContexts());
 
             ResultSetFuture resultSet = searchFilter.isRequired() ?
                     session.executeAsync(statement, context.toArray(new Object[0])) :

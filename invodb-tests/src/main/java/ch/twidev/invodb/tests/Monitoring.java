@@ -8,7 +8,7 @@ public class Monitoring {
 
     private final long time;
 
-    private String name;
+    private final String name;
 
     public Monitoring() {
         this(null);

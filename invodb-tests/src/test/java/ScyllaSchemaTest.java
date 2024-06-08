@@ -2,11 +2,13 @@ import ch.twidev.invodb.bridge.driver.auth.PlainTextAuth;
 import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
 import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
+import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.driver.scylla.ScyllaCluster;
 import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
 import ch.twidev.invodb.driver.scylla.ScyllaConnection;
 import ch.twidev.invodb.mapper.AspectInvoSchema;
 import ch.twidev.invodb.mapper.annotations.*;
+import ch.twidev.invodb.mapper.handler.SchemaOperationHandler;
 import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.SchemaRepositoryProvider;
 import ch.twidev.invodb.repository.annotations.Find;
@@ -44,7 +46,7 @@ public class ScyllaSchemaTest {
                 logger.info("[Find] " + schema.toString()); //Output: ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
 
                 Monitoring monitoring = new Monitoring("Change Email");
-                schema.getAspect().setEmail("twidev398@gmail.com");
+                schema.getAspect().setEmailAsync("helloworld@gmail.com");
                 logger.info("[Find] " + schema.getEmail());
                 monitoring.done();
             }
@@ -52,7 +54,7 @@ public class ScyllaSchemaTest {
             // Insert user
             {
                 Monitoring monitoring = new Monitoring("Insert User");
-                ScyllaUserSchema schema = scyllaUserRepository.insertUser(467,"test683@gmail.com", "Hello3343");
+                ScyllaUserSchema schema = scyllaUserRepository.insertUser(467, "test683@gmail.com", "Hello3343");
                 monitoring.done();
 
                 logger.info("[Insert] " + schema.toString());
@@ -91,7 +93,7 @@ public class ScyllaSchemaTest {
         }
 
     }
-    public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect, Integer> implements ScyllaUserSchemaAspect {
+    public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect, Integer> implements ScyllaUserSchemaAspect, SchemaOperationHandler {
 
         @Field
         @PrimaryField
@@ -109,7 +111,7 @@ public class ScyllaSchemaTest {
         }
 
         @Override
-        public void setEmail(String email) {
+        public void setEmailAsync(String email) {
             this.email = email;
         }
 
@@ -127,6 +129,16 @@ public class ScyllaSchemaTest {
         }
 
         @Override
+        public void onSuccess(InvoQuery<?> invoQuery) {
+            System.out.println("query success " + invoQuery.getQueryOperation());
+        }
+
+        @Override
+        public void onFailed(Throwable e) {
+            e.printStackTrace();
+        }
+
+        @Override
         public String toString() {
             return "ScyllaUserSchema{" +
                     "id=" + id +
@@ -139,7 +151,8 @@ public class ScyllaSchemaTest {
     public interface ScyllaUserSchemaAspect {
 
         @Update(field = "email")
-        void setEmail(String email);
+        @Async
+        void setEmailAsync(String email);
 
     }
 

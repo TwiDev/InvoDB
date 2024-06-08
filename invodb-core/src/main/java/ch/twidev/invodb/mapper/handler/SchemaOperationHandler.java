@@ -1,7 +1,13 @@
 package ch.twidev.invodb.mapper.handler;
 
-public interface SchemaOperationHandler<T> {
+import ch.twidev.invodb.common.query.InvoQuery;
 
-    void onFailed(Throwable e);
+public interface SchemaOperationHandler {
+
+    SchemaOperationHandler HANDLER = new SchemaOperationHandler(){};
+
+    default void onSuccess(InvoQuery<?> invoQuery) {};
+
+    default void onFailed(Throwable e) {};
 
 }

@@ -21,12 +21,15 @@ public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema) implements I
 
         if(invoQuery != null) {
             if(method.isAnnotationPresent(Async.class)) {
-                SchemaOperationHandler<?> resultCallback = (invoSchema instanceof SchemaOperationHandler<?> handler) ? handler : o -> {};
+                SchemaOperationHandler resultCallback = (invoSchema instanceof SchemaOperationHandler handler) ? handler : SchemaOperationHandler.HANDLER;
 
-                invoQuery.runAsync(invoSchema.getDriverSession()).exceptionally(throwable -> {
-                    resultCallback.onFailed(throwable);
+                invoQuery.runAsync(invoSchema.getDriverSession()).whenComplete((o, throwable) -> {
+                    if(throwable != null) {
+                        resultCallback.onFailed(throwable);
+                        return;
+                    }
 
-                    return null;
+                    resultCallback.onSuccess(invoQuery);
                 });
             }else{
                 invoQuery.run(invoSchema.getDriverSession());
