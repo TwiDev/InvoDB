@@ -7,6 +7,8 @@ import com.mongodb.client.MongoCursor;
 import org.bson.Document;
 
 import java.util.Iterator;
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
 
 public class MongoResultSet implements ElementSet {
 
@@ -16,16 +18,15 @@ public class MongoResultSet implements ElementSet {
     public MongoResultSet(MongoCursor<Document> cursor) {
         this.capacity = cursor.available();
 
-        parsedElements = Streams.stream(cursor)
+        parsedElements = StreamSupport.stream(Spliterators.spliteratorUnknownSize(cursor, 0), false)
                 .map(MongoElements::new)
                 .iterator();
 
-        cursor.close();
     }
 
     @Override
     public boolean isEmpty() {
-        return capacity != 0;
+        return capacity == 0;
     }
 
     @Override
@@ -63,15 +64,16 @@ public class MongoResultSet implements ElementSet {
 
         @Override
         public Object getObject(String name) {
-            return null;
+            return document.get(name);
         }
 
         @Override
         public <T> T getObject(String name, Class<T> type) {
-            return null;
+            return document.get(name,type);
         }
 
         @Override
+        @Deprecated
         public <T> T getObject(int id, Class<T> type) {
             return null;
         }

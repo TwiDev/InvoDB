@@ -37,10 +37,7 @@ public class MongoConnection implements DriverSession<MongoDatabase> {
         Bson searchFilter = BsonFilter.toBson(findOperationBuilder);
 
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(findOperationBuilder.getCollection());
-        FindIterable<Document> document = ((searchFilter != null) ? mongoCollection.find(searchFilter) : mongoCollection.find())
-                .projection(Projections.fields(
-                        Projections.include(findOperationBuilder.getAttributes().toString()))
-                );
+        FindIterable<Document> document = ((searchFilter != null) ? mongoCollection.find(searchFilter) : mongoCollection.find());
 
         return new MongoResultSet(document.iterator());
     }

@@ -5,10 +5,7 @@ import ch.twidev.invodb.bridge.operations.SearchContext;
 import ch.twidev.invodb.bridge.search.ICompositeSearchFilter;
 import ch.twidev.invodb.bridge.search.IFieldSearchFilter;
 import ch.twidev.invodb.bridge.search.ISearchFilter;
-import com.mongodb.client.model.Filters;
 import org.bson.conversions.Bson;
-
-import java.util.Locale;
 
 import static com.mongodb.client.model.Filters.*;
 

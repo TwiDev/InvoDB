@@ -15,10 +15,12 @@ public class MongoFindTest {
     @Test
     public void find() {
         try {
-            try (MongoConnection connection = new MongoCluster(new URLMongoConfigBuilder("dd").build()).connectSession("main")) {
-                ElementSet elementSet = InvoQuery.find("test")
-                        .where(SearchFilter.eq("name", "TwyDev"))
+            try (MongoConnection connection = new MongoCluster(new URLMongoConfigBuilder("mongodb://localhost:27017/").build()).connectSession("main")) {
+                ElementSet elementSet = InvoQuery.find("users")
+                        .where(SearchFilter.not_eq("name", "TwiDev"))
                         .run(connection);
+
+                System.out.println(elementSet.isEmpty());
 
                 while (elementSet.hasNext()) {
                     Elements elements = elementSet.next();
