@@ -9,6 +9,7 @@ import ch.twidev.invodb.bridge.util.ResultCallback;
 
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
+import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
 import ch.twidev.invodb.common.query.builder.UpdateOperationBuilder;
 
 @SuppressWarnings("unchecked")
@@ -30,6 +31,9 @@ public class DriverConnection {
             }
             case UpdateOperationBuilder updateOperationBuilder -> {
                 session.update(updateOperationBuilder, placeholderContext, (ResultCallback<OperationResult>) throwableCallback);
+            }
+            case InsertOperationBuilder insertOperationBuilder -> {
+                session.insert(insertOperationBuilder, placeholderContext, (ResultCallback<ElementSet>) throwableCallback);
             }
             default -> throw new IllegalStateException("Unexpected value: " + invoQuery);
         }
@@ -53,6 +57,9 @@ public class DriverConnection {
             }
             case UpdateOperationBuilder updateOperationBuilder -> {
                 session.updateAsync(updateOperationBuilder, placeholderContext, (ResultCallback<OperationResult>) throwableCallback);
+            }
+            case InsertOperationBuilder insertOperationBuilder -> {
+                session.insertAsync(insertOperationBuilder, placeholderContext, (ResultCallback<ElementSet>) throwableCallback);
             }
             default -> throw new IllegalStateException("Unexpected value: " + invoQuery);
         }

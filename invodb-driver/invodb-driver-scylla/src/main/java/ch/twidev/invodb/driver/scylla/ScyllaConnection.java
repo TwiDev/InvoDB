@@ -5,6 +5,7 @@ import ch.twidev.invodb.bridge.contexts.SearchFilterType;
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.documents.OperationResult;
 import ch.twidev.invodb.bridge.operations.FindContext;
+import ch.twidev.invodb.bridge.operations.InsertContext;
 import ch.twidev.invodb.bridge.operations.UpdateContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.search.ISearchFilter;
@@ -121,9 +122,14 @@ public class ScyllaConnection implements DriverSession<Session> {
             List<Object> context = new ArrayList<>(updateContext.getFields().values());
             context.addAll(updateContext.getContexts());
 
+            long started = System.nanoTime();
+
             ResultSet resultSet = searchFilter.isRequired() ?
                     session.execute(statement, context.toArray(new Object[0])) :
                     session.execute(statement);
+
+            System.out.println("Queried (2) : " + (System.nanoTime() - started)/(Math.pow(10,6)) + " ms");
+
 
             callback.succeed(OperationResult.Ok);
         } catch (Exception exception) {
@@ -160,6 +166,32 @@ public class ScyllaConnection implements DriverSession<Session> {
         } catch (Exception exception) {
             callback.failed(exception);
         }
+    }
+
+    @Override
+    public void insert(InsertContext updateContext, PlaceholderContext placeholderContext, ResultCallback<ElementSet> callback) {
+        try {
+            String statement = "INSERT INTO %s (%s) VALUES (%s)".formatted(
+                    updateContext.getCollection(),
+                    updateContext.getFields().getKeysString(),
+                    updateContext.getFields().getUnbounded());
+
+            long started = System.nanoTime();
+
+            ResultSet resultSet = session.execute(statement,
+                    updateContext.getFields().values().toArray(new Object[0]));
+
+            System.out.println("Queried : " + (System.nanoTime() - started)/(Math.pow(10,6)) + " ms");
+
+            callback.succeed(new ScyllaResultSet(resultSet));
+        } catch (Exception exception) {
+            callback.failed(exception);
+        }
+    }
+
+    @Override
+    public void insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext, ResultCallback<ElementSet> callback) {
+
     }
 
     @Override

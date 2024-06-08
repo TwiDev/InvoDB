@@ -7,11 +7,14 @@ import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
 import ch.twidev.invodb.driver.scylla.ScyllaConnection;
 import ch.twidev.invodb.mapper.AspectInvoSchema;
 import ch.twidev.invodb.mapper.annotations.Field;
+import ch.twidev.invodb.mapper.annotations.Immutable;
 import ch.twidev.invodb.mapper.annotations.PrimaryField;
 import ch.twidev.invodb.mapper.annotations.Update;
 import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.SchemaRepositoryProvider;
 import ch.twidev.invodb.repository.annotations.Find;
+import ch.twidev.invodb.repository.annotations.FindOrInsert;
+import ch.twidev.invodb.repository.annotations.Insert;
 import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
@@ -35,7 +38,7 @@ public class ScyllaSchemaTest {
 
                 System.out.println(scyllaUserSchema.toString()); //Output : ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
 
-                scyllaUserSchema.getAspect().setEmail("twidev394@gmail.com");
+                scyllaUserSchema.getAspect().setEmail("twidev398@gmail.com");
 
                 System.out.println(scyllaUserSchema.getEmail());
 
@@ -45,7 +48,26 @@ public class ScyllaSchemaTest {
                 return null;
             });
 
-            scyllaCluster.close();
+            long started = System.nanoTime();
+            scyllaUserRepository.insertUser(467,"test683@gmail.com", "Hello3343").thenAccept(scyllaUserSchema -> {
+                System.out.println(scyllaUserSchema.toString());
+
+                System.out.println("Inserted : " + (System.nanoTime() - started)/(Math.pow(10,6)) + " ms");
+
+                long inserted = System.nanoTime();
+
+                scyllaUserSchema.getAspect().setEmail("world@gmail.com");
+
+                System.out.println("Setter : " + (System.nanoTime() - inserted)/(Math.pow(10,6)) + " ms");
+
+                System.out.println(scyllaUserSchema.toString());
+            }).exceptionally(throwable -> {
+                throwable.printStackTrace();
+
+                return null;
+            });
+
+
         } catch (DriverConnectionException e) {
             throw new RuntimeException(e);
         }
@@ -55,6 +77,7 @@ public class ScyllaSchemaTest {
 
         @Field
         @PrimaryField
+        @Immutable
         private int id = 0;
 
         @Field
@@ -106,6 +129,12 @@ public class ScyllaSchemaTest {
 
         @Find(by = "name")
         CompletableFuture<ScyllaUserSchema> findByName(String name);
+
+        @Insert(fields = {"id","email","name"})
+        CompletableFuture<ScyllaUserSchema> insertUser(int id, String email, String name);
+
+        @FindOrInsert(find = @Find(by = "name"), insert = @Insert(fields = {"id","name","email"}))
+        CompletableFuture<ScyllaUserSchema> getOrInsertUser(int id, String name, String email);
 
     }
 

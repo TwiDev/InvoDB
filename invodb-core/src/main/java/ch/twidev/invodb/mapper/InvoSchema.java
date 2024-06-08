@@ -3,6 +3,7 @@ package ch.twidev.invodb.mapper;
 import ch.twidev.invodb.bridge.documents.Elements;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.common.format.DataFormat;
+import ch.twidev.invodb.mapper.annotations.Immutable;
 import ch.twidev.invodb.mapper.annotations.Primitive;
 import ch.twidev.invodb.mapper.field.FieldMapper;
 
@@ -26,49 +27,58 @@ public abstract class InvoSchema {
         return exists && driverSession.isConnected() && collection != null;
     }
 
+    public void load() {
+        for (Field declaredField : this.getClass().getDeclaredFields()) {
+            ch.twidev.invodb.mapper.annotations.Field annotation = declaredField.getAnnotation(ch.twidev.invodb.mapper.annotations.Field.class);
+
+            if (annotation != null) {
+                declaredField.setAccessible(true);
+                String fieldName = annotation.name().isEmpty() ? declaredField.getName() : annotation.name();
+
+                final Primitive primitive;
+
+                if(declaredField.isAnnotationPresent(Primitive.class)) {
+                    primitive = declaredField.getAnnotation(Primitive.class);
+                }else{
+                    primitive = null;
+                }
+
+                fields.put(declaredField.getName(),
+                        new FieldMapper(this, declaredField.getName(), fieldName, primitive, declaredField));
+            }
+        }
+    }
+
     public void populate(DriverSession<?> driverSession, String collection, Elements elements) {
         this.driverSession = driverSession;
         this.collection = collection;
 
-        try {
-            for (Field declaredField : this.getClass().getDeclaredFields()) {
-                ch.twidev.invodb.mapper.annotations.Field annotation = declaredField.getAnnotation(ch.twidev.invodb.mapper.annotations.Field.class);
+        if(fields.isEmpty())
+            this.load();
 
-                if (annotation != null) {
-                    declaredField.setAccessible(true);
-                    String fieldName = annotation.name().isEmpty() ? declaredField.getName() : annotation.name();
+        fields.forEach((s, fieldMapper) -> {
+            try {
+                final Object object;
 
-                    final Primitive primitive;
-                    final Object object;
-
-                    if(declaredField.isAnnotationPresent(Primitive.class)) {
-                        primitive = declaredField.getAnnotation(Primitive.class);
-
-                        object = DataFormat.getFromPrimitive(
-                                elements.getObject(fieldName),
-                                declaredField.getType(),
-                                primitive.formatter()
-                        );
-                    }else{
-                        primitive = null;
-
-                        object = elements.getObject(fieldName, declaredField.getType());
-                    }
-
-                    declaredField.set(
-                            this, object
+                if (fieldMapper.hasFormatter()) {
+                    object = DataFormat.getFromPrimitive(
+                            elements.getObject(fieldMapper.queryName()),
+                            fieldMapper.field().getType(),
+                            fieldMapper.primitive().formatter()
                     );
-
-                    fields.put(declaredField.getName(),
-                            new FieldMapper(this, declaredField.getName(), fieldName, primitive, declaredField));
+                } else {
+                    object = elements.getObject(fieldMapper.queryName(), fieldMapper.field().getType());
                 }
+
+                fieldMapper.field().set(
+                        this, object
+                );
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
+        });
 
-            this.exists = true;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+        this.exists = true;
     }
 
     public void setExists(boolean exists) {
@@ -81,6 +91,10 @@ public abstract class InvoSchema {
 
     public void setDriverSession(DriverSession<?> driverSession) {
         this.driverSession = driverSession;
+    }
+
+    public void setCollection(String collection) {
+        this.collection = collection;
     }
 
     public HashMap<String, FieldMapper> getFields() {
