@@ -12,14 +12,15 @@ import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
 import ch.twidev.invodb.common.query.builder.UpdateOperationBuilder;
 
+import java.util.concurrent.CompletableFuture;
+
 @SuppressWarnings("unchecked")
 public class DriverConnection {
 
-    public static <Session, R> void runQuery(DriverSession<Session> session,
-                                             Class<R> resultInstance,
-                                             InvoQuery<R> invoQuery,
-                                             ResultCallback<R> throwableCallback,
-                                             PlaceholderContext placeholderContext) {
+    public static <Session, R> R runQuery(DriverSession<Session> session,
+                                                                  Class<R> resultInstance,
+                                                                  InvoQuery<R> invoQuery,
+                                                                  PlaceholderContext placeholderContext) {
 
         if(placeholderContext == null && invoQuery instanceof OperationContext operationContext) {
             placeholderContext = operationContext.getPlaceHolder();
@@ -27,23 +28,22 @@ public class DriverConnection {
 
         switch (invoQuery) {
             case FindOperationBuilder findOperationBuilder -> {
-                session.find(findOperationBuilder, placeholderContext, (ResultCallback<ElementSet>) throwableCallback);
+                return (R) session.find(findOperationBuilder, placeholderContext);
             }
             case UpdateOperationBuilder updateOperationBuilder -> {
-                session.update(updateOperationBuilder, placeholderContext, (ResultCallback<OperationResult>) throwableCallback);
+                return (R) session.update(updateOperationBuilder, placeholderContext);
             }
             case InsertOperationBuilder insertOperationBuilder -> {
-                session.insert(insertOperationBuilder, placeholderContext, (ResultCallback<ElementSet>) throwableCallback);
+                return (R) session.insert(insertOperationBuilder, placeholderContext);
             }
             default -> throw new IllegalStateException("Unexpected value: " + invoQuery);
         }
 
     }
 
-    public static <Session, R> void runQueryAsync(DriverSession<Session> session,
+    public static <Session, R> CompletableFuture<R> runQueryAsync(DriverSession<Session> session,
                                                   Class<R> resultInstance,
                                                   InvoQuery<R> invoQuery,
-                                                  ResultCallback<R> throwableCallback,
                                                   PlaceholderContext placeholderContext) {
 
 
@@ -53,13 +53,13 @@ public class DriverConnection {
 
         switch (invoQuery) {
             case FindOperationBuilder findOperationBuilder -> {
-                session.findAsync(findOperationBuilder, placeholderContext, (ResultCallback<ElementSet>) throwableCallback);
+                return (CompletableFuture<R>) session.findAsync(findOperationBuilder, placeholderContext);
             }
             case UpdateOperationBuilder updateOperationBuilder -> {
-                session.updateAsync(updateOperationBuilder, placeholderContext, (ResultCallback<OperationResult>) throwableCallback);
+                return (CompletableFuture<R>) session.updateAsync(updateOperationBuilder, placeholderContext);
             }
             case InsertOperationBuilder insertOperationBuilder -> {
-                session.insertAsync(insertOperationBuilder, placeholderContext, (ResultCallback<ElementSet>) throwableCallback);
+                return (CompletableFuture<R>) session.insertAsync(insertOperationBuilder, placeholderContext);
             }
             default -> throw new IllegalStateException("Unexpected value: " + invoQuery);
         }

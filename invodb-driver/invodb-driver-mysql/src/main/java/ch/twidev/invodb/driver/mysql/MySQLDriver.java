@@ -14,6 +14,7 @@ import ch.twidev.invodb.bridge.util.ResultCallback;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public class MySQLDriver extends InvoDriver<HikariDataSource> {
     public MySQLDriver(DriverConfig driverConfig, InvoDriverType invoDriverType) {
@@ -37,34 +38,35 @@ public class MySQLDriver extends InvoDriver<HikariDataSource> {
         return false;
     }
 
-    @Override
-    public void find(FindContext findOperationBuilder, PlaceholderContext placeholderContext, ResultCallback<ElementSet> throwableCallback) {
 
+    @Override
+    public ElementSet find(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
+        return null;
     }
 
     @Override
-    public void findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext, ResultCallback<ElementSet> throwableCallback) {
-
+    public CompletableFuture<ElementSet> findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
+        return null;
     }
 
     @Override
-    public void update(UpdateContext updateContext, PlaceholderContext placeholderContext, ResultCallback<OperationResult> callback) {
-
+    public OperationResult update(UpdateContext updateContext, PlaceholderContext placeholderContext) {
+        return null;
     }
 
     @Override
-    public void updateAsync(UpdateContext updateContext, PlaceholderContext placeholderContext, ResultCallback<OperationResult> callback) {
-
+    public CompletableFuture<OperationResult> updateAsync(UpdateContext updateContext, PlaceholderContext placeholderContext) {
+        return null;
     }
 
     @Override
-    public void insert(InsertContext updateContext, PlaceholderContext placeholderContext, ResultCallback<ElementSet> callback) {
-
+    public ElementSet insert(InsertContext updateContext, PlaceholderContext placeholderContext) {
+        return null;
     }
 
     @Override
-    public void insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext, ResultCallback<ElementSet> callback) {
-
+    public CompletableFuture<ElementSet> insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext) {
+        return null;
     }
 
     @Override

@@ -10,6 +10,7 @@ import ch.twidev.invodb.mapper.field.FieldMapper;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings("unchecked")
 public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema) implements InvocationHandler {
@@ -19,12 +20,16 @@ public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema) implements I
         InvoQuery<?> invoQuery = this.parseQuery(method, args);
 
         if(invoQuery != null) {
-            ResultCallback resultCallback = (invoSchema instanceof ResultCallback<?> handler) ? handler : o -> {};
-
             if(method.isAnnotationPresent(Async.class)) {
-                invoQuery.runAsync(invoSchema.getDriverSession(), resultCallback);
+                SchemaOperationHandler<?> resultCallback = (invoSchema instanceof SchemaOperationHandler<?> handler) ? handler : o -> {};
+
+                invoQuery.runAsync(invoSchema.getDriverSession()).exceptionally(throwable -> {
+                    resultCallback.onFailed(throwable);
+
+                    return null;
+                });
             }else{
-                invoQuery.run(invoSchema.getDriverSession(), resultCallback);
+                invoQuery.run(invoSchema.getDriverSession());
             }
         }
 

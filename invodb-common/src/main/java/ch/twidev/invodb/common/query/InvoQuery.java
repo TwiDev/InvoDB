@@ -10,6 +10,8 @@ import ch.twidev.invodb.common.session.DriverConnection;
 import ch.twidev.invodb.bridge.util.ResultCallback;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.CompletableFuture;
+
 public abstract class InvoQuery<Result> {
 
     public static FindOperationBuilder find(String collection) {
@@ -34,20 +36,20 @@ public abstract class InvoQuery<Result> {
         this.resultInstance = resultInstance;
     }
 
-    public void run(@NotNull DriverSession<?> driverConnection, ResultCallback<Result> resultSet) {
-        this.run(driverConnection, resultSet, null);
+    public Result run(@NotNull DriverSession<?> driverConnection) {
+        return this.run(driverConnection, null);
     }
 
-    public void runAsync(@NotNull DriverSession<?> driverConnection, ResultCallback<Result> resultSet) {
-        this.runAsync(driverConnection, resultSet, null);
+    public CompletableFuture<Result> runAsync(@NotNull DriverSession<?> driverConnection) {
+        return this.runAsync(driverConnection, null);
     }
 
-    public void run(@NotNull DriverSession<?> driverConnection, ResultCallback<Result> resultSet, PlaceholderContext placeholderContext) {
-        DriverConnection.runQuery(driverConnection, resultInstance, this, resultSet, placeholderContext);
+    public Result run(@NotNull DriverSession<?> driverConnection, PlaceholderContext placeholderContext) {
+        return DriverConnection.runQuery(driverConnection, resultInstance, this, placeholderContext);
     }
 
-    public void runAsync(DriverSession<?> driverConnection, ResultCallback<Result> resultSet, PlaceholderContext placeholderContext) {
-        DriverConnection.runQueryAsync(driverConnection, resultInstance, this, resultSet, placeholderContext);
+    public CompletableFuture<Result> runAsync(DriverSession<?> driverConnection, PlaceholderContext placeholderContext) {
+        return DriverConnection.runQueryAsync(driverConnection, resultInstance, this, placeholderContext);
     }
 
     public QueryOperation getQueryOperation() {

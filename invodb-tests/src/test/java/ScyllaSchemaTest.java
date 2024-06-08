@@ -36,39 +36,36 @@ public class ScyllaSchemaTest {
             ScyllaUserRepository scyllaUserRepository = new SchemaRepository<>(scyllaCluster, "users", ScyllaUserRepository.class){}.build();
 
             // Find user
-            scyllaUserRepository.findByName("TwiDev").thenAccept(scyllaUserSchema -> {
-                logger.info(scyllaUserSchema.toString()); //Output : ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
+            {
+                ScyllaUserSchema schema = scyllaUserRepository.findByName("TwiDev");
 
-                scyllaUserSchema.getAspect().setEmail("twidev398@gmail.com");
-
-                logger.info(scyllaUserSchema.getEmail());
-            }).exceptionally(throwable -> {
-                throwable.printStackTrace();
-
-                return null;
-            });
+                logger.info(schema.toString()); //Output : ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
+                schema.getAspect().setEmail("twidev398@gmail.com");
+                logger.info(schema.getEmail());
+            }
 
             // Insert user
-            scyllaUserRepository.insertUser(467,"test683@gmail.com", "Hello3343").thenAccept(scyllaUserSchema -> {
-                logger.info(scyllaUserSchema.toString());
+            {
+                ScyllaUserSchema schema = scyllaUserRepository.insertUser(467,"test683@gmail.com", "Hello3343");
 
-                scyllaUserSchema.getAspect().setEmail("world@gmail.com");
-
-                logger.info(scyllaUserSchema.toString());
-            }).exceptionally(throwable -> {
-                throwable.printStackTrace();
-
-                return null;
-            });
+                logger.info(schema.toString());
+                schema.getAspect().setEmail("world@gmail.com");
+                logger.info(schema.toString());
+            }
 
             // Async find user by primary key
-            scyllaUserRepository.findByIdAsync(10).thenAccept(scyllaUserSchema -> {
-                logger.info(Thread.currentThread().getName());
-            }).exceptionally(throwable -> {
-                throwable.printStackTrace();
+            {
+                scyllaUserRepository.findByIdAsync(10).thenAccept(scyllaUserSchema -> {
+                    logger.info(Thread.currentThread().getName());
+                    logger.info(scyllaUserSchema.toString());
+                }).exceptionally(throwable -> {
+                    throwable.printStackTrace();
 
-                return null;
-            });
+                    return null;
+                });
+            }
+
+            logger.info(Thread.currentThread().getName());
 
             try {
                 // Waiting for async task to finish
@@ -143,13 +140,13 @@ public class ScyllaSchemaTest {
         CompletableFuture<ScyllaUserSchema> findByIdAsync(int id);
 
         @Find(by = "name")
-        CompletableFuture<ScyllaUserSchema> findByName(String name);
+        ScyllaUserSchema findByName(String name);
 
         @Insert(fields = {"id","email","name"})
-        CompletableFuture<ScyllaUserSchema> insertUser(int id, String email, String name);
+        ScyllaUserSchema insertUser(int id, String email, String name);
 
         @FindOrInsert(find = @Find(by = "name"), insert = @Insert(fields = {"id","name","email"}))
-        CompletableFuture<ScyllaUserSchema> getOrInsertUser(int id, String name, String email);
+        ScyllaUserSchema getOrInsertUser(int id, String name, String email);
 
     }
 

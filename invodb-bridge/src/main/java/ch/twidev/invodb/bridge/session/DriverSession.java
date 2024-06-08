@@ -9,16 +9,17 @@ import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.util.ResultCallback;
 
 import java.io.Closeable;
+import java.util.concurrent.CompletableFuture;
 
 public interface DriverSession<Session> extends Closeable {
 
-    void find(FindContext findOperationBuilder, PlaceholderContext placeholderContext, ResultCallback<ElementSet> throwableCallback);
-    void findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext, ResultCallback<ElementSet> throwableCallback);
+    ElementSet find(FindContext findOperationBuilder, PlaceholderContext placeholderContext);
+    CompletableFuture<ElementSet> findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext);
 
-    void update(UpdateContext updateContext, PlaceholderContext placeholderContext, ResultCallback<OperationResult> callback);
-    void updateAsync(UpdateContext updateContext, PlaceholderContext placeholderContext, ResultCallback<OperationResult> callback);
-    void insert(InsertContext updateContext, PlaceholderContext placeholderContext, ResultCallback<ElementSet> callback);
-    void insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext, ResultCallback<ElementSet> callback);
+    OperationResult update(UpdateContext updateContext, PlaceholderContext placeholderContext);
+    CompletableFuture<OperationResult> updateAsync(UpdateContext updateContext, PlaceholderContext placeholderContext);
+    ElementSet insert(InsertContext updateContext, PlaceholderContext placeholderContext);
+    CompletableFuture<ElementSet> insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext);
 
     boolean isConnected();
 

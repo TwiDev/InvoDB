@@ -33,7 +33,7 @@ public class ScyllaExample {
                 .setAuthProvider(new PlainTextAuth("cassandra", "cassandra"))
                 .build();
 
-        try(ScyllaCluster scyllaDriver = new ScyllaCluster(driverConfig)) {
+       /* try(ScyllaCluster scyllaDriver = new ScyllaCluster(driverConfig)) {
             logger.info("[Main] Current Thread: " +Thread.currentThread().getName());
 
             scyllaDriver.connectSessionAsync("main").thenAccept(scyllaConnection -> {
@@ -107,7 +107,7 @@ public class ScyllaExample {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        }
+        }*/
 
     }
 

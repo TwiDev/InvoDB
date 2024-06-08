@@ -16,6 +16,7 @@ import ch.twidev.invodb.repository.annotations.Find;
 import ch.twidev.invodb.repository.annotations.Insert;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.CompletableFuture;
 
@@ -24,6 +25,20 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        CompletableFuture<Schema> schemaCompletableFuture = this.handleQuery(method, args);
+
+        if(schemaCompletableFuture != null) {
+            if(method.isAnnotationPresent(Async.class)) {
+                return schemaCompletableFuture;
+            }else {
+                return schemaCompletableFuture.get();
+            }
+        }
+
+        throw new UnsupportedOperationException("Unsupported method : " + method.getName());
+    }
+
+    public CompletableFuture<Schema> handleQuery(Method method, Object[] args) {
         if (method.isAnnotationPresent(Find.class)) {
             return handleFind(method, args);
         }
@@ -32,7 +47,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
             return handleInsert(method, args);
         }
 
-        throw new UnsupportedOperationException("Unsupported method : " + method.getName());
+        return null;
     }
 
     public CompletableFuture<Schema> handleFind(Method method, Object[] args) {
@@ -48,38 +63,39 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
 
         CompletableFuture<Schema> schemaCompletableFuture = new CompletableFuture<>();
 
-        // Todo: rework query result (Future)
         // Todo: add query cache
 
-        ResultCallback<ElementSet> resultCallback = new ResultCallback<>() {
-            @Override
-            public void succeed(ElementSet elementSet) {
-                try {
-                    // Query
-                    Schema schema = schemaRepository.getSchema().getConstructor().newInstance();
-
-                    schema.populate(schemaRepository.getDriverSession(), schemaRepository.getCollection(), elementSet.first());
-
-                    schemaCompletableFuture.complete(schema);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            @Override
-            public void failed(Throwable throwable) {
-                schemaCompletableFuture.completeExceptionally(throwable);
-            }
-        };
-        
         FindOperationBuilder findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
                 .where(SearchFilter.eq(find.by(), searchedValue));
 
+        CompletableFuture<ElementSet> completableFuture;
+
         if(method.isAnnotationPresent(Async.class)) {
-            findOperationBuilder.runAsync(schemaRepository.getDriverSession(), resultCallback);
+            completableFuture = findOperationBuilder.runAsync(schemaRepository.getDriverSession());
         }else{
-            findOperationBuilder.run(schemaRepository.getDriverSession(), resultCallback);
+            completableFuture = CompletableFuture.completedFuture(
+                    findOperationBuilder.run(schemaRepository.getDriverSession()));
         }
+
+        completableFuture.exceptionally(throwable -> {
+            schemaCompletableFuture.completeExceptionally(throwable);
+
+            return null;
+        }).thenAccept(elementSet -> {
+            if(elementSet == null) return;
+
+            try {
+                Schema schema = schemaRepository.getSchema().getConstructor().newInstance();
+
+                schema.populate(schemaRepository.getDriverSession(), schemaRepository.getCollection(), elementSet.first());
+
+                schemaCompletableFuture.complete(schema);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException e) {
+
+                schemaCompletableFuture.completeExceptionally(e);
+            }
+        });
 
         return schemaCompletableFuture;
     }
@@ -122,13 +138,14 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
                 schema.getFields().get(fieldName).field().set(schema, value);
             }
 
-            operationBuilder.run(schemaRepository.getDriverSession(), elementSet -> {
-                schema.setExists(true);
-                schema.setDriverSession(schemaRepository.getDriverSession());
-                schema.setCollection(schemaRepository.getCollection());
+            // Sync
 
-                schemaCompletableFuture.complete(schema);
-            });
+            operationBuilder.run(schemaRepository.getDriverSession());
+            schema.setExists(true);
+            schema.setDriverSession(schemaRepository.getDriverSession());
+            schema.setCollection(schemaRepository.getCollection());
+
+            schemaCompletableFuture.complete(schema);
 
 
         } catch (Exception e) {

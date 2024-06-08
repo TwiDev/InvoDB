@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
@@ -64,7 +65,7 @@ public class ScyllaConnection implements DriverSession<Session> {
     }
 
     @Override
-    public void find(FindContext findOperationBuilder, PlaceholderContext placeholderContext, ResultCallback<ElementSet> throwableCallback) {
+    public ElementSet find(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
         ISearchFilter searchFilter = findOperationBuilder.getSearchFilter();
 
         try {
@@ -75,16 +76,16 @@ public class ScyllaConnection implements DriverSession<Session> {
                     session.execute(statement, searchFilter.getContexts().toArray(new Object[0])) :
                     session.execute(statement);
 
-            throwableCallback.succeed(new ScyllaResultSet(resultSet));
+            return new ScyllaResultSet(resultSet);
         } catch (Exception exception) {
-            throwableCallback.failed(exception);
+            throw new RuntimeException(exception);
         }
-
     }
 
     @Override
-    public void findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext, ResultCallback<ElementSet> throwableCallback) {
+    public CompletableFuture<ElementSet> findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
         ISearchFilter searchFilter = findOperationBuilder.getSearchFilter();
+        CompletableFuture<ElementSet> completableFuture = new CompletableFuture<>();
 
         try {
             String statement = "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
@@ -97,27 +98,30 @@ public class ScyllaConnection implements DriverSession<Session> {
             Futures.addCallback(resultSet, new FutureCallback<ResultSet>() {
                 @Override
                 public void onSuccess(ResultSet result) {
-                    throwableCallback.succeed(new ScyllaResultSet(result));
+                    completableFuture.complete(new ScyllaResultSet(result));
                 }
 
                 @Override
                 public void onFailure(@NotNull Throwable exception) {
-                    throwableCallback.failed(exception);
+                    completableFuture.completeExceptionally(exception);
                 }
             }, QUERY_EXECUTOR);
+
+            return completableFuture;
         } catch (Exception exception) {
-            throwableCallback.failed(exception);
+            completableFuture.completeExceptionally(exception);
         }
+
+        return completableFuture;
     }
 
     @Override
-    public void update(UpdateContext updateContext, PlaceholderContext placeholderContext, ResultCallback<OperationResult> callback) {
+    public OperationResult update(UpdateContext updateContext, PlaceholderContext placeholderContext) {
         ISearchFilter searchFilter = updateContext.getSearchFilter();
 
         try {
             String statement = "UPDATE %s SET %s ".formatted(updateContext.getCollection(), updateContext.getFields().toString())
                     + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) : "");
-
 
             List<Object> context = new ArrayList<>(updateContext.getFields().values());
             context.addAll(updateContext.getContexts());
@@ -126,17 +130,19 @@ public class ScyllaConnection implements DriverSession<Session> {
                     session.execute(statement, context.toArray(new Object[0])) :
                     session.execute(statement);
 
-            callback.succeed(OperationResult.Ok);
+            return OperationResult.Ok;
         } catch (Exception exception) {
-            callback.failed(exception);
+            throw new RuntimeException(exception);
         }
     }
 
     @Override
-    public void updateAsync(UpdateContext updateContext, PlaceholderContext placeholderContext, ResultCallback<OperationResult> callback) {
-        ISearchFilter searchFilter = updateContext.getSearchFilter();
+    public CompletableFuture<OperationResult> updateAsync(UpdateContext updateContext, PlaceholderContext placeholderContext) {
+        CompletableFuture<OperationResult> completableFuture = new CompletableFuture<>();
 
         try {
+            ISearchFilter searchFilter = updateContext.getSearchFilter();
+
             String statement = "UPDATE %s SET %s ".formatted(updateContext.getCollection(), updateContext.getFields().toString())
                     + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
 
@@ -150,21 +156,23 @@ public class ScyllaConnection implements DriverSession<Session> {
             Futures.addCallback(resultSet, new FutureCallback<ResultSet>() {
                 @Override
                 public void onSuccess(ResultSet result) {
-                    callback.succeed(OperationResult.Ok);
+                    completableFuture.complete(OperationResult.Ok);
                 }
 
                 @Override
                 public void onFailure(@NotNull Throwable exception) {
-                    callback.failed(exception);
+                    completableFuture.completeExceptionally(exception);
                 }
             }, QUERY_EXECUTOR);
         } catch (Exception exception) {
-            callback.failed(exception);
+            completableFuture.completeExceptionally(exception);
         }
+
+        return completableFuture;
     }
 
     @Override
-    public void insert(InsertContext updateContext, PlaceholderContext placeholderContext, ResultCallback<ElementSet> callback) {
+    public ElementSet insert(InsertContext updateContext, PlaceholderContext placeholderContext) {
         try {
             String statement = "INSERT INTO %s (%s) VALUES (%s)".formatted(
                     updateContext.getCollection(),
@@ -174,16 +182,43 @@ public class ScyllaConnection implements DriverSession<Session> {
             ResultSet resultSet = session.execute(statement,
                     updateContext.getFields().values().toArray(new Object[0]));
 
-
-            callback.succeed(new ScyllaResultSet(resultSet));
+            return new ScyllaResultSet(resultSet);
         } catch (Exception exception) {
-            callback.failed(exception);
+            throw new RuntimeException(exception);
         }
     }
 
     @Override
-    public void insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext, ResultCallback<ElementSet> callback) {
+    public CompletableFuture<ElementSet> insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext) {
+        CompletableFuture<ElementSet> completableFuture = new CompletableFuture<>();
 
+        try {
+            String statement = "INSERT INTO %s (%s) VALUES (%s)".formatted(
+                    updateContext.getCollection(),
+                    updateContext.getFields().getKeysString(),
+                    updateContext.getFields().getUnbounded());
+
+            ResultSetFuture resultSet = session.executeAsync(statement,
+                    updateContext.getFields().values().toArray(new Object[0]));
+
+            Futures.addCallback(resultSet, new FutureCallback<>() {
+                @Override
+                public void onSuccess(ResultSet rows) {
+                    completableFuture.complete(
+                            new ScyllaResultSet(rows)
+                    );
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    completableFuture.completeExceptionally(throwable);
+                }
+            }, QUERY_EXECUTOR);
+        } catch (Exception e) {
+            completableFuture.completeExceptionally(e);
+        }
+
+        return completableFuture;
     }
 
     @Override
