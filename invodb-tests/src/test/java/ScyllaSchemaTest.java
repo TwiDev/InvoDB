@@ -16,8 +16,11 @@ import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
 public class ScyllaSchemaTest {
+
+    private static final Logger logger = Logger.getLogger("ScyllaExample");
 
     @Test
     public void test() {
@@ -31,38 +34,36 @@ public class ScyllaSchemaTest {
             ScyllaConnection scyllaCluster = new ScyllaCluster(driverConfig).connectSession("main");
 
             ScyllaUserRepository scyllaUserRepository = new SchemaRepository<>(scyllaCluster, "users", ScyllaUserRepository.class){}.build();
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
 
+            // Find user
             scyllaUserRepository.findByName("TwiDev").thenAccept(scyllaUserSchema -> {
-                System.out.println(scyllaUserSchema.toString()); //Output : ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
+                logger.info(scyllaUserSchema.toString()); //Output : ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
 
                 scyllaUserSchema.getAspect().setEmail("twidev398@gmail.com");
 
-                System.out.println(scyllaUserSchema.getEmail());
+                logger.info(scyllaUserSchema.getEmail());
             }).exceptionally(throwable -> {
                 throwable.printStackTrace();
 
                 return null;
             });
 
+            // Insert user
             scyllaUserRepository.insertUser(467,"test683@gmail.com", "Hello3343").thenAccept(scyllaUserSchema -> {
-                System.out.println(scyllaUserSchema.toString());
+                logger.info(scyllaUserSchema.toString());
 
                 scyllaUserSchema.getAspect().setEmail("world@gmail.com");
 
-                System.out.println(scyllaUserSchema.toString());
+                logger.info(scyllaUserSchema.toString());
             }).exceptionally(throwable -> {
                 throwable.printStackTrace();
 
                 return null;
             });
 
+            // Async find user by primary key
             scyllaUserRepository.findByIdAsync(10).thenAccept(scyllaUserSchema -> {
-                System.out.println(Thread.currentThread().getName());
+                logger.info(Thread.currentThread().getName());
             }).exceptionally(throwable -> {
                 throwable.printStackTrace();
 
@@ -70,7 +71,10 @@ public class ScyllaSchemaTest {
             });
 
             try {
+                // Waiting for async task to finish
                 Thread.sleep(4000);
+
+                scyllaCluster.close();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
