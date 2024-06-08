@@ -37,4 +37,7 @@ public abstract class Scheduler implements Runnable {
         Scheduler.runTask(this);
     }
 
+    public static ExecutorService getExecutor() {
+        return executor;
+    }
 }

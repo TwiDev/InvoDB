@@ -3,13 +3,16 @@ package ch.twidev.invodb.common.query.operations.search;
 import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
+import ch.twidev.invodb.bridge.search.ICompositeSearchFilter;
+import ch.twidev.invodb.bridge.search.IFieldSearchFilter;
+import ch.twidev.invodb.bridge.search.ISearchFilter;
 import ch.twidev.invodb.bridge.search.SearchCondition;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CompositeSearchFilter extends SearchFilter{
+public class CompositeSearchFilter extends SearchFilter implements ICompositeSearchFilter {
 
     private final List<SearchFilter> searchFilters;
 
@@ -18,6 +21,7 @@ public class CompositeSearchFilter extends SearchFilter{
 
         this.searchFilters = List.of(searchFilters);
     }
+
 
     public List<SearchFilter> getSearchFilters() {
         return searchFilters;
@@ -40,5 +44,10 @@ public class CompositeSearchFilter extends SearchFilter{
     @Override
     public boolean isRequired() {
         return true;
+    }
+
+    @Override
+    public List<ISearchFilter> getSearchFilter() {
+        return new ArrayList<>(searchFilters);
     }
 }

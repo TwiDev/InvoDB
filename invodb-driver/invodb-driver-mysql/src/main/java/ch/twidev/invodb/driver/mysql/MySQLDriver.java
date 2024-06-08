@@ -80,7 +80,7 @@ public class MySQLDriver extends InvoDriver<HikariDataSource> {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 
     }
 }
