@@ -71,12 +71,9 @@ public class ScyllaConnection implements DriverSession<Session> {
             String statement = "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
                             + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
 
-            long time = System.nanoTime();
             ResultSet resultSet = searchFilter.isRequired() ?
                     session.execute(statement, searchFilter.getContexts().toArray(new Object[0])) :
                     session.execute(statement);
-
-            System.out.println("Find execution : " + (System.nanoTime() - time)/(Math.pow(10,6)) + " ms");
 
             throwableCallback.succeed(new ScyllaResultSet(resultSet));
         } catch (Exception exception) {
@@ -93,7 +90,6 @@ public class ScyllaConnection implements DriverSession<Session> {
             String statement = "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
                     + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
 
-            long time = System.nanoTime();
             ResultSetFuture resultSet = searchFilter.isRequired() ?
                     session.executeAsync(statement, searchFilter.getContexts().toArray(new Object[0])) :
                     session.executeAsync(statement);
@@ -101,8 +97,6 @@ public class ScyllaConnection implements DriverSession<Session> {
             Futures.addCallback(resultSet, new FutureCallback<ResultSet>() {
                 @Override
                 public void onSuccess(ResultSet result) {
-                    System.out.println("Find execution async : " + (System.nanoTime() - time)/(Math.pow(10,6)) + " ms");
-
                     throwableCallback.succeed(new ScyllaResultSet(result));
                 }
 
@@ -128,14 +122,9 @@ public class ScyllaConnection implements DriverSession<Session> {
             List<Object> context = new ArrayList<>(updateContext.getFields().values());
             context.addAll(updateContext.getContexts());
 
-            long started = System.nanoTime();
-
             ResultSet resultSet = searchFilter.isRequired() ?
                     session.execute(statement, context.toArray(new Object[0])) :
                     session.execute(statement);
-
-            System.out.println("Queried (2) : " + (System.nanoTime() - started)/(Math.pow(10,6)) + " ms");
-
 
             callback.succeed(OperationResult.Ok);
         } catch (Exception exception) {
@@ -182,12 +171,9 @@ public class ScyllaConnection implements DriverSession<Session> {
                     updateContext.getFields().getKeysString(),
                     updateContext.getFields().getUnbounded());
 
-            long started = System.nanoTime();
-
             ResultSet resultSet = session.execute(statement,
                     updateContext.getFields().values().toArray(new Object[0]));
 
-            System.out.println("Queried : " + (System.nanoTime() - started)/(Math.pow(10,6)) + " ms");
 
             callback.succeed(new ScyllaResultSet(resultSet));
         } catch (Exception exception) {

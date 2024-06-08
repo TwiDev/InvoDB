@@ -58,9 +58,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
                     // Query
                     Schema schema = schemaRepository.getSchema().getConstructor().newInstance();
 
-                    long t = System.nanoTime();
                     schema.populate(schemaRepository.getDriverSession(), schemaRepository.getCollection(), elementSet.first());
-                    System.out.println("populate : " + (System.nanoTime() - t) / (Math.pow(10, 6)) + " ms");
 
                     schemaCompletableFuture.complete(schema);
                 } catch (Exception e) {

@@ -37,33 +37,22 @@ public class ScyllaSchemaTest {
                 throw new RuntimeException(e);
             }
 
-            long started2 = System.nanoTime();
-            /*scyllaUserRepository.findByName("TwiDev").thenAccept(scyllaUserSchema -> {
-
-                System.out.println("found : " + (System.nanoTime() - started2)/(Math.pow(10,6)) + " ms");
-
+            scyllaUserRepository.findByName("TwiDev").thenAccept(scyllaUserSchema -> {
                 System.out.println(scyllaUserSchema.toString()); //Output : ScyllaUserSchema{id=1, email='twidev5@gmail.com', name='TwiDev'}
 
                 scyllaUserSchema.getAspect().setEmail("twidev398@gmail.com");
 
                 System.out.println(scyllaUserSchema.getEmail());
-
             }).exceptionally(throwable -> {
                 throwable.printStackTrace();
 
                 return null;
-            });*/
+            });
 
-            long started = System.nanoTime();
             scyllaUserRepository.insertUser(467,"test683@gmail.com", "Hello3343").thenAccept(scyllaUserSchema -> {
-                System.out.println("Inserted : " + (System.nanoTime() - started)/(Math.pow(10,6)) + " ms");
                 System.out.println(scyllaUserSchema.toString());
 
-                long inserted = System.nanoTime();
-
                 scyllaUserSchema.getAspect().setEmail("world@gmail.com");
-
-                System.out.println("Setter : " + (System.nanoTime() - inserted)/(Math.pow(10,6)) + " ms");
 
                 System.out.println(scyllaUserSchema.toString());
             }).exceptionally(throwable -> {
@@ -72,11 +61,8 @@ public class ScyllaSchemaTest {
                 return null;
             });
 
-            long started3 = System.nanoTime();
             scyllaUserRepository.findByIdAsync(10).thenAccept(scyllaUserSchema -> {
-                System.out.println("found : " + (System.nanoTime() - started3)/(Math.pow(10,6)) + " ms");
                 System.out.println(Thread.currentThread().getName());
-
             }).exceptionally(throwable -> {
                 throwable.printStackTrace();
 

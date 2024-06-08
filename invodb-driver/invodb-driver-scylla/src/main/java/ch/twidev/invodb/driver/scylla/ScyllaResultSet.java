@@ -20,14 +20,12 @@ public class ScyllaResultSet implements ElementSet {
         this.isEmpty = resultSet.isExhausted();
         this.first = new ScyllaElements(resultSet.one());
 
-        long t = System.nanoTime();
         this.parsedElements = resultSet.all()
                 .stream()
                 .map(ScyllaElements::new)
                 .map(Elements.class::cast)
                 .iterator();
 
-        System.out.println("parsed result : " + (System.nanoTime() - t)/(Math.pow(10,6)) + " ms");
     }
 
     public ResultSet getResultSet() {
