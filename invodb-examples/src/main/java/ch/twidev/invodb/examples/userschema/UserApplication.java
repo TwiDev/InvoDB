@@ -3,42 +3,59 @@ package ch.twidev.invodb.examples.userschema;
 import ch.twidev.invodb.bridge.driver.auth.PlainTextAuth;
 import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
 import ch.twidev.invodb.bridge.driver.config.DriverConfig;
+import ch.twidev.invodb.bridge.driver.config.URLDriverConfig;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
+import ch.twidev.invodb.bridge.session.DriverSession;
+import ch.twidev.invodb.driver.mongodb.MongoCluster;
+import ch.twidev.invodb.driver.mongodb.MongoConnection;
+import ch.twidev.invodb.driver.mongodb.URLMongoConfigBuilder;
 import ch.twidev.invodb.driver.scylla.ScyllaCluster;
 import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
 import ch.twidev.invodb.driver.scylla.ScyllaConnection;
 import ch.twidev.invodb.examples.userschema.users.UserFactory;
 import ch.twidev.invodb.examples.userschema.users.UserSchema;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public class UserApplication {
 
     private static final Logger logger = Logger.getLogger("ScyllaExample");
 
-    private final ScyllaConnection scyllaConnection;
+    private final DriverSession<?> connection;
 
     public UserApplication() throws DriverConnectionException {
-        DriverConfig driverConfig = new ScyllaConfigBuilder()
+        DriverConfig scyllaConfig = new ScyllaConfigBuilder()
                 .setDriverName("ScyllaDriver")
                 .addContactPoint(new ContactPoint(InetSocketAddress.createUnresolved("45.13.119.231", 9042)))
                 .setAuthProvider(new PlainTextAuth("cassandra", "cassandra"))
                 .build();
 
-        this.scyllaConnection = new ScyllaCluster(driverConfig)
+        URLDriverConfig mongoConfig =
+                new URLMongoConfigBuilder("mongodb://localhost:27017/").build();
+
+        MongoConnection connection = new MongoCluster(mongoConfig)
                 .connectSession("main");
 
-        UserFactory.init(scyllaConnection);
+        /*ScyllaConnection connection = new ScyllaCluster(scyllaConfig)
+                .connectSession("main");*/
+
+        this.connection = connection;
+
+        new UserFactory(connection);
     }
 
     public static void main(String[] args) throws DriverConnectionException {
         UserApplication userApplication = new UserApplication();
 
-        // Register a user
+        // Find a user
         {
-            UserSchema userSchema = userApplication.register("TwiDev", "twidev5@gmail.com");
+            UserSchema userSchema = UserFactory.getProvider().find(
+                    UUID.fromString("e28139ac-a2e8-4b4b-a4bc-b1ed472cac76"));
+
             logger.info(userSchema.toString());
 
             // Update user email
@@ -69,7 +86,11 @@ public class UserApplication {
     }
 
     public void close() {
-        scyllaConnection.close();
+        try {
+            connection.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public UserSchema register(String name, String email) {
@@ -80,7 +101,7 @@ public class UserApplication {
         return Optional.ofNullable(UserFactory.getProvider().findByEmail(email));
     }
 
-    public ScyllaConnection getScyllaConnection() {
-        return scyllaConnection;
+    public DriverSession<?> getConnection() {
+        return connection;
     }
 }

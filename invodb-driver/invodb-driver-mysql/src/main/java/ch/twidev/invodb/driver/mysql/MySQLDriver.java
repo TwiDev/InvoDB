@@ -60,12 +60,12 @@ public class MySQLDriver extends InvoDriver<HikariDataSource> {
     }
 
     @Override
-    public ElementSet insert(InsertContext updateContext, PlaceholderContext placeholderContext) {
+    public OperationResult insert(InsertContext updateContext, PlaceholderContext placeholderContext) {
         return null;
     }
 
     @Override
-    public CompletableFuture<ElementSet> insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext) {
+    public CompletableFuture<OperationResult> insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext) {
         return null;
     }
 

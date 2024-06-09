@@ -1,5 +1,6 @@
 package ch.twidev.invodb.driver.scylla;
 
+import ch.twidev.invodb.bridge.contexts.FieldMap;
 import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
 import ch.twidev.invodb.bridge.documents.ElementSet;
@@ -122,10 +123,12 @@ public class ScyllaConnection implements DriverSession<Session> {
         ISearchFilter searchFilter = updateContext.getSearchFilter();
 
         try {
-            String statement = "UPDATE %s SET %s ".formatted(updateContext.getCollection(), updateContext.getFields().toString())
+            FieldMap fields = updateContext.getFields().getFormattedFields(placeholderContext);
+
+            String statement = "UPDATE %s SET %s ".formatted(updateContext.getCollection(), fields.toString())
                     + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) : "");
 
-            List<Object> context = new ArrayList<>(updateContext.getFields().values());
+            List<Object> context = new ArrayList<>(fields.values());
             context.addAll(updateContext.getContexts());
 
             ResultSet resultSet = searchFilter.isRequired() ?
@@ -144,11 +147,12 @@ public class ScyllaConnection implements DriverSession<Session> {
 
         try {
             ISearchFilter searchFilter = updateContext.getSearchFilter();
+            FieldMap fields = updateContext.getFields().getFormattedFields(placeholderContext);
 
-            String statement = "UPDATE %s SET %s ".formatted(updateContext.getCollection(), updateContext.getFields().toString())
+            String statement = "UPDATE %s SET %s ".formatted(updateContext.getCollection(), fields.toString())
                     + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) : "");
 
-            List<Object> context = new ArrayList<>(updateContext.getFields().values());
+            List<Object> context = new ArrayList<>(fields.values());
             context.addAll(updateContext.getContexts());
 
             ResultSetFuture resultSet = searchFilter.isRequired() ?
@@ -174,40 +178,44 @@ public class ScyllaConnection implements DriverSession<Session> {
     }
 
     @Override
-    public ElementSet insert(InsertContext updateContext, PlaceholderContext placeholderContext) {
+    public OperationResult insert(InsertContext updateContext, PlaceholderContext placeholderContext) {
         try {
+            FieldMap fields = updateContext.getFields().getFormattedFields(placeholderContext);
+
             String statement = "INSERT INTO %s (%s) VALUES (%s)".formatted(
                     updateContext.getCollection(),
-                    updateContext.getFields().getKeysString(),
-                    updateContext.getFields().getUnbounded());
+                    fields.getKeysString(),
+                    fields.getUnbounded());
 
             ResultSet resultSet = session.execute(statement,
-                    updateContext.getFields().values().toArray(new Object[0]));
+                    fields.values().toArray(new Object[0]));
 
-            return new ScyllaResultSet(resultSet);
+            return OperationResult.Ok;
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
     }
 
     @Override
-    public CompletableFuture<ElementSet> insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext) {
-        CompletableFuture<ElementSet> completableFuture = new CompletableFuture<>();
+    public CompletableFuture<OperationResult> insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext) {
+        CompletableFuture<OperationResult> completableFuture = new CompletableFuture<>();
 
         try {
+            FieldMap fields = updateContext.getFields().getFormattedFields(placeholderContext);
+
             String statement = "INSERT INTO %s (%s) VALUES (%s)".formatted(
                     updateContext.getCollection(),
-                    updateContext.getFields().getKeysString(),
-                    updateContext.getFields().getUnbounded());
+                    fields.getKeysString(),
+                    fields.getUnbounded());
 
             ResultSetFuture resultSet = session.executeAsync(statement,
-                    updateContext.getFields().values().toArray(new Object[0]));
+                    fields.values().toArray(new Object[0]));
 
             Futures.addCallback(resultSet, new FutureCallback<>() {
                 @Override
                 public void onSuccess(ResultSet rows) {
                     completableFuture.complete(
-                            new ScyllaResultSet(rows)
+                            OperationResult.Ok
                     );
                 }
 

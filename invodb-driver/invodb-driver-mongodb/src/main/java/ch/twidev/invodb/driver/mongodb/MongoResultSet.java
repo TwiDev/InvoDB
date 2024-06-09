@@ -15,6 +15,7 @@ public class MongoResultSet implements ElementSet {
     private final int capacity;
     private final Iterator<MongoElements> parsedElements;
 
+
     public MongoResultSet(MongoCursor<Document> cursor) {
         this.capacity = cursor.available();
 

@@ -23,7 +23,7 @@ public class BsonFilter {
         if(searchFilter instanceof ICompositeSearchFilter compositeSearchFilter) {
             final Bson[] children = compositeSearchFilter.getSearchFilter()
                     .stream()
-                    .map(filter -> toBson(searchFilter, placeholderContext))
+                    .map(filter -> toBson(filter, placeholderContext))
                     .toArray(Bson[]::new);
 
             return switch (searchFilter.getSearchFilterType()) {

@@ -2,6 +2,7 @@ package ch.twidev.invodb.common.query.builder;
 
 import ch.twidev.invodb.bridge.contexts.FieldMap;
 import ch.twidev.invodb.bridge.documents.ElementSet;
+import ch.twidev.invodb.bridge.documents.OperationResult;
 import ch.twidev.invodb.bridge.operations.InsertContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.common.query.InvoQuery;
@@ -12,14 +13,14 @@ import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InsertOperationBuilder extends InvoQuery<ElementSet> implements InsertContext, FieldsOperation<InsertOperationBuilder> {
+public class InsertOperationBuilder extends InvoQuery<OperationResult> implements InsertContext, FieldsOperation<InsertOperationBuilder> {
 
     private final FieldMap fieldMap = new FieldMap();
     private PlaceholderContext placeholderContext = new PlaceholderContext();
     private boolean ifExists = true;
 
     public InsertOperationBuilder(String collection) {
-        super(ElementSet.class, collection, QueryOperation.INSERT);
+        super(OperationResult.class, collection, QueryOperation.INSERT);
     }
 
     @Override

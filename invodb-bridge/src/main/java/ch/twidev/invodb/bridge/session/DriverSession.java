@@ -18,8 +18,8 @@ public interface DriverSession<Session> extends Closeable {
 
     OperationResult update(UpdateContext updateContext, PlaceholderContext placeholderContext);
     CompletableFuture<OperationResult> updateAsync(UpdateContext updateContext, PlaceholderContext placeholderContext);
-    ElementSet insert(InsertContext updateContext, PlaceholderContext placeholderContext);
-    CompletableFuture<ElementSet> insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext);
+    OperationResult insert(InsertContext updateContext, PlaceholderContext placeholderContext);
+    CompletableFuture<OperationResult> insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext);
 
     boolean isConnected();
 

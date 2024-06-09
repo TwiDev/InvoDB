@@ -2,6 +2,7 @@ package ch.twidev.invodb.driver.mongodb;
 
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.documents.OperationResult;
+import ch.twidev.invodb.bridge.documents.SingleElementSet;
 import ch.twidev.invodb.bridge.operations.FindContext;
 import ch.twidev.invodb.bridge.operations.InsertContext;
 import ch.twidev.invodb.bridge.operations.UpdateContext;
@@ -9,9 +10,15 @@ import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.driver.mongodb.filter.BsonFilter;
 
+import com.mongodb.MongoException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.InsertOneOptions;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.InsertOneResult;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -49,22 +56,44 @@ public class MongoConnection implements DriverSession<MongoDatabase> {
     public OperationResult update(UpdateContext updateContext, PlaceholderContext placeholderContext) {
         Bson searchFilter = BsonFilter.toBson(updateContext, placeholderContext);
 
-        return null;
+        Bson updates = Updates.combine(
+                updateContext.getFields().getFormattedFields(placeholderContext).entrySet()
+                        .stream()
+                        .map(entry -> Updates.set(entry.getKey(), entry.getValue()))
+                        .toArray(Bson[]::new)
+        );
+
+        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(updateContext.getCollection());
+        mongoCollection.updateMany(searchFilter, updates, new UpdateOptions().upsert(false));
+
+        return OperationResult.Ok;
     }
 
     @Override
     public CompletableFuture<OperationResult> updateAsync(UpdateContext updateContext, PlaceholderContext placeholderContext) {
-        return null;
+        return CompletableFuture.supplyAsync(() -> this.update(updateContext, placeholderContext), executor);
     }
 
     @Override
-    public ElementSet insert(InsertContext updateContext, PlaceholderContext placeholderContext) {
-        return null;
+    public OperationResult insert(InsertContext updateContext, PlaceholderContext placeholderContext) {
+        try {
+            MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(updateContext.getCollection());
+
+            Document document = new Document(
+                    updateContext.getFields().getFormattedFields(placeholderContext)
+            );
+
+            mongoCollection.insertOne(document);
+
+            return OperationResult.Ok;
+        } catch (MongoException mongoException) {
+            throw new RuntimeException(mongoException);
+        }
     }
 
     @Override
-    public CompletableFuture<ElementSet> insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext) {
-        return null;
+    public CompletableFuture<OperationResult> insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext) {
+        return CompletableFuture.supplyAsync(() -> this.insert(updateContext, placeholderContext), executor);
     }
 
     @Override

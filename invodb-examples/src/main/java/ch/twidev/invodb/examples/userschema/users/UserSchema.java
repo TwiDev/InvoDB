@@ -28,7 +28,7 @@ public class UserSchema extends AspectInvoSchema<UserSchemaAspect, String>
     private String email;
 
     @Field
-    private int power = 0;
+    private Integer power = 0;
 
     public UserSchema() {
         super(UserSchemaAspect.class, "uuid");

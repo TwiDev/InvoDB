@@ -1,6 +1,7 @@
 package ch.twidev.invodb.repository.handler;
 
 import ch.twidev.invodb.bridge.documents.ElementSet;
+import ch.twidev.invodb.bridge.documents.OperationResult;
 import ch.twidev.invodb.common.format.DataFormat;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
@@ -151,7 +152,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
                 schema.getFields().get(fieldName).field().set(schema, value);
             }
 
-            CompletableFuture<ElementSet> completableFuture;
+            CompletableFuture<OperationResult> completableFuture;
 
             if(method.isAnnotationPresent(Async.class)) {
                 completableFuture = operationBuilder.runAsync(schemaRepository.getDriverSession());

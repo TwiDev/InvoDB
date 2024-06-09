@@ -18,4 +18,8 @@ public interface OperationResult {
 
     long getTime();
 
+    default boolean isOk() {
+        return this == Ok;
+    }
+
 }
