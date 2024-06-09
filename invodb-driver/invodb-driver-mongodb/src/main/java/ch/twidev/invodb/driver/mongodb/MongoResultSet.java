@@ -21,7 +21,6 @@ public class MongoResultSet implements ElementSet {
         parsedElements = StreamSupport.stream(Spliterators.spliteratorUnknownSize(cursor, 0), false)
                 .map(MongoElements::new)
                 .iterator();
-
     }
 
     @Override

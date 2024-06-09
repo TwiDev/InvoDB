@@ -6,14 +6,12 @@ import ch.twidev.invodb.bridge.operations.FindContext;
 import ch.twidev.invodb.bridge.operations.InsertContext;
 import ch.twidev.invodb.bridge.operations.UpdateContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
-import ch.twidev.invodb.bridge.scheduler.Scheduler;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.driver.mongodb.filter.BsonFilter;
+
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Projections;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -34,7 +32,7 @@ public class MongoConnection implements DriverSession<MongoDatabase> {
 
     @Override
     public ElementSet find(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
-        Bson searchFilter = BsonFilter.toBson(findOperationBuilder);
+        Bson searchFilter = BsonFilter.toBson(findOperationBuilder, placeholderContext);
 
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(findOperationBuilder.getCollection());
         FindIterable<Document> document = ((searchFilter != null) ? mongoCollection.find(searchFilter) : mongoCollection.find());
@@ -49,6 +47,8 @@ public class MongoConnection implements DriverSession<MongoDatabase> {
 
     @Override
     public OperationResult update(UpdateContext updateContext, PlaceholderContext placeholderContext) {
+        Bson searchFilter = BsonFilter.toBson(updateContext, placeholderContext);
+
         return null;
     }
 
@@ -74,7 +74,7 @@ public class MongoConnection implements DriverSession<MongoDatabase> {
 
     @Override
     public MongoDatabase getLegacySession() {
-        return null;
+        return mongoDatabase;
     }
 
     @Override
