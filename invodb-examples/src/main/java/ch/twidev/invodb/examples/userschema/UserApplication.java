@@ -54,15 +54,15 @@ public class UserApplication {
 
         // Register user
         {
-            UserSchema userSchema = userApplication.register("Hello", "world@gmail.com");
-
-            logger.info(userSchema.toString());
+//            UserSchema userSchema = userApplication.register("Hello", "world@gmail.com");
+//
+//            logger.info(userSchema.toString());
         }
 
         // Find a user
         {
             UserSchema userSchema = UserFactory.getProvider().find(
-                    UUID.fromString("e28139ac-a2e8-4b4b-a4bc-b1ed472cac76"));
+                    UUID.fromString("abab1511-f95c-4718-8a89-20c2ebde6610"));
 
             logger.info(userSchema.toString());
 
@@ -71,6 +71,8 @@ public class UserApplication {
 
             // Set JSON Data
             userSchema.getAspect().setData(new UserData("hello","world",false, 130));
+            userSchema.setPower(47);
+            userSchema.saveAsync();
 
             logger.info(userSchema.toString());
         }

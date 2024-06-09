@@ -75,6 +75,10 @@ public class UserSchema extends AspectInvoSchema<UserSchemaAspect, String>
         return email;
     }
 
+    public void setPower(Integer power) {
+        this.power = power;
+    }
+
     public int getPower() {
         return power;
     }
