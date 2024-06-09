@@ -2,6 +2,7 @@ package ch.twidev.invodb.common.query;
 
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.session.DriverSession;
+import ch.twidev.invodb.common.query.builder.DeleteOperationBuilder;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
 import ch.twidev.invodb.common.query.builder.UpdateOperationBuilder;
@@ -25,6 +26,9 @@ public abstract class InvoQuery<Result> {
         return new InsertOperationBuilder(collection);
     }
 
+    public static DeleteOperationBuilder delete(String collection) {
+        return new DeleteOperationBuilder(collection);
+    }
 
     private final QueryOperation queryOperation;
     private final String collection;

@@ -5,6 +5,7 @@ import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.documents.OperationResult;
+import ch.twidev.invodb.bridge.operations.DeleteContext;
 import ch.twidev.invodb.bridge.operations.FindContext;
 import ch.twidev.invodb.bridge.operations.InsertContext;
 import ch.twidev.invodb.bridge.operations.UpdateContext;
@@ -229,6 +230,58 @@ public class ScyllaConnection implements DriverSession<Session> {
         }
 
         return completableFuture;
+    }
+
+    @Override
+    public OperationResult delete(DeleteContext updateContext, PlaceholderContext placeholderContext) {
+        try {
+            ISearchFilter searchFilter = updateContext.getSearchFilter();
+
+            String statement = "DELETE FROM %s ".formatted(updateContext.getCollection())
+                    + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) : "");
+
+            ResultSet resultSet = searchFilter.isRequired() ?
+                    session.execute(statement, updateContext.getContexts().toArray(new Object[0])) :
+                    session.execute(statement);
+
+            return OperationResult.Ok;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public CompletableFuture<OperationResult> deleteAsync(DeleteContext updateContext, PlaceholderContext placeholderContext) {
+        CompletableFuture<OperationResult> completableFuture = new CompletableFuture<>();
+
+        try {
+            ISearchFilter searchFilter = updateContext.getSearchFilter();
+
+            String statement = "DELETE FROM %s ".formatted(updateContext.getCollection())
+                    + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) : "");
+
+            ResultSetFuture resultSet = searchFilter.isRequired() ?
+                    session.executeAsync(statement, updateContext.getContexts().toArray(new Object[0])) :
+                    session.executeAsync(statement);
+
+            Futures.addCallback(resultSet, new FutureCallback<>() {
+                @Override
+                public void onSuccess(ResultSet rows) {
+                    completableFuture.complete(
+                            OperationResult.Ok
+                    );
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    completableFuture.completeExceptionally(throwable);
+                }
+            }, QUERY_EXECUTOR);
+
+            return completableFuture;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

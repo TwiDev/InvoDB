@@ -12,6 +12,7 @@ import ch.twidev.invodb.driver.mongodb.URLMongoConfigBuilder;
 import ch.twidev.invodb.driver.scylla.ScyllaCluster;
 import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
 import ch.twidev.invodb.driver.scylla.ScyllaConnection;
+import ch.twidev.invodb.examples.userschema.users.UserData;
 import ch.twidev.invodb.examples.userschema.users.UserFactory;
 import ch.twidev.invodb.examples.userschema.users.UserSchema;
 
@@ -51,6 +52,13 @@ public class UserApplication {
     public static void main(String[] args) throws DriverConnectionException {
         UserApplication userApplication = new UserApplication();
 
+        // Register user
+        {
+            UserSchema userSchema = userApplication.register("Hello", "world@gmail.com");
+
+            logger.info(userSchema.toString());
+        }
+
         // Find a user
         {
             UserSchema userSchema = UserFactory.getProvider().find(
@@ -60,6 +68,11 @@ public class UserApplication {
 
             // Update user email
             userSchema.getAspect().setEmailAsync("twidev15@gmail.com");
+
+            // Set JSON Data
+            userSchema.getAspect().setData(new UserData("hello","world",false, 130));
+
+            logger.info(userSchema.toString());
         }
 
         // Login User

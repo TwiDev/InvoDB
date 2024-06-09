@@ -3,6 +3,7 @@ package ch.twidev.invodb.driver.mongodb;
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.documents.OperationResult;
 import ch.twidev.invodb.bridge.documents.SingleElementSet;
+import ch.twidev.invodb.bridge.operations.DeleteContext;
 import ch.twidev.invodb.bridge.operations.FindContext;
 import ch.twidev.invodb.bridge.operations.InsertContext;
 import ch.twidev.invodb.bridge.operations.UpdateContext;
@@ -56,17 +57,21 @@ public class MongoConnection implements DriverSession<MongoDatabase> {
     public OperationResult update(UpdateContext updateContext, PlaceholderContext placeholderContext) {
         Bson searchFilter = BsonFilter.toBson(updateContext, placeholderContext);
 
-        Bson updates = Updates.combine(
-                updateContext.getFields().getFormattedFields(placeholderContext).entrySet()
-                        .stream()
-                        .map(entry -> Updates.set(entry.getKey(), entry.getValue()))
-                        .toArray(Bson[]::new)
-        );
+        try {
+            Bson updates = Updates.combine(
+                    updateContext.getFields().getFormattedFields(placeholderContext).entrySet()
+                            .stream()
+                            .map(entry -> Updates.set(entry.getKey(), entry.getValue()))
+                            .toArray(Bson[]::new)
+            );
 
-        MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(updateContext.getCollection());
-        mongoCollection.updateMany(searchFilter, updates, new UpdateOptions().upsert(false));
+            MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(updateContext.getCollection());
+            mongoCollection.updateMany(searchFilter, updates, new UpdateOptions().upsert(false));
 
-        return OperationResult.Ok;
+            return OperationResult.Ok;
+        } catch (MongoException mongoException) {
+            throw new RuntimeException(mongoException);
+        }
     }
 
     @Override
@@ -94,6 +99,26 @@ public class MongoConnection implements DriverSession<MongoDatabase> {
     @Override
     public CompletableFuture<OperationResult> insertAsync(InsertContext updateContext, PlaceholderContext placeholderContext) {
         return CompletableFuture.supplyAsync(() -> this.insert(updateContext, placeholderContext), executor);
+    }
+
+    @Override
+    public OperationResult delete(DeleteContext updateContext, PlaceholderContext placeholderContext) {
+        Bson searchFilter = BsonFilter.toBson(updateContext, placeholderContext);
+
+        try {
+            MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(updateContext.getCollection());
+
+            mongoCollection.deleteMany(searchFilter);
+
+            return OperationResult.Ok;
+        } catch (MongoException mongoException) {
+            throw new RuntimeException(mongoException);
+        }
+    }
+
+    @Override
+    public CompletableFuture<OperationResult> deleteAsync(DeleteContext updateContext, PlaceholderContext placeholderContext) {
+        return CompletableFuture.supplyAsync(() -> this.delete(updateContext, placeholderContext), executor);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package ch.twidev.invodb.examples.userschema.users;
 
+import ch.twidev.invodb.common.format.JsonFormatter;
 import ch.twidev.invodb.common.format.UUIDFormatter;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.UpdateOperationBuilder;
@@ -30,6 +31,10 @@ public class UserSchema extends AspectInvoSchema<UserSchemaAspect, String>
     @Field
     private Integer power = 0;
 
+    @Field
+    @Primitive(formatter = JsonFormatter.class)
+    private UserData userSchema = new UserData();
+
     public UserSchema() {
         super(UserSchemaAspect.class, "uuid");
     }
@@ -37,6 +42,10 @@ public class UserSchema extends AspectInvoSchema<UserSchemaAspect, String>
     @Override
     public String getPrimaryValue() {
         return uuid.toString();
+    }
+
+    public UserData getUserData() {
+        return userSchema;
     }
 
     @Override
@@ -47,6 +56,11 @@ public class UserSchema extends AspectInvoSchema<UserSchemaAspect, String>
     @Override
     public void setPowerAsync(int power) {
         this.power = power;
+    }
+
+    @Override
+    public void setData(UserData userData) {
+        this.userSchema = userData;
     }
 
     public UUID getUuid() {
@@ -72,6 +86,7 @@ public class UserSchema extends AspectInvoSchema<UserSchemaAspect, String>
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", power=" + power +
+                ", userSchema=" + userSchema +
                 '}';
     }
 
