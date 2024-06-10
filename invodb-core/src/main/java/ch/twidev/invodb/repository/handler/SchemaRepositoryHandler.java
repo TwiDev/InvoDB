@@ -11,6 +11,7 @@ import ch.twidev.invodb.exception.InvalidRepositoryQueryException;
 import ch.twidev.invodb.mapper.InvoSchema;
 import ch.twidev.invodb.mapper.annotations.Async;
 import ch.twidev.invodb.mapper.annotations.Primitive;
+import ch.twidev.invodb.mapper.field.FieldMapper;
 import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.SchemaRepositoryProvider;
 import ch.twidev.invodb.repository.annotations.Find;
@@ -135,8 +136,8 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
             schema.load();
 
             // 0,5 ms
-            schema.getFields().forEach((s, fieldMapper) -> {
-                operationBuilder.field(s, fieldMapper.getFormattedValue());
+            schema.getFields().values().forEach(fieldMapper -> {
+                operationBuilder.field(fieldMapper.queryName(), fieldMapper.getFormattedValue());
             });
 
             for (int i = 0; i < insert.fields().length; i++) {
@@ -145,11 +146,12 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
                 if(!schema.getFields().containsKey(fieldName)) continue;
 
                 // Provide formatted value to the insert query
-                Object value = schema.getFields().get(fieldName).getFormattedValue(args[i]);
-                operationBuilder.field(fieldName, value);
+                FieldMapper fieldMapper = schema.getFields().get(fieldName);
+                Object value = fieldMapper.getFormattedValue(args[i]);
+                operationBuilder.field(fieldMapper.queryName(), value);
 
                 // Update value to the schema
-                schema.getFields().get(fieldName).field().set(schema, value);
+                fieldMapper.field().set(schema, value);
             }
 
             CompletableFuture<OperationResult> completableFuture;
