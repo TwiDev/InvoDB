@@ -76,8 +76,6 @@ public class ScyllaConnection implements DriverSession<Session> {
             String statement = "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
                             + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
 
-            System.out.println(searchFilter.toQuery(searchDictionary, placeholderContext));
-            System.out.println(searchFilter.getContexts());
 
             ResultSet resultSet = searchFilter.isRequired() ?
                     session.execute(statement, searchFilter.getContexts().toArray(new Object[0])) :
@@ -98,6 +96,7 @@ public class ScyllaConnection implements DriverSession<Session> {
         try {
             String statement = "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
                     + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
+
 
             ResultSetFuture resultSet = searchFilter.isRequired() ?
                     session.executeAsync(statement, searchFilter.getContexts().toArray(new Object[0])) :

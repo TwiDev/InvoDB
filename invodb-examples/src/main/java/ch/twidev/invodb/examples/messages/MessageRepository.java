@@ -23,14 +23,13 @@ public interface MessageRepository extends SchemaRepositoryProvider<MessageSchem
             String content
     );
 
-    default CompletableFuture<Iterator<MessageSchema>> findAllByBucket(int bucket, long channelId) {
+    default Iterator<MessageSchema> findAllByBucket(int bucket, long channelId) {
         return findAllByBucket(
             and(eq("bucket", bucket), eq("channel_id", channelId))
         );
     }
 
     @FindAll
-    @Async
-    CompletableFuture<Iterator<MessageSchema>> findAllByBucket(SearchFilter searchFilter);
+    Iterator<MessageSchema> findAllByBucket(SearchFilter searchFilter);
 
 }

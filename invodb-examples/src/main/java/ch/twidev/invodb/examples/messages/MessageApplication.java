@@ -5,6 +5,7 @@ import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
 import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
 import ch.twidev.invodb.bridge.session.DriverSession;
+import ch.twidev.invodb.common.util.Monitoring;
 import ch.twidev.invodb.driver.scylla.ScyllaCluster;
 import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
 import ch.twidev.invodb.driver.scylla.ScyllaConnection;
@@ -18,7 +19,6 @@ import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 
 public class MessageApplication<S> {
 
@@ -72,27 +72,25 @@ public class MessageApplication<S> {
         Channel mainChannel = new Channel(1249761829889052672L);
 
         messageApplication.sendAsync(mainChannel, loggedId, "Hello World !").thenAccept(messageSchema -> {
-            logger.info("Message sent ! ID: " + messageSchema.getPrimaryValue() );
+            logger.info("Message sent ! ID: " + messageSchema.getPrimaryValue());
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
 
             return null;
         });
 
-        messageApplication.getMessagesInBucket(mainChannel, 4966109).thenAccept(iterator -> {
-            logger.info("Found messages !");
+        Monitoring monitoring = new Monitoring("message bucket");
+        Iterator<MessageSchema> iterator = messageApplication.getMessagesInBucket(mainChannel, 4966109);
+        monitoring.done();
 
-            while (iterator.hasNext()){
-                MessageSchema message = iterator.next();
+        logger.info("Found messages !");
 
-                logger.info(message.toString());
-            }
+        while (iterator.hasNext()) {
+            MessageSchema message = iterator.next();
 
-        }).exceptionally(throwable -> {
-            throwable.printStackTrace();
+            logger.info(message.toString());
+        }
 
-            return null;
-        });
     }
 
     public CompletableFuture<MessageSchema> sendAsync(Channel channel, long authorId, String content) {
@@ -107,7 +105,7 @@ public class MessageApplication<S> {
         );
     }
 
-    public CompletableFuture<Iterator<MessageSchema>> getMessagesInBucket(Channel channel, int bucket) {
+    public Iterator<MessageSchema> getMessagesInBucket(Channel channel, int bucket) {
         return messageRepository.findAllByBucket(bucket, channel.getChannelId());
     }
 

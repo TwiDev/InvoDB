@@ -7,6 +7,7 @@ import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
+import ch.twidev.invodb.common.util.Monitoring;
 import ch.twidev.invodb.exception.InvalidRepositoryQueryException;
 import ch.twidev.invodb.mapper.InvoSchema;
 import ch.twidev.invodb.mapper.annotations.Async;
@@ -114,9 +115,14 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         if(method.isAnnotationPresent(Async.class)) {
             completableFuture = findOperationBuilder.runAsync(schemaRepository.getDriverSession());
         }else{
+            Monitoring monitoring = new Monitoring("Find #1");
+
             completableFuture = CompletableFuture.completedFuture(
                     findOperationBuilder.run(schemaRepository.getDriverSession()));
+
+            monitoring.done();
         }
+
 
         completableFuture.exceptionally(throwable -> {
             schemaCompletableFuture.completeExceptionally(throwable);
@@ -130,6 +136,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
                 return;
             }
 
+            long t = System.nanoTime();
             Iterator<Schema> iterator = StreamSupport.stream(Spliterators.spliteratorUnknownSize(elementSet, 0), false)
                     .map(elements -> {
                         try {
@@ -150,6 +157,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
             if(!schemaCompletableFuture.isCompletedExceptionally()) {
                 schemaCompletableFuture.complete(iterator);
             }
+
         });
 
         return schemaCompletableFuture;

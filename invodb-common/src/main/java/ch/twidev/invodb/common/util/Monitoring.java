@@ -1,4 +1,4 @@
-package ch.twidev.invodb.examples;
+package ch.twidev.invodb.common.util;
 
 import java.util.logging.Logger;
 

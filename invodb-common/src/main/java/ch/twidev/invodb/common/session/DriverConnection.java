@@ -23,6 +23,7 @@ public class DriverConnection {
                                                                   InvoQuery<R> invoQuery,
                                                                   PlaceholderContext placeholderContext) {
 
+
         if(placeholderContext == null && invoQuery instanceof OperationContext operationContext) {
             placeholderContext = operationContext.getPlaceHolder();
         }
