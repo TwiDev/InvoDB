@@ -79,9 +79,7 @@ public class MessageApplication<S> {
             return null;
         });
 
-        Monitoring monitoring = new Monitoring("message bucket");
         Iterator<MessageSchema> iterator = messageApplication.getMessagesInBucket(mainChannel, 4966109);
-        monitoring.done();
 
         logger.info("Found messages !");
 
