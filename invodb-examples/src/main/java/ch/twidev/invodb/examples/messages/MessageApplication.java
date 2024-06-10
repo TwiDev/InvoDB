@@ -78,6 +78,21 @@ public class MessageApplication<S> {
 
             return null;
         });
+
+        messageApplication.getMessagesInBucket(mainChannel, 4966109).thenAccept(iterator -> {
+            logger.info("Found messages !");
+
+            while (iterator.hasNext()){
+                MessageSchema message = iterator.next();
+
+                logger.info(message.toString());
+            }
+
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+
+            return null;
+        });
     }
 
     public CompletableFuture<MessageSchema> sendAsync(Channel channel, long authorId, String content) {
@@ -93,7 +108,7 @@ public class MessageApplication<S> {
     }
 
     public CompletableFuture<Iterator<MessageSchema>> getMessagesInBucket(Channel channel, int bucket) {
-        return null;
+        return messageRepository.findAllByBucket(bucket, channel.getChannelId());
     }
 
     public int makeBucket(long snowflake) {

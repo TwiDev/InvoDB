@@ -40,4 +40,15 @@ public class MessageSchema extends AspectInvoSchema<MessageAspect, Long> impleme
     public Long getPrimaryValue() {
         return messageId;
     }
+
+    @Override
+    public String toString() {
+        return "MessageSchema{" +
+                "messageId=" + messageId +
+                ", channelId=" + channelId +
+                ", bucket=" + bucket +
+                ", authorId=" + authorId +
+                ", content='" + content + '\'' +
+                '}';
+    }
 }

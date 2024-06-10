@@ -18,6 +18,10 @@ import ch.twidev.invodb.repository.annotations.Find;
 import ch.twidev.invodb.repository.annotations.FindAll;
 import ch.twidev.invodb.repository.annotations.Insert;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -39,6 +43,19 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
             }else {
                 return schemaCompletableFuture;
             }
+        }
+
+        if(method.isDefault()) {
+            return MethodHandles.lookup()
+                    .findSpecial(
+                            method.getDeclaringClass(),
+                            method.getName(),
+                            MethodType.methodType(
+                                    method.getReturnType(),
+                                    method.getParameterTypes()),
+                            method.getDeclaringClass())
+                    .bindTo(proxy)
+                    .invokeWithArguments(args);
         }
 
         throw new UnsupportedOperationException("Unsupported method : " + method.getName());
@@ -70,20 +87,29 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         FindAll findAll = method.getAnnotation(FindAll.class);
         this.checkQuery(args);
 
-        Object searchedValue = args[0];
+        final CompletableFuture<Iterator<Schema>> schemaCompletableFuture = new CompletableFuture<>();
+        final CompletableFuture<ElementSet> completableFuture;
+        final FindOperationBuilder findOperationBuilder;
 
-        if(method.isAnnotationPresent(Primitive.class)) {
-            Primitive primitive = method.getAnnotation(Primitive.class);
+        if(args[0] instanceof SearchFilter searchFilter) {
+            findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
+                    .where(searchFilter);
+        }else {
+            if(findAll.by().isEmpty()) {
+                throw new InvalidRepositoryQueryException("No searched field specified in the find annotation for " + method.getName());
+            }
 
-            searchedValue = DataFormat.getPrimitive(searchedValue, primitive.formatter());
+            Object searchedValue = args[0];
+
+            if (method.isAnnotationPresent(Primitive.class)) {
+                Primitive primitive = method.getAnnotation(Primitive.class);
+
+                searchedValue = DataFormat.getPrimitive(searchedValue, primitive.formatter());
+            }
+
+            findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
+                    .where(SearchFilter.eq(findAll.by(), searchedValue));
         }
-
-        CompletableFuture<Iterator<Schema>> schemaCompletableFuture = new CompletableFuture<>();
-
-        CompletableFuture<ElementSet> completableFuture;
-
-        FindOperationBuilder findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
-                .where(SearchFilter.eq(findAll.by(), searchedValue));
 
         if(method.isAnnotationPresent(Async.class)) {
             completableFuture = findOperationBuilder.runAsync(schemaRepository.getDriverSession());
@@ -133,22 +159,29 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         Find find = method.getAnnotation(Find.class);
         this.checkQuery(args);
 
-        Object searchedValue = args[0];
+        final CompletableFuture<Schema> schemaCompletableFuture = new CompletableFuture<>();
+        final CompletableFuture<ElementSet> completableFuture;
+        final FindOperationBuilder findOperationBuilder;
 
-        if(method.isAnnotationPresent(Primitive.class)) {
-            Primitive primitive = method.getAnnotation(Primitive.class);
+        if(args[0] instanceof SearchFilter searchFilter) {
+            findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
+                    .where(searchFilter);
+        }else {
+            if(find.by().isEmpty()) {
+                throw new InvalidRepositoryQueryException("No searched field specified in the find annotation for " + method.getName());
+            }
 
-            searchedValue = DataFormat.getPrimitive(searchedValue, primitive.formatter());
+            Object searchedValue = args[0];
+
+            if (method.isAnnotationPresent(Primitive.class)) {
+                Primitive primitive = method.getAnnotation(Primitive.class);
+
+                searchedValue = DataFormat.getPrimitive(searchedValue, primitive.formatter());
+            }
+
+            findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
+                    .where(SearchFilter.eq(find.by(), searchedValue));
         }
-
-        CompletableFuture<Schema> schemaCompletableFuture = new CompletableFuture<>();
-
-        // Todo: add query cache
-
-        FindOperationBuilder findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
-                .where(SearchFilter.eq(find.by(), searchedValue));
-
-        CompletableFuture<ElementSet> completableFuture;
 
         if(method.isAnnotationPresent(Async.class)) {
             completableFuture = findOperationBuilder.runAsync(schemaRepository.getDriverSession());

@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface FindAll {
 
-    String by();
+    String by() default "";
 
     int limit() default -1;
 

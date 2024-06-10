@@ -11,6 +11,7 @@ import ch.twidev.invodb.bridge.search.SearchCondition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CompositeSearchFilter extends SearchFilter implements ICompositeSearchFilter {
 
@@ -29,16 +30,15 @@ public class CompositeSearchFilter extends SearchFilter implements ICompositeSea
 
     @Override
     public String toQuery(SearchDictionary searchDictionary, PlaceholderContext placeholderContext) {
-        String joinedFilters = searchFilters.stream()
+        return searchFilters.stream()
                 .map(searchFilter -> searchFilter.toQuery(searchDictionary, placeholderContext))
                 .collect(Collectors.joining(" " + searchDictionary.getComposite(this.getSearchFilterType()).value() + " "));
-
-        return "(" + joinedFilters + ")";
     }
 
     @Override
     public List<Object> getContexts() {
-        return searchFilters.stream().map(SearchFilter::getContexts).collect(Collectors.toList());
+        //return searchFilters.stream().map(SearchFilter::getContexts::).collect(Collectors.toList());
+        return searchFilters.stream().flatMap(filter -> filter.getContexts().stream()).collect(Collectors.toList());
     }
 
     @Override

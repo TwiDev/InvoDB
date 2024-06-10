@@ -13,6 +13,7 @@ import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.search.ISearchFilter;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.bridge.util.ResultCallback;
+import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.ResultSetFuture;
 import com.datastax.driver.core.Session;
@@ -74,6 +75,9 @@ public class ScyllaConnection implements DriverSession<Session> {
         try {
             String statement = "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
                             + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
+
+            System.out.println(searchFilter.toQuery(searchDictionary, placeholderContext));
+            System.out.println(searchFilter.getContexts());
 
             ResultSet resultSet = searchFilter.isRequired() ?
                     session.execute(statement, searchFilter.getContexts().toArray(new Object[0])) :
