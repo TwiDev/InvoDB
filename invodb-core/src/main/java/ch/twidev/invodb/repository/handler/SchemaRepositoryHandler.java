@@ -15,19 +15,23 @@ import ch.twidev.invodb.mapper.field.FieldMapper;
 import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.SchemaRepositoryProvider;
 import ch.twidev.invodb.repository.annotations.Find;
+import ch.twidev.invodb.repository.annotations.FindAll;
 import ch.twidev.invodb.repository.annotations.Insert;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.Spliterators;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.StreamSupport;
 
 public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provider extends SchemaRepositoryProvider<Schema>>(
         SchemaRepository<Session, Schema, Provider> schemaRepository) implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        CompletableFuture<Schema> schemaCompletableFuture = this.handleQuery(method, args);
+        CompletableFuture<?> schemaCompletableFuture = this.handleQuery(method, args);
 
         if(schemaCompletableFuture != null) {
             if(schemaCompletableFuture.isDone()) {
@@ -40,9 +44,13 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         throw new UnsupportedOperationException("Unsupported method : " + method.getName());
     }
 
-    public CompletableFuture<Schema> handleQuery(Method method, Object[] args) throws InvalidRepositoryQueryException {
+    public CompletableFuture<?> handleQuery(Method method, Object[] args) throws InvalidRepositoryQueryException {
         if (method.isAnnotationPresent(Find.class)) {
             return handleFind(method, args);
+        }
+
+        if(method.isAnnotationPresent(FindAll.class)) {
+            return handleFindAll(method, args);
         }
 
         if(method.isAnnotationPresent(Insert.class)) {
@@ -56,6 +64,69 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         if(args == null || args.length == 0) {
             throw new InvalidRepositoryQueryException("You need to define annotation arguments in the method to define repository functions");
         }
+    }
+
+    public CompletableFuture<Iterator<Schema>> handleFindAll(Method method, Object[] args) throws InvalidRepositoryQueryException {
+        FindAll findAll = method.getAnnotation(FindAll.class);
+        this.checkQuery(args);
+
+        Object searchedValue = args[0];
+
+        if(method.isAnnotationPresent(Primitive.class)) {
+            Primitive primitive = method.getAnnotation(Primitive.class);
+
+            searchedValue = DataFormat.getPrimitive(searchedValue, primitive.formatter());
+        }
+
+        CompletableFuture<Iterator<Schema>> schemaCompletableFuture = new CompletableFuture<>();
+
+        CompletableFuture<ElementSet> completableFuture;
+
+        FindOperationBuilder findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
+                .where(SearchFilter.eq(findAll.by(), searchedValue));
+
+        if(method.isAnnotationPresent(Async.class)) {
+            completableFuture = findOperationBuilder.runAsync(schemaRepository.getDriverSession());
+        }else{
+            completableFuture = CompletableFuture.completedFuture(
+                    findOperationBuilder.run(schemaRepository.getDriverSession()));
+        }
+
+        completableFuture.exceptionally(throwable -> {
+            schemaCompletableFuture.completeExceptionally(throwable);
+
+            return null;
+        }).thenAccept(elementSet -> {
+            if (elementSet == null) return;
+
+            if (elementSet.isEmpty()) {
+                schemaCompletableFuture.complete(null);
+                return;
+            }
+
+            Iterator<Schema> iterator = StreamSupport.stream(Spliterators.spliteratorUnknownSize(elementSet, 0), false)
+                    .map(elements -> {
+                        try {
+                            Schema schema = schemaRepository.getSchema().getConstructor().newInstance();
+
+                            schema.populate(schemaRepository.getDriverSession(), schemaRepository.getCollection(), elements);
+
+                            return schema;
+                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                                 NoSuchMethodException e) {
+
+                            schemaCompletableFuture.completeExceptionally(e);
+
+                            return null;
+                        }
+                    }).iterator();
+
+            if(!schemaCompletableFuture.isCompletedExceptionally()) {
+                schemaCompletableFuture.complete(iterator);
+            }
+        });
+
+        return schemaCompletableFuture;
     }
 
     public CompletableFuture<Schema> handleFind(Method method, Object[] args) throws InvalidRepositoryQueryException {

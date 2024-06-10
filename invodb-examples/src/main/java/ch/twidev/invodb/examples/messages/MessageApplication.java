@@ -14,8 +14,10 @@ import ch.twidev.invodb.repository.SchemaRepository;
 import com.datastax.driver.core.Session;
 
 import java.net.InetSocketAddress;
+import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 public class MessageApplication<S> {
@@ -68,8 +70,9 @@ public class MessageApplication<S> {
         long loggedId = 548102399621857300L;
 
         Channel mainChannel = new Channel(1249761829889052672L);
+
         messageApplication.sendAsync(mainChannel, loggedId, "Hello World !").thenAccept(messageSchema -> {
-            logger.info("Message sent !");
+            logger.info("Message sent ! ID: " + messageSchema.getPrimaryValue() );
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
 
@@ -89,6 +92,10 @@ public class MessageApplication<S> {
         );
     }
 
+    public CompletableFuture<Iterator<MessageSchema>> getMessagesInBucket(Channel channel, int bucket) {
+        return null;
+    }
+
     public int makeBucket(long snowflake) {
         final long timestamp;
 
@@ -101,8 +108,8 @@ public class MessageApplication<S> {
         return (int) (timestamp / BUCKET_SIZE);
     }
 
-    public LongStream makeBuckets(long start_id, long end_id) {
-        return LongStream.range(makeBucket(start_id), makeBucket(end_id) + 1);
+    public IntStream makeBuckets(long start_id, long end_id) {
+        return IntStream.range(makeBucket(start_id), makeBucket(end_id) + 1);
     }
 
     public static MessageApplication<?> getInstance() {
