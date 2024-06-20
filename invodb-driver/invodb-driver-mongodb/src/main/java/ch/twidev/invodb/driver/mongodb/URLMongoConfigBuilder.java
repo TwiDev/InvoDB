@@ -13,6 +13,7 @@ public class URLMongoConfigBuilder implements DriverConfigBuilder<URLMongoConfig
 
     private String driverName;
     private AuthenticatorProvider authenticatorProvider;
+    private CachingProvider<?> cachingProvider;
 
     public URLMongoConfigBuilder(String url) {
         this.url = url;
@@ -20,6 +21,13 @@ public class URLMongoConfigBuilder implements DriverConfigBuilder<URLMongoConfig
 
     public String getUrl() {
         return url;
+    }
+
+    @Override
+    public URLMongoConfigBuilder setQueryCache(CachingProvider<?> cachingProvider) {
+        this.cachingProvider = cachingProvider;
+
+        return this;
     }
 
     @Override
@@ -61,6 +69,10 @@ public class URLMongoConfigBuilder implements DriverConfigBuilder<URLMongoConfig
                 return driverName;
             }
         };
+    }
+
+    public CachingProvider<?> getCachingProvider() {
+        return cachingProvider;
     }
 
     public String getDriverName() {

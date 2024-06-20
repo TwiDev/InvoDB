@@ -5,6 +5,7 @@ import ch.twidev.invodb.bridge.session.DriverSession;
 
 public abstract class InvoDriver<Session> extends Driver implements DriverSession<Session> {
 
+
     private Session currentSession = null;
 
     public InvoDriver(DriverConfig driverConfig, InvoDriverType invoDriverType) {

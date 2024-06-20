@@ -1,4 +1,15 @@
+import ch.twidev.invodb.bridge.cache.Cache;
+import ch.twidev.invodb.bridge.cache.CachingStrategy;
+import ch.twidev.invodb.bridge.cache.redis.RedisDriver;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
+import ch.twidev.invodb.bridge.documents.ElementSet;
+import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
+import ch.twidev.invodb.bridge.placeholder.QueryPlaceholder;
+import ch.twidev.invodb.common.cache.StreamCacheProvider;
+import ch.twidev.invodb.common.query.InvoQuery;
+import org.junit.jupiter.api.Test;
+
+import static ch.twidev.invodb.common.query.operations.search.SearchFilter.*;
 
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -16,29 +27,47 @@ public class ConnectionTest {
     }};
 
 
+    @Test
+    public void testQueryCache() throws InterruptedException {
+        InvoQuery<ElementSet> invoQuery = InvoQuery.find("users")
+                .where(eq("name", QueryCachePlaceHolder.USER_NAME))
+                .attribute("email")
+                .attribute("power")
+                .setPlaceholder(PlaceholderContext.from(QueryCachePlaceHolder.USER_NAME, "TwyDev"));
 
-    public void testScyllaDriverConnection() throws InterruptedException {
+        logger.info("HashCode of Query (1): " + invoQuery.hashCode());
 
-    /*    try {
-            ScyllaClusterDriver invoClusterDriver = new ScyllaClusterDriver(new DriverConfig.ScyllaBuilder()
-                    .setDriverName("Test")
-                    .addContactPoint(new ClusterPoint(InetSocketAddress.createUnresolved("45.13.119.231", 9042)))
-                    .setAuthenticator(new Authenticator("cassandra","cassandra"))
-                    .build());
+        InvoQuery<ElementSet> invoQuery2 = InvoQuery.find("users")
+                .where(eq("name", QueryCachePlaceHolder.USER_NAME))
+                .attribute("email")
+                .attribute("power")
+                .setPlaceholder(PlaceholderContext.from(QueryCachePlaceHolder.USER_NAME, "TwyDev"));
 
-            invoClusterDriver.initConnection();
-            invoClusterDriver.asyncConnect("main").thenAccept(scyllaSession -> {
-                        System.out.println("HELLO");
-                        logger.info("HELLO");
-                        scyllaSession.execute("SELECT * FROM users");
-                    });
+        RedisDriver redisDriver = new RedisDriver();
 
-        } catch (DriverBuilderException | DriverConnectionException e) {
-            throw new RuntimeException(e);
-        }*/
+        Cache<String, Object> cache = new StreamCacheProvider<>(
+                redisDriver,
+                CachingStrategy.LRU,
+                "testCache",
+                1000);
 
 
+        logger.info("HashCode of Query (2): " + invoQuery2.hashCode());
+    }
 
+    enum QueryCachePlaceHolder implements QueryPlaceholder {
+        USER_NAME("userName");
+
+        private final String placeholder;
+
+        QueryCachePlaceHolder(String placeholder) {
+            this.placeholder = placeholder;
+        }
+
+        @Override
+        public String getPlaceholder() {
+            return placeholder;
+        }
     }
 
 }

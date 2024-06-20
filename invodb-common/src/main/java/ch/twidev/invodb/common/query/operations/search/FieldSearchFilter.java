@@ -33,12 +33,17 @@ public class FieldSearchFilter extends SearchFilter implements IFieldSearchFilte
 
     @Override
     public String toQuery(SearchDictionary searchDictionary, PlaceholderContext placeholderContext) {
-        if(object instanceof QueryPlaceholder queryPlaceholder) {
+        if(object instanceof QueryPlaceholder queryPlaceholder && placeholderContext != null) {
             this.object = placeholderContext.get(queryPlaceholder);
         }
 
         return searchDictionary.getField(this.getSearchFilterType())
                 .parse(value);
+    }
+
+    @Override
+    public int getTotalHashCode() {
+        return value.hashCode();
     }
 
     @Override

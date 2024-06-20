@@ -17,10 +17,18 @@ public class ScyllaConfigBuilder implements DriverConfigBuilder<ScyllaConfigBuil
     private final ClusterPoints contactPoints = new ClusterPoints();
     private String driverName;
     private AuthenticatorProvider authenticatorProvider;
+    private CachingProvider<?> cachingProvider;
 
     @Required
     public ScyllaConfigBuilder addContactPoint(ContactPoint contactPoint) {
         contactPoints.add(contactPoint);
+
+        return this;
+    }
+
+    @Override
+    public ScyllaConfigBuilder setQueryCache(CachingProvider<?> cachingProvider) {
+        this.cachingProvider = cachingProvider;
 
         return this;
     }
@@ -71,5 +79,28 @@ public class ScyllaConfigBuilder implements DriverConfigBuilder<ScyllaConfigBuil
                 return driverName;
             }
         };
+    }
+
+    @Override
+    public AuthenticatorProvider getAuthProvider() {
+        return authenticatorProvider;
+    }
+
+    @Override
+    public CachingProvider<?> getQueryCache() {
+        return null;
+    }
+
+    public ClusterPoints getContactPoints() {
+        return contactPoints;
+    }
+
+    @Override
+    public String getDriverName() {
+        return driverName;
+    }
+
+    public CachingProvider<?> getCachingProvider() {
+        return cachingProvider;
     }
 }

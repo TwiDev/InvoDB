@@ -1,14 +1,12 @@
 package ch.twidev.invodb.common.query.builder;
 
 import ch.twidev.invodb.bridge.contexts.FieldMap;
-import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.documents.OperationResult;
 import ch.twidev.invodb.bridge.operations.InsertContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.operations.FieldsOperation;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
-import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,5 +58,10 @@ public class InsertOperationBuilder extends InvoQuery<OperationResult> implement
     @Override
     public PlaceholderContext getPlaceHolder() {
         return placeholderContext;
+    }
+
+    @Override
+    public int operationHashCode() {
+        return this.hashCode();
     }
 }

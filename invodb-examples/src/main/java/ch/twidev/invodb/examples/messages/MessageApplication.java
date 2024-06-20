@@ -60,6 +60,7 @@ public class MessageApplication<S> {
                 .setDriverName("ScyllaDriver")
                 .addContactPoint(new ContactPoint(InetSocketAddress.createUnresolved("45.13.119.231", 9042)))
                 .setAuthProvider(new PlainTextAuth("cassandra", "cassandra"))
+                .setQueryCache(null)
                 .build();
 
         ScyllaConnection connection = new ScyllaCluster(scyllaConfig)

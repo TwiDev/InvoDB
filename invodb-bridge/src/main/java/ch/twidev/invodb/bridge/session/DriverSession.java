@@ -7,7 +7,6 @@ import ch.twidev.invodb.bridge.operations.FindContext;
 import ch.twidev.invodb.bridge.operations.InsertContext;
 import ch.twidev.invodb.bridge.operations.UpdateContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
-import ch.twidev.invodb.bridge.util.ResultCallback;
 
 import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;

@@ -36,6 +36,17 @@ public class CompositeSearchFilter extends SearchFilter implements ICompositeSea
     }
 
     @Override
+    public int getTotalHashCode() {
+        int hash = 13 * this.getSearchFilterType().getQueryCode();
+
+        for (SearchFilter searchFilter : searchFilters) {
+            hash += searchFilter.getTotalHashCode();
+        }
+
+        return hash;
+    }
+
+    @Override
     public List<Object> getContexts() {
         //return searchFilters.stream().map(SearchFilter::getContexts::).collect(Collectors.toList());
         return searchFilters.stream().flatMap(filter -> filter.getContexts().stream()).collect(Collectors.toList());

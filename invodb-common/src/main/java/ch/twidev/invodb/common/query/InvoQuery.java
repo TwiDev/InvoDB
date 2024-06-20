@@ -49,11 +49,11 @@ public abstract class InvoQuery<Result> {
     }
 
     public Result run(@NotNull DriverSession<?> driverConnection, PlaceholderContext placeholderContext) {
-        return DriverConnection.runQuery(driverConnection, resultInstance, this, placeholderContext);
+        return DriverConnection.runQuery(driverConnection, this, placeholderContext);
     }
 
     public CompletableFuture<Result> runAsync(DriverSession<?> driverConnection, PlaceholderContext placeholderContext) {
-        return DriverConnection.runQueryAsync(driverConnection, resultInstance, this, placeholderContext);
+        return DriverConnection.runQueryAsync(driverConnection, this, placeholderContext);
     }
 
     public QueryOperation getQueryOperation() {
@@ -63,4 +63,5 @@ public abstract class InvoQuery<Result> {
     public String getCollection() {
         return collection;
     }
+
 }

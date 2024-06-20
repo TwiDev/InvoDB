@@ -18,11 +18,7 @@ import java.util.concurrent.CompletableFuture;
 @SuppressWarnings("unchecked")
 public class DriverConnection {
 
-    public static <Session, R> R runQuery(DriverSession<Session> session,
-                                                                  Class<R> resultInstance,
-                                                                  InvoQuery<R> invoQuery,
-                                                                  PlaceholderContext placeholderContext) {
-
+    public static <Session, R> R runQuery(DriverSession<Session> session, InvoQuery<R> invoQuery, PlaceholderContext placeholderContext) {
 
         if(placeholderContext == null && invoQuery instanceof OperationContext operationContext) {
             placeholderContext = operationContext.getPlaceHolder();
@@ -47,7 +43,6 @@ public class DriverConnection {
     }
 
     public static <Session, R> CompletableFuture<R> runQueryAsync(DriverSession<Session> session,
-                                                  Class<R> resultInstance,
                                                   InvoQuery<R> invoQuery,
                                                   PlaceholderContext placeholderContext) {
 

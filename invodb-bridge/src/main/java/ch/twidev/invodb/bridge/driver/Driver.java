@@ -3,13 +3,13 @@ package ch.twidev.invodb.bridge.driver;
 import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
 
-import java.io.Closeable;
-
 public abstract class Driver {
 
     private final InvoDriverType invoDriverType;
 
     private final DriverConfig driverConfig;
+
+    private CachingProvider<?> queryCache;
 
     public Driver(DriverConfig driverConfig, InvoDriverType invoDriverType) {
         this.invoDriverType = invoDriverType;
@@ -30,5 +30,12 @@ public abstract class Driver {
         return invoDriverType;
     }
 
+    public CachingProvider<?> getQueryCache() {
+        return queryCache;
+    }
+
+    public void setQueryCache(CachingProvider<?> queryCache) {
+        this.queryCache = queryCache;
+    }
 }
 

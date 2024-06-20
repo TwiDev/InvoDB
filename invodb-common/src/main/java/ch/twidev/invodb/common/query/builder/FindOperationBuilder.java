@@ -13,6 +13,7 @@ import ch.twidev.invodb.common.documents.ResultSet;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class FindOperationBuilder extends InvoQuery<ElementSet> implements FindContext, AttributeOperation<FindOperationBuilder>, SearchOperation<FindOperationBuilder> {
 
@@ -49,6 +50,11 @@ public class FindOperationBuilder extends InvoQuery<ElementSet> implements FindC
     }
 
     @Override
+    public int operationHashCode() {
+        return this.hashCode();
+    }
+
+    @Override
     public Attributes getAttributes() {
         if(attributes.isEmpty()){
             return Attributes.ALL;
@@ -67,5 +73,24 @@ public class FindOperationBuilder extends InvoQuery<ElementSet> implements FindC
     @Override
     public List<Object> getContexts() {
         return searchFilter.getContexts();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        FindOperationBuilder that = (FindOperationBuilder) object;
+        return Objects.equals(attributes, that.attributes) && Objects.equals(searchFilter, that.searchFilter) && Objects.equals(placeholderContext, that.placeholderContext);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+
+        return prime * (
+                this.getCollection().hashCode() +
+                this.getAttributes().hashCode() +
+                this.getSearchFilter().getTotalHashCode() +
+                this.getContexts().hashCode() + this.getPlaceHolder().hashCode());
     }
 }

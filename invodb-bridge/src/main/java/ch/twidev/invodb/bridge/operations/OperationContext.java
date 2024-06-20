@@ -13,4 +13,5 @@ public interface OperationContext {
 
     PlaceholderContext getPlaceHolder();
 
+    int operationHashCode();
 }

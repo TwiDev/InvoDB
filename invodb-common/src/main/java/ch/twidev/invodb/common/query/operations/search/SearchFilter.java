@@ -15,11 +15,18 @@ public abstract class SearchFilter implements ISearchFilter {
 
     private final FieldMap searchMap = new FieldMap();
 
+    private static final int prime = 53;
+
     public static SearchFilter all() {
         return new SearchFilter(SearchFilterType.ALL, searchField -> true) {
             @Override
             public String toQuery(SearchDictionary searchDictionary, PlaceholderContext placeholderContext) {
                 return null;
+            }
+
+            @Override
+            public int getTotalHashCode() {
+                return prime;
             }
 
             @Override
@@ -30,17 +37,14 @@ public abstract class SearchFilter implements ISearchFilter {
     }
 
     public static SearchFilter or(SearchFilter... operations) {
-        return new CompositeSearchFilter(SearchFilterType.OR, searchField ->
-                Arrays.stream(operations)
-                        .anyMatch(operation -> operation.getSearchCondition().evaluate(searchField))
-        , operations);
+        return new CompositeSearchFilter(SearchFilterType.OR, searchField -> Arrays.stream(operations)
+                .anyMatch(operation -> operation.getSearchCondition().evaluate(searchField)), operations);
+
     }
 
     public static SearchFilter and(SearchFilter... operations) {
-        return new CompositeSearchFilter(SearchFilterType.AND, searchField ->
-            Arrays.stream(operations)
-                    .allMatch(operation -> operation.getSearchCondition().evaluate(searchField))
-        , operations);
+        return new CompositeSearchFilter(SearchFilterType.AND, searchField -> Arrays.stream(operations)
+                .allMatch(operation -> operation.getSearchCondition().evaluate(searchField)), operations);
     }
 
     public static SearchFilter eq(String value, Object object) {
@@ -71,6 +75,8 @@ public abstract class SearchFilter implements ISearchFilter {
 
     @Override
     public abstract String toQuery(SearchDictionary searchDictionary, PlaceholderContext queryPlaceholder);
+
+    public abstract int getTotalHashCode();
 
 
     public abstract List<Object> getContexts();

@@ -50,6 +50,11 @@ public class UpdateOperationBuilder extends InvoQuery<OperationResult> implement
         return placeholderContext;
     }
 
+    @Override
+    public int operationHashCode() {
+        return this.hashCode();
+    }
+
 
     @Override
     public List<Object> getContexts() {

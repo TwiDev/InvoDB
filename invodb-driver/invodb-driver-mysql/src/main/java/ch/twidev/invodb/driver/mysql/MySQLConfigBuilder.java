@@ -9,6 +9,11 @@ import ch.twidev.invodb.bridge.exceptions.DriverConfigException;
 
 public class MySQLConfigBuilder implements DriverConfigBuilder<MySQLConfigBuilder, URLDriverConfig> {
     @Override
+    public MySQLConfigBuilder setQueryCache(CachingProvider<?> cachingProvider) {
+        return null;
+    }
+
+    @Override
     public MySQLConfigBuilder setAuthProvider(AuthenticatorProvider authenticatorProvider) {
         return null;
     }
@@ -41,6 +46,21 @@ public class MySQLConfigBuilder implements DriverConfigBuilder<MySQLConfigBuilde
                 return null;
             }
         };
+    }
+
+    @Override
+    public AuthenticatorProvider getAuthProvider() {
+        return null;
+    }
+
+    @Override
+    public CachingProvider<?> getQueryCache() {
+        return null;
+    }
+
+    @Override
+    public String getDriverName() {
+        return null;
     }
 
 }

@@ -85,4 +85,9 @@ public class PlaceholderContext {
     public HashMap<String, Object> getContext() {
         return context;
     }
+
+    @Override
+    public int hashCode() {
+        return context.hashCode();
+    }
 }

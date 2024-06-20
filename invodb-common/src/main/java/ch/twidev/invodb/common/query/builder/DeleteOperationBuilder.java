@@ -7,6 +7,7 @@ import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
 import ch.twidev.invodb.common.query.operations.SearchOperation;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
+import com.google.common.hash.HashCode;
 
 import java.util.List;
 
