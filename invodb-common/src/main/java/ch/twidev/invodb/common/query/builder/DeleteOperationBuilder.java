@@ -51,6 +51,6 @@ public class DeleteOperationBuilder extends InvoQuery<OperationResult> implement
 
     @Override
     public int operationHashCode() {
-        return this.hashCode();
+        return hashCode();
     }
 }

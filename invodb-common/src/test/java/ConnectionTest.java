@@ -43,6 +43,8 @@ public class ConnectionTest {
                 .attribute("power")
                 .setPlaceholder(PlaceholderContext.from(QueryCachePlaceHolder.USER_NAME, "TwyDev"));
 
+        System.out.println("Is Equal? = " + (invoQuery.equals(invoQuery2)));
+
         RedisDriver redisDriver = new RedisDriver();
 
         Cache<String, Object> cache = new StreamCacheProvider<>(

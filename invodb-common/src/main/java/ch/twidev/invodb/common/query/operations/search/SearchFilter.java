@@ -76,6 +76,7 @@ public abstract class SearchFilter implements ISearchFilter {
     @Override
     public abstract String toQuery(SearchDictionary searchDictionary, PlaceholderContext queryPlaceholder);
 
+    @Override
     public abstract int getTotalHashCode();
 
 

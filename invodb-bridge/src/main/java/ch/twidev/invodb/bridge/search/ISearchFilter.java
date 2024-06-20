@@ -18,4 +18,6 @@ public interface ISearchFilter {
 
     boolean isRequired();
 
+    int getTotalHashCode();
+
 }

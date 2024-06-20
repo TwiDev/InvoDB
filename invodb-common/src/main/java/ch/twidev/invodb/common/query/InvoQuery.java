@@ -1,5 +1,7 @@
 package ch.twidev.invodb.common.query;
 
+import ch.twidev.invodb.bridge.operations.OperationContext;
+import ch.twidev.invodb.bridge.operations.SearchContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.common.query.builder.DeleteOperationBuilder;
@@ -8,7 +10,6 @@ import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
 import ch.twidev.invodb.common.query.builder.UpdateOperationBuilder;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
 import ch.twidev.invodb.common.session.DriverConnection;
-import ch.twidev.invodb.bridge.util.ResultCallback;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -63,5 +64,4 @@ public abstract class InvoQuery<Result> {
     public String getCollection() {
         return collection;
     }
-
 }

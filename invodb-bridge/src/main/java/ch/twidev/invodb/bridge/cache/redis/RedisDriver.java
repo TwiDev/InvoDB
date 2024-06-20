@@ -21,6 +21,11 @@ public class RedisDriver implements CacheDriver<Object> {
     }
 
     @Override
+    public <K> boolean has(K key) {
+        return false;
+    }
+
+    @Override
     public void cleanup() {
 
     }

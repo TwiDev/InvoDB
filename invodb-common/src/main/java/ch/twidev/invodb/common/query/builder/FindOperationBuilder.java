@@ -76,14 +76,6 @@ public class FindOperationBuilder extends InvoQuery<ElementSet> implements FindC
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        FindOperationBuilder that = (FindOperationBuilder) object;
-        return Objects.equals(attributes, that.attributes) && Objects.equals(searchFilter, that.searchFilter) && Objects.equals(placeholderContext, that.placeholderContext);
-    }
-
-    @Override
     public int hashCode() {
         final int prime = 31;
 

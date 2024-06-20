@@ -1,5 +1,6 @@
 package ch.twidev.invodb.common.driver;
 
+import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.environment.EnvVar;
@@ -28,6 +29,11 @@ public class InvoDriverConfig implements DriverConfig {
     @Override
     public boolean isUrl() {
         return false;
+    }
+
+    @Override
+    public Cache<?, ?> getQueryCache() {
+        return null;
     }
 
     @Override
