@@ -61,6 +61,11 @@ public class StreamCacheProvider<K, V, Driver> implements Cache<K, V>, CacheSeri
     }
 
     @Override
+    public boolean has(K key) {
+        return cacheDriver.has(key);
+    }
+
+    @Override
     public String getKeyname() {
         return keyname;
     }

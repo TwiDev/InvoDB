@@ -1,10 +1,11 @@
 package ch.twidev.invodb.bridge.driver.config;
 
+import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.driver.auth.AuthenticatorProvider;
 
 public interface DriverConfigBuilder<Builder, Config extends DriverConfig> {
 
-    Builder setQueryCache(CachingProvider<?> cachingProvider);
+    Builder setQueryCache(Cache<?,?> cachingProvider);
 
     Builder setAuthProvider(AuthenticatorProvider authenticatorProvider);
 
@@ -14,7 +15,7 @@ public interface DriverConfigBuilder<Builder, Config extends DriverConfig> {
 
     AuthenticatorProvider getAuthProvider();
 
-    CachingProvider<?> getQueryCache();
+    Cache<?,?> getQueryCache();
 
     String getDriverName();
 

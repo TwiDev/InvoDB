@@ -48,4 +48,9 @@ public class DeleteOperationBuilder extends InvoQuery<OperationResult> implement
     public PlaceholderContext getPlaceHolder() {
         return placeholderContext;
     }
+
+    @Override
+    public int operationHashCode() {
+        return this.hashCode();
+    }
 }

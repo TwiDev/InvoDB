@@ -1,5 +1,6 @@
 package ch.twidev.invodb.driver.mysql;
 
+import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.driver.auth.AuthenticatorProvider;
 import ch.twidev.invodb.bridge.driver.config.DriverConfigBuilder;
@@ -8,8 +9,9 @@ import ch.twidev.invodb.bridge.environment.EnvVar;
 import ch.twidev.invodb.bridge.exceptions.DriverConfigException;
 
 public class MySQLConfigBuilder implements DriverConfigBuilder<MySQLConfigBuilder, URLDriverConfig> {
+
     @Override
-    public MySQLConfigBuilder setQueryCache(CachingProvider<?> cachingProvider) {
+    public MySQLConfigBuilder setQueryCache(Cache<?, ?> cachingProvider) {
         return null;
     }
 
@@ -37,6 +39,11 @@ public class MySQLConfigBuilder implements DriverConfigBuilder<MySQLConfigBuilde
             }
 
             @Override
+            public Cache<?, ?> getQueryCache() {
+                return null;
+            }
+
+            @Override
             public InvoDriverType getDriverType() {
                 return null;
             }
@@ -54,7 +61,7 @@ public class MySQLConfigBuilder implements DriverConfigBuilder<MySQLConfigBuilde
     }
 
     @Override
-    public CachingProvider<?> getQueryCache() {
+    public Cache<?, ?> getQueryCache() {
         return null;
     }
 

@@ -1,5 +1,6 @@
 package ch.twidev.invodb.driver.scylla;
 
+import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.driver.auth.AuthenticatorProvider;
 import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
 import ch.twidev.invodb.bridge.driver.cluster.ClusterPoints;
@@ -17,7 +18,7 @@ public class ScyllaConfigBuilder implements DriverConfigBuilder<ScyllaConfigBuil
     private final ClusterPoints contactPoints = new ClusterPoints();
     private String driverName;
     private AuthenticatorProvider authenticatorProvider;
-    private CachingProvider<?> cachingProvider;
+    private Cache<?,?> cachingProvider;
 
     @Required
     public ScyllaConfigBuilder addContactPoint(ContactPoint contactPoint) {
@@ -27,7 +28,7 @@ public class ScyllaConfigBuilder implements DriverConfigBuilder<ScyllaConfigBuil
     }
 
     @Override
-    public ScyllaConfigBuilder setQueryCache(CachingProvider<?> cachingProvider) {
+    public ScyllaConfigBuilder setQueryCache(Cache<?, ?> cachingProvider) {
         this.cachingProvider = cachingProvider;
 
         return this;
@@ -70,6 +71,11 @@ public class ScyllaConfigBuilder implements DriverConfigBuilder<ScyllaConfigBuil
             }
 
             @Override
+            public Cache<?, ?> getQueryCache() {
+                return cachingProvider;
+            }
+
+            @Override
             public InvoDriverType getDriverType() {
                 return InvoDriverType.SCYLLA;
             }
@@ -87,7 +93,7 @@ public class ScyllaConfigBuilder implements DriverConfigBuilder<ScyllaConfigBuil
     }
 
     @Override
-    public CachingProvider<?> getQueryCache() {
+    public Cache<?,?> getQueryCache() {
         return null;
     }
 
@@ -100,7 +106,7 @@ public class ScyllaConfigBuilder implements DriverConfigBuilder<ScyllaConfigBuil
         return driverName;
     }
 
-    public CachingProvider<?> getCachingProvider() {
+    public Cache<?,?> getCachingProvider() {
         return cachingProvider;
     }
 }

@@ -45,7 +45,7 @@ public class MongoCluster extends InvoClusterDriver<MongoDatabase, MongoConnecti
 
     @Override
     public MongoConnection connectSession(String keyname) {
-        return new MongoConnection(mongoClient.getDatabase(keyname));
+        return new MongoConnection(mongoClient.getDatabase(keyname), getQueryCache());
     }
 
     @Override

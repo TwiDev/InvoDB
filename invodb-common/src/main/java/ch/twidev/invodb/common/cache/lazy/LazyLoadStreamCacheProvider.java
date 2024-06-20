@@ -5,17 +5,17 @@ import ch.twidev.invodb.bridge.cache.CachingStrategy;
 import ch.twidev.invodb.bridge.cache.EvictionPolicy;
 import ch.twidev.invodb.common.cache.StreamCacheProvider;
 
-public class LazyStreamCacheProvider<K,V,Driver extends CacheDriver<Driver>> extends StreamCacheProvider<K, V, Driver> {
+public class LazyLoadStreamCacheProvider<K,V,Driver extends CacheDriver<Driver>> extends StreamCacheProvider<K, V, Driver> {
 
     private final DataLoader<K, V> dataLoader;
 
-    public LazyStreamCacheProvider(Driver driver, CachingStrategy cachingStrategy, String keyname, int capacity, DataLoader<K, V> dataLoader) {
+    public LazyLoadStreamCacheProvider(Driver driver, CachingStrategy cachingStrategy, String keyname, int capacity, DataLoader<K, V> dataLoader) {
         super(driver, cachingStrategy, keyname, capacity);
 
         this.dataLoader = dataLoader;
     }
 
-    public LazyStreamCacheProvider(Driver driver, EvictionPolicy<K, Driver> evictionPolicy, String keyname, int capacity, DataLoader<K, V> dataLoader) {
+    public LazyLoadStreamCacheProvider(Driver driver, EvictionPolicy<K, Driver> evictionPolicy, String keyname, int capacity, DataLoader<K, V> dataLoader) {
         super(driver, evictionPolicy, keyname, capacity);
 
         this.dataLoader = dataLoader;

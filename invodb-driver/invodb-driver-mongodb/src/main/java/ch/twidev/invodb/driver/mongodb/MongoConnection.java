@@ -1,5 +1,6 @@
 package ch.twidev.invodb.driver.mongodb;
 
+import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.documents.OperationResult;
 import ch.twidev.invodb.bridge.documents.SingleElementSet;
@@ -33,9 +34,16 @@ public class MongoConnection implements DriverSession<MongoDatabase> {
     private static final ExecutorService executor = Executors.newCachedThreadPool();
 
     private final MongoDatabase mongoDatabase;
+    private final Cache<?,?> queryCache;
 
-    public MongoConnection(MongoDatabase mongoDatabase) {
+    public MongoConnection(MongoDatabase mongoDatabase, Cache<?,?> queryCache) {
         this.mongoDatabase = mongoDatabase;
+        this.queryCache = queryCache;
+    }
+
+    @Override
+    public Cache<?, ?> getQueryCache() {
+        return queryCache;
     }
 
     @Override

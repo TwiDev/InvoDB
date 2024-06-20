@@ -4,6 +4,6 @@ public enum CachingStrategy {
 
     LRU,
     LFU,
-    TTL
-
+    TTL,
+    NONE
 }

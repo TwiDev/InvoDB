@@ -72,7 +72,7 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
 
     @Override
     public ScyllaConnection connectSession(String keyname) {
-        return new ScyllaConnection(this.cluster.connect(keyname));
+        return new ScyllaConnection(this.cluster.connect(keyname), getQueryCache());
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ScyllaCluster extends InvoClusterDriver<Session, ScyllaConnection> 
         Futures.addCallback(asyncTask, new FutureCallback<>() {
             @Override
             public void onSuccess(Session session) {
-                ScyllaConnection scyllaConnection = new ScyllaConnection(session);
+                ScyllaConnection scyllaConnection = new ScyllaConnection(session, getQueryCache());
                 invoSessionDriverFutureCallback.complete(
                         scyllaConnection
                 );

@@ -1,5 +1,6 @@
 package ch.twidev.invodb.driver.mongodb;
 
+import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.driver.InvoDriverType;
 import ch.twidev.invodb.bridge.driver.auth.AuthenticatorProvider;
 import ch.twidev.invodb.bridge.driver.config.DriverConfigBuilder;
@@ -13,7 +14,7 @@ public class URLMongoConfigBuilder implements DriverConfigBuilder<URLMongoConfig
 
     private String driverName;
     private AuthenticatorProvider authenticatorProvider;
-    private CachingProvider<?> cachingProvider;
+    private Cache<?,?> cachingProvider;
 
     public URLMongoConfigBuilder(String url) {
         this.url = url;
@@ -24,7 +25,7 @@ public class URLMongoConfigBuilder implements DriverConfigBuilder<URLMongoConfig
     }
 
     @Override
-    public URLMongoConfigBuilder setQueryCache(CachingProvider<?> cachingProvider) {
+    public URLMongoConfigBuilder setQueryCache(Cache<?,?> cachingProvider) {
         this.cachingProvider = cachingProvider;
 
         return this;
@@ -60,6 +61,11 @@ public class URLMongoConfigBuilder implements DriverConfigBuilder<URLMongoConfig
             }
 
             @Override
+            public Cache<?, ?> getQueryCache() {
+                return cachingProvider;
+            }
+
+            @Override
             public InvoDriverType getDriverType() {
                 return InvoDriverType.MONGODB;
             }
@@ -71,7 +77,13 @@ public class URLMongoConfigBuilder implements DriverConfigBuilder<URLMongoConfig
         };
     }
 
-    public CachingProvider<?> getCachingProvider() {
+    @Override
+    public AuthenticatorProvider getAuthProvider() {
+        return authenticatorProvider;
+    }
+
+    @Override
+    public Cache<?, ?> getQueryCache() {
         return cachingProvider;
     }
 

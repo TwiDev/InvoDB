@@ -1,5 +1,6 @@
 package ch.twidev.invodb.driver.scylla;
 
+import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.contexts.FieldMap;
 import ch.twidev.invodb.bridge.contexts.SearchDictionary;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
@@ -20,6 +21,7 @@ import com.datastax.driver.core.Session;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,10 +54,17 @@ public class ScyllaConnection implements DriverSession<Session> {
         });
     }};
 
+    private final Cache<?,?> queryCache;
     private final Session session;
 
-    public ScyllaConnection(Session session) {
+    public ScyllaConnection(Session session, Cache<?,?> queryCache) {
         this.session = session;
+        this.queryCache = queryCache;
+    }
+
+    @Override
+    public Cache<?, ?> getQueryCache() {
+        return queryCache;
     }
 
     @Override
