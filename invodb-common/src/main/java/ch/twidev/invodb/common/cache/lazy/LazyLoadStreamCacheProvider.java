@@ -5,7 +5,9 @@ import ch.twidev.invodb.bridge.cache.CachingStrategy;
 import ch.twidev.invodb.bridge.cache.EvictionPolicy;
 import ch.twidev.invodb.common.cache.StreamCacheProvider;
 
-public class LazyLoadStreamCacheProvider<K,V,Driver extends CacheDriver<Driver>> extends StreamCacheProvider<K, V, Driver> {
+import java.io.Serializable;
+
+public class LazyLoadStreamCacheProvider<K extends Serializable,V extends Serializable,Driver extends CacheDriver<Driver>> extends StreamCacheProvider<K, V, Driver> {
 
     private final DataLoader<K, V> dataLoader;
 

@@ -101,10 +101,9 @@ public class DriverConnection {
         QueryCache<?> cache = getQueryCache(session);
         if(cache == null) return null;
 
-        final int opcode = operationContext.operationHashCode();
-        final int searchCode = searchContext.hashCode();
+        final int searchCode = searchContext.getSearchFilter().getTotalHashCode();
 
-        if(!cache.has(opcode)) {
+        if(!cache.has(searchCode)) {
             return (R) cache.get(searchCode);
         }
 
@@ -118,9 +117,9 @@ public class DriverConnection {
 
         if(!(value instanceof Serializable)) return;
 
-        final int opcode = operationContext.operationHashCode();
+        final int opcode = searchContext.getSearchFilter().getTotalHashCode();
 
-        cache.put(opcode, value);
+        cache.put(opcode, value.toString());
     }
 
     public static <Session> void invalidateCachedValues(DriverSession<Session> session, OperationContext operationContext, SearchContext searchContext) {
@@ -128,7 +127,7 @@ public class DriverConnection {
         if(cache == null) return;
 
         cache.remove(
-                operationContext.operationHashCode()
+                searchContext.getSearchFilter().getTotalHashCode()
         );
     }
 

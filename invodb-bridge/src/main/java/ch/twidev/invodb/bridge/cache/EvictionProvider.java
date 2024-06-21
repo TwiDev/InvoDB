@@ -2,6 +2,6 @@ package ch.twidev.invodb.bridge.cache;
 
 public interface EvictionProvider<Driver> {
 
-    <K> EvictionPolicy<K, Driver> getEvictionPolicy(CachingStrategy cachingStrategy);
+    <K> EvictionPolicy<K, Driver> getEvictionPolicy(CachingStrategy cachingStrategy, String keyname, int capacity);
 
 }

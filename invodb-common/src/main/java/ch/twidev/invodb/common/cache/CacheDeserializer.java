@@ -1,7 +1,7 @@
 package ch.twidev.invodb.common.cache;
 
-public interface CacheDeserializer<V> {
+public interface CacheDeserializer {
 
-    V deserialize(byte[] value);
+    <T> T deserialize(byte[] value, Class<T> clazz);
 
 }

@@ -4,26 +4,30 @@ import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.cache.CacheDriver;
 import ch.twidev.invodb.bridge.cache.CachingStrategy;
 import ch.twidev.invodb.bridge.cache.EvictionPolicy;
+import com.google.common.reflect.TypeToken;
 
 import java.io.*;
 
-public class StreamCacheProvider<K, V, Driver> implements Cache<K, V>, CacheSerializer<V>, CacheDeserializer<V> {
+public abstract class StreamCacheProvider<K extends Serializable, V extends Serializable, Driver>
+        implements Cache<K, V>, CacheSerializer, CacheDeserializer {
 
     private final EvictionPolicy<K, Driver> evictionPolicy;
     private final CacheDriver<Driver> cacheDriver;
     private final Driver driver;
     private final String keyname;
     private final int capacity;
+    private final Class<V> valueClass;
 
     public StreamCacheProvider(CacheDriver<Driver> driver, CachingStrategy cachingStrategy, String keyname, int capacity) {
         this(
                 driver,
-                driver.getEvictionPolicy(cachingStrategy),
+                driver.getEvictionPolicy(cachingStrategy, keyname, capacity),
                 keyname,
                 capacity
         );
     }
 
+    @SuppressWarnings("unchecked")
     public StreamCacheProvider(CacheDriver<Driver> driver, EvictionPolicy<K, Driver> evictionPolicy, String keyname, int capacity) {
         this.evictionPolicy = evictionPolicy;
         this.cacheDriver = driver;
@@ -31,24 +35,27 @@ public class StreamCacheProvider<K, V, Driver> implements Cache<K, V>, CacheSeri
         this.capacity = capacity;
 
         this.driver = cacheDriver.getConn();
+
+        this.valueClass = (Class<V>) new TypeToken<V>(this.getClass()){}.getRawType();
     }
 
     @Override
     public void put(K key, V value) {
-        cacheDriver.put(key,
+        cacheDriver.put(keyname,
+                this.serialize(key),
                 this.serialize(value));
 
-        evictionPolicy.onPut(driver, keyname, key);
-        evictionPolicy.evictIfNecessary(driver, keyname, capacity);
+        evictionPolicy.onPut(key);
+        evictionPolicy.evictIfNecessary();
     }
 
     @Override
     public V get(K key) {
         V value = this.deserialize(
-                cacheDriver.get(key));
+                cacheDriver.get(keyname, this.serialize(key)), valueClass);
 
         if (value != null) {
-            evictionPolicy.onGet(driver, keyname, key);
+            evictionPolicy.onGet( key);
             return value;
         }
 
@@ -57,12 +64,12 @@ public class StreamCacheProvider<K, V, Driver> implements Cache<K, V>, CacheSeri
 
     @Override
     public void remove(K key) {
-        evictionPolicy.onRemove(driver, keyname, key);
+        evictionPolicy.onRemove(key);
     }
 
     @Override
     public boolean has(K key) {
-        return cacheDriver.has(key);
+        return cacheDriver.has(keyname, serialize(key));
     }
 
     @Override
@@ -75,19 +82,18 @@ public class StreamCacheProvider<K, V, Driver> implements Cache<K, V>, CacheSeri
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public V deserialize(byte[] value) {
+    public <T> T deserialize(byte[] value, Class<T> clazz) {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(value);
              ObjectInputStream ois = new ObjectInputStream(bis)) {
 
-            return (V) ois.readObject();
+            return clazz.cast(ois.readObject());
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public byte[] serialize(V value) {
+    public <T> byte[] serialize(T value) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream oos = new ObjectOutputStream(bos)) {
 

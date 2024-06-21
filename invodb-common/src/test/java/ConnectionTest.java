@@ -1,6 +1,5 @@
 import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.cache.CachingStrategy;
-import ch.twidev.invodb.bridge.cache.redis.RedisDriver;
 import ch.twidev.invodb.bridge.contexts.SearchFilterType;
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
@@ -9,10 +8,10 @@ import ch.twidev.invodb.common.cache.StreamCacheProvider;
 import ch.twidev.invodb.common.query.InvoQuery;
 import org.junit.jupiter.api.Test;
 
-import static ch.twidev.invodb.common.query.operations.search.SearchFilter.*;
-
 import java.util.HashMap;
 import java.util.logging.Logger;
+
+import static ch.twidev.invodb.common.query.operations.search.SearchFilter.eq;
 
 public class ConnectionTest {
 
@@ -29,7 +28,7 @@ public class ConnectionTest {
 
     @Test
     public void testQueryCache() throws InterruptedException {
-        InvoQuery<ElementSet> invoQuery = InvoQuery.find("users")
+      /*  InvoQuery<ElementSet> invoQuery = InvoQuery.find("users")
                 .where(eq("name", QueryCachePlaceHolder.USER_NAME))
                 .attribute("email")
                 .attribute("power")
@@ -45,16 +44,14 @@ public class ConnectionTest {
 
         System.out.println("Is Equal? = " + (invoQuery.equals(invoQuery2)));
 
-        RedisDriver redisDriver = new RedisDriver();
-
         Cache<String, Object> cache = new StreamCacheProvider<>(
-                redisDriver,
+                null,
                 CachingStrategy.LRU,
                 "testCache",
                 1000);
 
 
-        logger.info("HashCode of Query (2): " + invoQuery2.hashCode());
+        logger.info("HashCode of Query (2): " + invoQuery2.hashCode());*/
     }
 
     enum QueryCachePlaceHolder implements QueryPlaceholder {

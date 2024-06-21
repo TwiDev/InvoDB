@@ -1,7 +1,7 @@
 package ch.twidev.invodb.common.cache;
 
-public interface CacheSerializer<V> {
+public interface CacheSerializer {
 
-    byte[] serialize(V value);
+    <T> byte[] serialize(T value);
 
 }
