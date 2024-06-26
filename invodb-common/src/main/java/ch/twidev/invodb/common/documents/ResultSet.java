@@ -5,7 +5,11 @@ import ch.twidev.invodb.bridge.documents.Elements;
 
 import java.util.Iterator;
 
-public class ResultSet implements ElementSet {
+public class ResultSet extends ElementSet<Elements> {
+
+    public ResultSet(Iterator<Elements> iterator) {
+        super(iterator, iterator.next());
+    }
 
     @Override
     public long getTime() {
@@ -31,4 +35,10 @@ public class ResultSet implements ElementSet {
     public Elements first() {
         return null;
     }
+
+    @Override
+    public ElementSet<Elements> fromElements() {
+        return null;
+    }
+
 }

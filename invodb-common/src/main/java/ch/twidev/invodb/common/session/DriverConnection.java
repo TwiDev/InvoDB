@@ -31,9 +31,9 @@ public class DriverConnection {
 
         if(operationContext instanceof SearchContext searchContext) {
             if (invoQuery.getQueryOperation().isCacheable()) {
-                R cachedValue = findCachedValues(session, operationContext, searchContext);
+                ElementSet<?> cachedValue = findCachedValues(session, operationContext, searchContext);
 
-                if(cachedValue != null) return cachedValue;
+                if(cachedValue != null) return (R) cachedValue;
             }
         }
 
@@ -47,8 +47,12 @@ public class DriverConnection {
         };
 
         if(operationContext instanceof SearchContext searchContext) {
+            if(!(result instanceof ElementSet<?> elementSet)) {
+                return null;
+            }
+
             if(invoQuery.getQueryOperation().isCacheable()) {
-                putCachedValues(session, operationContext, searchContext, result);
+                putCachedValues(session, operationContext, searchContext, elementSet);
             }else if(invoQuery.getQueryOperation().isInvalidateCache()) {
                 invalidateCachedValues(session, operationContext, searchContext);
             }
@@ -67,9 +71,9 @@ public class DriverConnection {
 
         if(operationContext instanceof SearchContext searchContext) {
             if (invoQuery.getQueryOperation().isCacheable()) {
-                R cachedValue = findCachedValues(session, operationContext, searchContext);
+                ElementSet cachedValue = findCachedValues(session, operationContext, searchContext);
 
-                if(cachedValue != null) return CompletableFuture.completedFuture(cachedValue);
+                if(cachedValue != null) return CompletableFuture.completedFuture((R) cachedValue);
             }
         }
 
@@ -86,8 +90,12 @@ public class DriverConnection {
             completableFuture.whenComplete((result, throwable) -> {
                 if(throwable != null) return;
 
+                if(!(result instanceof ElementSet elementSet)) {
+                    return;
+                }
+
                 if(invoQuery.getQueryOperation().isCacheable()) {
-                    putCachedValues(session, operationContext, searchContext, result);
+                    putCachedValues(session, operationContext, searchContext, elementSet);
                 }else if(invoQuery.getQueryOperation().isInvalidateCache()){
                     invalidateCachedValues(session, operationContext, searchContext);
                 }
@@ -97,33 +105,31 @@ public class DriverConnection {
         return completableFuture;
     }
 
-    public static <Session, R> R findCachedValues(DriverSession<Session> session, OperationContext operationContext, SearchContext searchContext) {
-        QueryCache<?> cache = getQueryCache(session);
+    public static <Session> ElementSet<?> findCachedValues(DriverSession<Session> session, OperationContext operationContext, SearchContext searchContext) {
+        QueryCache<Session> cache = getQueryCache(session);
         if(cache == null) return null;
 
         final int searchCode = searchContext.getSearchFilter().getTotalHashCode();
 
         if(!cache.has(searchCode)) {
-            return (R) cache.get(searchCode);
+           return cache.get(searchCode);
         }
 
         return null;
     }
 
-    public static <Session, R> void putCachedValues(DriverSession<Session> session, OperationContext operationContext, SearchContext searchContext, R value) {
-        QueryCache<?> cache = getQueryCache(session);
+    public static <Session> void putCachedValues(DriverSession<Session> session, OperationContext operationContext, SearchContext searchContext, ElementSet value) {
+        QueryCache<Session> cache = getQueryCache(session);
         if(cache == null) return;
         if(value == null) return;
 
-        if(!(value instanceof Serializable)) return;
-
         final int opcode = searchContext.getSearchFilter().getTotalHashCode();
 
-        cache.put(opcode, value.toString());
+        cache.put(opcode, value);
     }
 
     public static <Session> void invalidateCachedValues(DriverSession<Session> session, OperationContext operationContext, SearchContext searchContext) {
-        QueryCache<?> cache = getQueryCache(session);
+        QueryCache<Session> cache = getQueryCache(session);
         if(cache == null) return;
 
         cache.remove(
@@ -131,11 +137,11 @@ public class DriverConnection {
         );
     }
 
-    public static <Session> QueryCache<?> getQueryCache(DriverSession<Session> session) {
+    public static <Session> QueryCache<Session> getQueryCache(DriverSession<Session> session) {
         Cache<?,?> cache = session.getQueryCache();
         if(cache == null) return null;
         if(cache instanceof QueryCache<?> queryCache) {
-            return queryCache;
+            return (QueryCache<Session>) queryCache;
         }
 
         return null;

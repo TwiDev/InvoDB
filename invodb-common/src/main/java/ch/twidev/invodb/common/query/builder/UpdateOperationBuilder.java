@@ -23,7 +23,7 @@ public class UpdateOperationBuilder extends InvoQuery<OperationResult> implement
     private PlaceholderContext placeholderContext = new PlaceholderContext();
 
     public UpdateOperationBuilder(String collection) {
-        super(OperationResult.class, collection, QueryOperation.UPDATE);
+        super(collection, QueryOperation.UPDATE);
     }
 
     @Override

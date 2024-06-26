@@ -2,26 +2,23 @@ package ch.twidev.invodb.driver.mongodb;
 
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.documents.Elements;
-import com.google.common.collect.Streams;
 import com.mongodb.client.MongoCursor;
 import org.bson.Document;
 
-import java.util.Iterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
-public class MongoResultSet implements ElementSet {
+public class MongoResultSet extends ElementSet<MongoCursor<Document>> {
 
     private final int capacity;
-    private final Iterator<MongoElements> parsedElements;
-
 
     public MongoResultSet(MongoCursor<Document> cursor) {
-        this.capacity = cursor.available();
-
-        parsedElements = StreamSupport.stream(Spliterators.spliteratorUnknownSize(cursor, 0), false)
+        super(StreamSupport.stream(Spliterators.spliteratorUnknownSize(cursor, 0), false)
                 .map(MongoElements::new)
-                .iterator();
+                .map(Elements.class::cast)
+                .iterator(), cursor);
+
+        this.capacity = cursor.available();
     }
 
     @Override
@@ -31,22 +28,17 @@ public class MongoResultSet implements ElementSet {
 
     @Override
     public Elements first() {
-        return parsedElements.next();
+        return this.next();
+    }
+
+    @Override
+    public ElementSet<MongoCursor<Document>> fromElements() {
+        return new MongoResultSet(this.getElements());
     }
 
     @Override
     public long getTime() {
         return 0;
-    }
-
-    @Override
-    public boolean hasNext() {
-        return parsedElements.hasNext();
-    }
-
-    @Override
-    public Elements next() {
-        return parsedElements.next();
     }
 
     public static class MongoElements implements Elements {

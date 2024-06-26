@@ -17,7 +17,7 @@ public class DeleteOperationBuilder extends InvoQuery<OperationResult> implement
     private PlaceholderContext placeholderContext = new PlaceholderContext();
 
     public DeleteOperationBuilder(String collection) {
-        super(OperationResult.class, collection, QueryOperation.DELETE);
+        super(collection, QueryOperation.DELETE);
     }
 
     @Override

@@ -33,12 +33,10 @@ public abstract class InvoQuery<Result> {
 
     private final QueryOperation queryOperation;
     private final String collection;
-    private final Class<Result> resultInstance;
 
-    public InvoQuery(Class<Result> resultInstance, String collection, QueryOperation queryOperation) {
+    public InvoQuery(String collection, QueryOperation queryOperation) {
         this.collection = collection;
         this.queryOperation = queryOperation;
-        this.resultInstance = resultInstance;
     }
 
     public Result run(@NotNull DriverSession<?> driverConnection) {

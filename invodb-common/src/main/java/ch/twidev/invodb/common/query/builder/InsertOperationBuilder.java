@@ -18,7 +18,7 @@ public class InsertOperationBuilder extends InvoQuery<OperationResult> implement
     private boolean ifExists = true;
 
     public InsertOperationBuilder(String collection) {
-        super(OperationResult.class, collection, QueryOperation.INSERT);
+        super(collection, QueryOperation.INSERT);
     }
 
     @Override

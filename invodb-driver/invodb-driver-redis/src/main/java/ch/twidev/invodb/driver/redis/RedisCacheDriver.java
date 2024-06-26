@@ -19,22 +19,22 @@ public class RedisCacheDriver implements CacheDriver<Jedis> {
 
     @Override
     public <K> void put(String path, K key, byte[] value) {
-        jedis.hset(path.getBytes(), serialize(key).getBytes(), value);
+        jedis.hset(path.getBytes(), CacheDriver.serialize(key).getBytes(), value);
     }
 
     @Override
-    public <K>  byte[] get(String path, K key) {
-        return jedis.hget(path.getBytes(), serialize(key).getBytes());
+    public <K> byte[] get(String path, K key) {
+        return jedis.hget(path.getBytes(), CacheDriver.serialize(key).getBytes());
     }
 
     @Override
-    public <K>  void remove(String path, K key) {
-        jedis.hdel(path.getBytes(), serialize(key).getBytes());
+    public <K> void remove(String path, K key) {
+        jedis.hdel(path.getBytes(), CacheDriver.serialize(key).getBytes());
     }
 
     @Override
-    public <K>  boolean has(String path, K key) {
-        return jedis.hexists(path.getBytes(), serialize(key).getBytes());
+    public <K> boolean has(String path, K key) {
+        return jedis.hexists(path.getBytes(), CacheDriver.serialize(key).getBytes());
     }
 
     @Override

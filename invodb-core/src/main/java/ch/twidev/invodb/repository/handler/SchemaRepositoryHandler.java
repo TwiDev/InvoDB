@@ -89,7 +89,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         this.checkQuery(args);
 
         final CompletableFuture<Iterator<Schema>> schemaCompletableFuture = new CompletableFuture<>();
-        final CompletableFuture<ElementSet> completableFuture;
+        final CompletableFuture<ElementSet<?>> completableFuture;
         final FindOperationBuilder findOperationBuilder;
 
         if(args[0] instanceof SearchFilter searchFilter) {
@@ -168,7 +168,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         this.checkQuery(args);
 
         final CompletableFuture<Schema> schemaCompletableFuture = new CompletableFuture<>();
-        final CompletableFuture<ElementSet> completableFuture;
+        final CompletableFuture<ElementSet<?>> completableFuture;
         final FindOperationBuilder findOperationBuilder;
 
         if(args[0] instanceof SearchFilter searchFilter) {

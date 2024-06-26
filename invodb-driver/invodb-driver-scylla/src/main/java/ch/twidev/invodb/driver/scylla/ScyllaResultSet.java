@@ -7,26 +7,24 @@ import com.datastax.driver.core.Row;
 
 import java.util.Iterator;
 
-public class ScyllaResultSet implements ElementSet {
+public class ScyllaResultSet extends ElementSet<ResultSet> {
 
     private final boolean isEmpty;
     private final ResultSet resultSet;
     private final Elements first;
-    private final Iterator<Elements> parsedElements;
 
     public ScyllaResultSet(ResultSet resultSet) {
+        super(resultSet.all()
+                .stream()
+                .map(ScyllaElements::new)
+                .map(Elements.class::cast)
+                .iterator(), resultSet);
+
         this.resultSet = resultSet;
 
         this.isEmpty = resultSet.isExhausted();
 
         this.first = new ScyllaElements(resultSet.one());
-
-        this.parsedElements = resultSet.all()
-                .stream()
-                .map(ScyllaElements::new)
-                .map(Elements.class::cast)
-                .iterator();
-
     }
 
     public ResultSet getResultSet() {
@@ -39,16 +37,6 @@ public class ScyllaResultSet implements ElementSet {
     }
 
     @Override
-    public boolean hasNext() {
-        return parsedElements.hasNext();
-    }
-
-    @Override
-    public Elements next() {
-        return parsedElements.next();
-    }
-
-    @Override
     public boolean isEmpty() {
         return isEmpty;
     }
@@ -56,6 +44,11 @@ public class ScyllaResultSet implements ElementSet {
     @Override
     public Elements first() {
         return first;
+    }
+
+    @Override
+    public ElementSet<ResultSet> fromElements() {
+        return new ScyllaResultSet(this.getElements());
     }
 
     public static class ScyllaElements implements Elements {

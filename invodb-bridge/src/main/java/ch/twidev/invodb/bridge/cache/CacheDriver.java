@@ -17,12 +17,18 @@ public interface CacheDriver<Driver> extends EvictionProvider<Driver>{
     Driver getConn();
 
     @SuppressWarnings("unchecked")
-    default String serialize(Object key) {
+    static String serialize(Object key) {
+        long l = System.nanoTime();
+
         try (ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
              ObjectOutputStream out = new java.io.ObjectOutputStream(bos)) {
 
             out.writeObject(key);
-            return UUID.nameUUIDFromBytes(bos.toByteArray()).toString();
+            String s = UUID.nameUUIDFromBytes(bos.toByteArray()).toString();
+            byte[] b = bos.toByteArray();
+            System.out.println("S2 " + (System.nanoTime() - l) / 1_000_000);
+
+            return s;
         } catch (java.io.IOException e) {
             throw new RuntimeException(e);
         }

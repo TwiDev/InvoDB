@@ -1,12 +1,15 @@
 package ch.twidev.invodb.bridge.documents;
 
-public class SingleElementSet implements ElementSet {
+import java.util.Iterator;
+
+public class SingleElementSet extends ElementSet<Object> {
 
     public Elements elements;
 
-    public SingleElementSet(Elements elements) {
-        this.elements = elements;
+    public SingleElementSet(Iterator<Elements> iterator, Object elements) {
+        super(iterator, elements);
     }
+
 
     @Override
     public long getTime() {
@@ -31,5 +34,10 @@ public class SingleElementSet implements ElementSet {
     @Override
     public Elements first() {
         return elements;
+    }
+
+    @Override
+    public ElementSet<Object> fromElements() {
+        return null;
     }
 }

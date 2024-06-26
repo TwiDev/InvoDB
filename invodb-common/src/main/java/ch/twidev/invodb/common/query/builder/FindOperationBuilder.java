@@ -15,14 +15,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-public class FindOperationBuilder extends InvoQuery<ElementSet> implements FindContext, AttributeOperation<FindOperationBuilder>, SearchOperation<FindOperationBuilder> {
+public class FindOperationBuilder extends InvoQuery<ElementSet<?>> implements FindContext, AttributeOperation<FindOperationBuilder>, SearchOperation<FindOperationBuilder> {
 
     private final Attributes attributes = new Attributes();
     private SearchFilter searchFilter = SearchFilter.all();
     private PlaceholderContext placeholderContext = new PlaceholderContext();
 
     public FindOperationBuilder(String collection) {
-        super(ElementSet.class, collection, QueryOperation.FIND);
+        super(collection, QueryOperation.FIND);
     }
 
     @Override

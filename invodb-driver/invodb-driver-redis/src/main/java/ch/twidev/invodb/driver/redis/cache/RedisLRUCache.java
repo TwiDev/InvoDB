@@ -1,5 +1,6 @@
 package ch.twidev.invodb.driver.redis.cache;
 
+import ch.twidev.invodb.bridge.cache.CacheDriver;
 import redis.clients.jedis.Jedis;
 
 public class RedisLRUCache<K> extends RedisCacheStrategy<K> {
@@ -10,17 +11,17 @@ public class RedisLRUCache<K> extends RedisCacheStrategy<K> {
 
     @Override
     public void onPut(K key) {
-        this.jedis.zadd(cacheKey + ":accessOrder", System.nanoTime(), serialize(key));
+        this.jedis.zadd(cacheKey + ":accessOrder", System.nanoTime(), CacheDriver.serialize(key));
     }
 
     @Override
     public void onGet(K key) {
-        this.jedis.zadd(cacheKey + ":accessOrder", System.nanoTime(), serialize(key));
+        this.jedis.zadd(cacheKey + ":accessOrder", System.nanoTime(), CacheDriver.serialize(key));
     }
 
     @Override
     public void onRemove(K key) {
-        jedis.zrem(cacheKey + ":accessOrder", serialize(key));
+        jedis.zrem(cacheKey + ":accessOrder", CacheDriver.serialize(key));
     }
 
     @Override

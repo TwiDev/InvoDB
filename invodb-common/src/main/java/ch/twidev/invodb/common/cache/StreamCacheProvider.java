@@ -41,8 +41,7 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
 
     @Override
     public void put(K key, V value) {
-        cacheDriver.put(keyname,
-                this.serialize(key),
+        cacheDriver.put(keyname, key,
                 this.serialize(value));
 
         evictionPolicy.onPut(key);
@@ -52,7 +51,7 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
     @Override
     public V get(K key) {
         V value = this.deserialize(
-                cacheDriver.get(keyname, this.serialize(key)), valueClass);
+                cacheDriver.get(keyname, key), valueClass);
 
         if (value != null) {
             evictionPolicy.onGet( key);
@@ -69,7 +68,7 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
 
     @Override
     public boolean has(K key) {
-        return cacheDriver.has(keyname, serialize(key));
+        return cacheDriver.has(keyname, key);
     }
 
     @Override
@@ -94,12 +93,15 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
 
     @Override
     public <T> byte[] serialize(T value) {
+        long l = System.nanoTime();
+
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream oos = new ObjectOutputStream(bos)) {
 
             oos.writeObject(value);
-
-            return bos.toByteArray();
+            byte[] b = bos.toByteArray();
+            System.out.println("S1 " + (System.nanoTime() - l) / 1_000_000);
+            return b;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
