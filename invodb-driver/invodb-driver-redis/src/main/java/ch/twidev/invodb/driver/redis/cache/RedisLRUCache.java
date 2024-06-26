@@ -1,35 +1,44 @@
 package ch.twidev.invodb.driver.redis.cache;
 
 import ch.twidev.invodb.bridge.cache.CacheDriver;
+import org.redisson.Redisson;
+import org.redisson.api.RMap;
+import org.redisson.api.RScoredSortedSet;
+import org.redisson.api.RedissonClient;
 import redis.clients.jedis.Jedis;
 
 public class RedisLRUCache<K> extends RedisCacheStrategy<K> {
 
-    public RedisLRUCache(Jedis jedis, String cacheKey, int capacity) {
-        super(jedis, cacheKey, capacity);
+    private final RMap<String, Object> cacheMap;
+    private final RScoredSortedSet<String> accessOrderSet;
+
+    public RedisLRUCache(RedissonClient redisson, String cacheKey, int capacity) {
+        super(redisson, cacheKey, capacity);
+        this.cacheMap = redisson.getMap(cacheKey);
+        this.accessOrderSet = redisson.getScoredSortedSet(cacheKey + ":accessOrder");
     }
 
     @Override
     public void onPut(K key) {
-        this.jedis.zadd(cacheKey + ":accessOrder", System.nanoTime(), CacheDriver.serialize(key));
+        accessOrderSet.add(System.nanoTime(), CacheDriver.serialize(key));
     }
 
     @Override
     public void onGet(K key) {
-        this.jedis.zadd(cacheKey + ":accessOrder", System.nanoTime(), CacheDriver.serialize(key));
+        accessOrderSet.add(System.nanoTime(), CacheDriver.serialize(key));
     }
 
     @Override
     public void onRemove(K key) {
-        jedis.zrem(cacheKey + ":accessOrder", CacheDriver.serialize(key));
+        accessOrderSet.remove(CacheDriver.serialize(key));
     }
 
     @Override
     public void evictIfNecessary() {
-        if (jedis.hlen(cacheKey) > capacity) {
-            String eldestKey = jedis.zrange(cacheKey + ":accessOrder", 0, 0).iterator().next();
-            jedis.hdel(cacheKey, eldestKey);
-            jedis.zrem(cacheKey + ":accessOrder", eldestKey);
+        if (cacheMap.size() > capacity) {
+            String eldestKey = accessOrderSet.first();
+            cacheMap.fastRemove(eldestKey);
+            accessOrderSet.remove(eldestKey);
         }
     }
 }
