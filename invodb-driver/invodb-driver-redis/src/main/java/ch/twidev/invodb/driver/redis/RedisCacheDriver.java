@@ -5,8 +5,12 @@ import ch.twidev.invodb.bridge.cache.CachingStrategy;
 import ch.twidev.invodb.bridge.cache.EvictionPolicy;
 import ch.twidev.invodb.driver.redis.cache.RedisLRUCache;
 import org.redisson.Redisson;
+import org.redisson.api.RFuture;
+import org.redisson.api.RMapAsync;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+
+import java.util.concurrent.CompletionStage;
 
 public class RedisCacheDriver implements CacheDriver<RedissonClient> {
 
@@ -37,6 +41,24 @@ public class RedisCacheDriver implements CacheDriver<RedissonClient> {
     @Override
     public <K> void remove(String path, K key) {
         redisson.getMap(path).remove(CacheDriver.serialize(key));
+    }
+
+    @Override
+    public <K> CompletionStage<byte[]> putAsync(String path, K key, byte[] value) {
+        RMapAsync<String, byte[]> mapAsync = redisson.getMap(path);
+        return mapAsync.putAsync(CacheDriver.serialize(key), value);
+    }
+
+    @Override
+    public <K> CompletionStage<byte[]> getAsync(String path, K key) {
+        RMapAsync<String, byte[]> mapAsync = redisson.getMap(path);
+        return mapAsync.getAsync(CacheDriver.serialize(key));
+    }
+
+    @Override
+    public <K> CompletionStage<Void> removeAsync(String path, K key) {
+        RMapAsync<String, byte[]> mapAsync = redisson.getMap(path);
+        return mapAsync.removeAsync(CacheDriver.serialize(key)).thenApply(result -> null);
     }
 
     @Override

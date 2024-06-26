@@ -4,13 +4,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 
 public interface CacheDriver<Driver> extends EvictionProvider<Driver>{
-    <K>  void put(String path, K key, byte[] value);
+    <K> void put(String path, K key, byte[] value);
     <K> byte[] get(String path, K key);
     <K> void remove(String path, K key);
+    <K> CompletionStage<byte[]> putAsync(String path, K key, byte[] value);
+    <K> CompletionStage<byte[]> getAsync(String path, K key);
+    <K> CompletionStage<Void> removeAsync(String path, K key);
+    <K> boolean has(String path, K key);
 
-    <K>  boolean has(String path, K key);
 
     void cleanup(String path);
 
