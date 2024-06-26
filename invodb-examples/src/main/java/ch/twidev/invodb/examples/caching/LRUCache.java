@@ -3,14 +3,17 @@ package ch.twidev.invodb.examples.caching;
 import ch.twidev.invodb.bridge.cache.CachingStrategy;
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.documents.Elements;
+import ch.twidev.invodb.common.cache.AsyncQueryCache;
 import ch.twidev.invodb.common.cache.QueryCache;
 import ch.twidev.invodb.driver.redis.RedisCacheDriver;
+import org.redisson.api.RedissonClient;
 import redis.clients.jedis.Jedis;
 
 import java.beans.Transient;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
 
 public class LRUCache {
 
@@ -39,7 +42,7 @@ public class LRUCache {
 
         System.out.println((System.nanoTime() - l) / 1_000_000);*/
 
-        QueryCache<Jedis> queryCache = new QueryCache<>(
+        AsyncQueryCache<RedissonClient> queryCache = new AsyncQueryCache<>(
               redisCacheDriver,
               CachingStrategy.LRU,
               CACHE_KEY,
@@ -50,14 +53,22 @@ public class LRUCache {
 
         ElementSet<?> elementSet = new ElementSetImpl("Salut","Hello World","Luca !");
 
-        queryCache.put(30, elementSet);
-
-        ElementSet<?> set = queryCache.get(30);
-        System.out.println(set.toString());
-        while (set.hasNext()) {
-            Elements elements = set.next();
-            System.out.println(elements.getObject(""));
+        queryCache.put(30, elementSet).thenRun(() -> System.out.println("Element PUT !"));
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+
+        CompletionStage<ElementSet<?>> set = queryCache.get(30);
+        set.thenAccept(result -> {
+            System.out.println("Received");
+            System.out.println(set.toString());
+            while (result.hasNext()) {
+                Elements elements = result.next();
+                System.out.println(elements.getObject(""));
+            }
+        });
     }
 
     public static class ElementSetImpl extends ElementSet<String[]> {

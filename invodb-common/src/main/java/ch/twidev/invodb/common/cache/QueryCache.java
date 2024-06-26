@@ -7,7 +7,7 @@ import ch.twidev.invodb.bridge.documents.ElementSet;
 
 import java.io.Serializable;
 
-public class QueryCache<Driver> extends StreamCacheProvider<Integer, ElementSet, Driver> {
+public class QueryCache<Driver> extends StreamCacheProvider<Integer, ElementSet<?>, Driver> {
 
     public QueryCache(CacheDriver<Driver> driver, CachingStrategy cachingStrategy, String keyname, int capacity) {
         super(driver, cachingStrategy, keyname, capacity);

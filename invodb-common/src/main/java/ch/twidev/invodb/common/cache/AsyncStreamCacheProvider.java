@@ -1,15 +1,17 @@
 package ch.twidev.invodb.common.cache;
 
-import ch.twidev.invodb.bridge.cache.Cache;
+import ch.twidev.invodb.bridge.cache.AsyncCache;
 import ch.twidev.invodb.bridge.cache.CacheDriver;
 import ch.twidev.invodb.bridge.cache.CachingStrategy;
 import ch.twidev.invodb.bridge.cache.EvictionPolicy;
 import com.google.common.reflect.TypeToken;
 
 import java.io.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
-public abstract class StreamCacheProvider<K extends Serializable, V extends Serializable, Driver>
-        implements Cache<K, V>, CacheSerializer, CacheDeserializer {
+public abstract class AsyncStreamCacheProvider<K extends Serializable, V extends Serializable, Driver>
+        implements AsyncCache<K, V>, CacheSerializer, CacheDeserializer{
 
     private final EvictionPolicy<K, Driver> evictionPolicy;
     private final CacheDriver<Driver> cacheDriver;
@@ -18,7 +20,7 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
     private final int capacity;
     private final Class<V> valueClass;
 
-    public StreamCacheProvider(CacheDriver<Driver> driver, CachingStrategy cachingStrategy, String keyname, int capacity) {
+    public AsyncStreamCacheProvider(CacheDriver<Driver> driver, CachingStrategy cachingStrategy, String keyname, int capacity) {
         this(
                 driver,
                 driver.getEvictionPolicy(cachingStrategy, keyname, capacity),
@@ -28,7 +30,7 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
     }
 
     @SuppressWarnings("unchecked")
-    public StreamCacheProvider(CacheDriver<Driver> driver, EvictionPolicy<K, Driver> evictionPolicy, String keyname, int capacity) {
+    public AsyncStreamCacheProvider(CacheDriver<Driver> driver, EvictionPolicy<K, Driver> evictionPolicy, String keyname, int capacity) {
         this.evictionPolicy = evictionPolicy;
         this.cacheDriver = driver;
         this.keyname = keyname;
@@ -40,32 +42,31 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
     }
 
     @Override
-    public void put(K key, V value) {
-        cacheDriver.put(keyname, key,
-                this.serialize(value));
-
-        evictionPolicy.onPut(key);
-        evictionPolicy.evictIfNecessary();
+    public CompletionStage<Void> put(K key, V value) {
+        return cacheDriver.putAsync(keyname, key, this.serialize(value))
+                .thenCompose(bytes -> evictionPolicy.onPutAsync(key))
+                .thenCompose(bytes -> evictionPolicy.evictIfNecessaryAsync())
+                .thenApply(bool -> null);
     }
 
     @Override
-    public V get(K key) {
-        V value = this.deserialize(
-                cacheDriver.get(keyname, key), valueClass);
-
-        if (value != null) {
-            evictionPolicy.onGet(key);
-            return value;
-        }
-
-        return null;
+    public CompletionStage<V> get(K key) {
+        return cacheDriver.getAsync(keyname, key)
+                .thenCompose(bytes -> {
+                    V value = this.deserialize(bytes, valueClass);
+                    if (value != null) {
+                        return evictionPolicy.onGetAsync(key).thenApply(aVoid -> value);
+                    } else {
+                        return CompletableFuture.completedFuture(null);
+                    }
+                });
     }
 
     @Override
-    public void remove(K key) {
-        cacheDriver.remove(keyname, key);
-
-        evictionPolicy.onRemove(key);
+    public CompletionStage<Void> remove(K key) {
+        return cacheDriver.removeAsync(keyname, key)
+                .thenCompose(bytes -> evictionPolicy.onRemoveAsync(key))
+                .thenRun(() -> {});
     }
 
     @Override
@@ -108,6 +109,5 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
             throw new RuntimeException(e);
         }
     }
-
 
 }

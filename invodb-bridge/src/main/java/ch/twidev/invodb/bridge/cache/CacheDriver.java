@@ -14,8 +14,6 @@ public interface CacheDriver<Driver> extends EvictionProvider<Driver>{
     <K> CompletionStage<byte[]> getAsync(String path, K key);
     <K> CompletionStage<Void> removeAsync(String path, K key);
     <K> boolean has(String path, K key);
-
-
     void cleanup(String path);
 
     Driver getConn();
@@ -31,6 +29,7 @@ public interface CacheDriver<Driver> extends EvictionProvider<Driver>{
             String s = UUID.nameUUIDFromBytes(bos.toByteArray()).toString();
             byte[] b = bos.toByteArray();
             System.out.println("S2 " + (System.nanoTime() - l) / 1_000_000);
+            System.out.println(s);
 
             return s;
         } catch (java.io.IOException e) {
