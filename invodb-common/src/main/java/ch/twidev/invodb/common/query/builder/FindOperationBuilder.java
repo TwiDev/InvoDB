@@ -9,11 +9,8 @@ import ch.twidev.invodb.common.query.operations.AttributeOperation;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.common.query.operations.SearchOperation;
-import ch.twidev.invodb.common.documents.ResultSet;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 public class FindOperationBuilder extends InvoQuery<ElementSet<?>> implements FindContext, AttributeOperation<FindOperationBuilder>, SearchOperation<FindOperationBuilder> {
 

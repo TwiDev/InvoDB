@@ -73,7 +73,7 @@ public class ScyllaResultSet extends ElementSet<ScyllaResultSet.ScyllaElements> 
         private void writeObject(ObjectOutputStream oos) {
             try {
                 while (elements.hasNext()) {
-                    oos.writeObject(new ScyllaRowWrapper(elements.next().getRow()));
+                    oos.writeUnshared(new ScyllaRowWrapper(elements.next().getRow()));
                 }
 
             } catch(Exception e) {
@@ -87,7 +87,7 @@ public class ScyllaResultSet extends ElementSet<ScyllaResultSet.ScyllaElements> 
 
                 while (true) {
                     try {
-                        Object obj = ois.readObject();
+                        Object obj = ois.readUnshared();
 
                         if (obj instanceof ScyllaElements row) {
                             rows.add(row);
@@ -124,13 +124,13 @@ public class ScyllaResultSet extends ElementSet<ScyllaResultSet.ScyllaElements> 
 
         @Serial
         private void writeObject(ObjectOutputStream out) throws IOException {
-            out.writeObject(data);
+            out.writeUnshared(data);
         }
 
         @Serial
         private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
             try {
-                data = (Map<String, Object>) in.readObject();
+                data = (Map<String, Object>) in.readUnshared();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

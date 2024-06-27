@@ -11,6 +11,7 @@ import ch.twidev.invodb.common.cache.QueryCache;
 import ch.twidev.invodb.common.cache.StreamCacheProvider;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
+import ch.twidev.invodb.common.util.Monitoring;
 import ch.twidev.invodb.driver.redis.RedisCacheDriver;
 import ch.twidev.invodb.driver.scylla.ScyllaCluster;
 import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
@@ -43,10 +44,13 @@ public class ScyllaCaching {
         ScyllaConnection connection = new ScyllaCluster(scyllaConfig)
                 .connectSession("main");
 
-
+        Monitoring monitoring = new Monitoring("Find Op");
         ElementSet<?> result = InvoQuery.find("users")
                 .where(SearchFilter.eq("name","Hello"))
                 .run(connection);
+        monitoring.done();
+
+        System.out.println("Cached ? : " + result.isCached() + " | " + result.getClass());
 
         while (result.hasNext()) {
             Elements elements = result.next();

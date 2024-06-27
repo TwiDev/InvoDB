@@ -7,10 +7,15 @@ import ch.twidev.invodb.bridge.documents.Elements;
 import java.util.Iterator;
 
 @SuppressWarnings("unchecked")
-public class ResultSet extends ElementSet<Elements> {
+public class CachedResultSet extends ElementSet<Elements> {
 
-    public ResultSet(Iterator<? extends Elements> iterator, ElementSetWrapper<? extends Elements> wrapper) {
+    public CachedResultSet(Iterator<? extends Elements> iterator, ElementSetWrapper<? extends Elements> wrapper) {
         super((Iterator<Elements>) iterator, (ElementSetWrapper<Elements>) wrapper);
+    }
+
+    @Override
+    public boolean isCached() {
+        return wrapper != null;
     }
 
     @Override
@@ -30,7 +35,7 @@ public class ResultSet extends ElementSet<Elements> {
 
     @Override
     public ElementSet<Elements> fromElements() {
-        return new ResultSet(wrapper.getElements(), wrapper);
+        return new CachedResultSet(wrapper.getElements(), wrapper);
     }
 
 }

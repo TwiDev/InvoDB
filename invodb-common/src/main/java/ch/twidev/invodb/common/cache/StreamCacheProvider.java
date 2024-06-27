@@ -98,9 +98,8 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream oos = new ObjectOutputStream(bos)) {
 
-            oos.writeObject(value);
-            byte[] b = bos.toByteArray();
-            return b;
+            oos.writeUnshared(value);
+            return bos.toByteArray();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

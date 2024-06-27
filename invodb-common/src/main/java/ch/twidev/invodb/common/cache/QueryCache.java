@@ -3,12 +3,9 @@ package ch.twidev.invodb.common.cache;
 import ch.twidev.invodb.bridge.cache.CacheDriver;
 import ch.twidev.invodb.bridge.cache.CachingStrategy;
 import ch.twidev.invodb.bridge.cache.EvictionPolicy;
-import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.documents.ElementSetWrapper;
 import ch.twidev.invodb.bridge.documents.Elements;
-import ch.twidev.invodb.common.documents.ResultSet;
-
-import java.io.Serializable;
+import ch.twidev.invodb.common.documents.CachedResultSet;
 
 public class QueryCache<Driver> extends StreamCacheProvider<Integer, ElementSetWrapper<? extends Elements>, Driver> {
 
@@ -25,9 +22,9 @@ public class QueryCache<Driver> extends StreamCacheProvider<Integer, ElementSetW
         return super.get(key);
     }
 
-    public ResultSet getSet(Integer key) {
+    public CachedResultSet getSet(Integer key) {
         ElementSetWrapper<? extends Elements> wrapper = super.get(key);
 
-        return new ResultSet(wrapper.getElements(), wrapper);
+        return new CachedResultSet(wrapper.getElements(), wrapper);
     }
 }

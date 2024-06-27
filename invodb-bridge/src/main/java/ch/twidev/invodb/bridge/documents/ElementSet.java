@@ -15,6 +15,8 @@ public abstract class ElementSet<Raw extends Elements> implements Iterator<Raw>,
 
     private Class<? extends ElementSetWrapper<Raw>> wrapperClass;
 
+    private boolean cached = false;
+
     public ElementSet(Iterator<Raw> iterator, Class<? extends ElementSetWrapper<Raw>> wrapper) {
         this.iterator = iterator;
         this.wrapperClass = wrapper;
@@ -35,11 +37,18 @@ public abstract class ElementSet<Raw extends Elements> implements Iterator<Raw>,
     public abstract ElementSet<Raw> fromElements();
 
     public ElementSetWrapper<Raw> getWrapper() {
+        this.cached = true;
+
         try {
             return wrapperClass.getDeclaredConstructor(Iterator.class).newInstance(iterator);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public boolean isCached() {
+        return cached;
     }
 
     @Override

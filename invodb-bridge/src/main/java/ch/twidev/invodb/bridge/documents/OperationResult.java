@@ -2,21 +2,15 @@ package ch.twidev.invodb.bridge.documents;
 
 public interface OperationResult {
 
-    OperationResult Ok = new OperationResult() {
-        @Override
-        public long getTime() {
-            return 0;
-        }
-    };
+    OperationResult Ok = () -> 0;
 
-    OperationResult Err = new OperationResult() {
-        @Override
-        public long getTime() {
-            return 0;
-        }
-    };
+    OperationResult Err = () -> 0;
 
     long getTime();
+
+    default boolean isCached() {
+        return false;
+    }
 
     default boolean isOk() {
         return this == Ok;
