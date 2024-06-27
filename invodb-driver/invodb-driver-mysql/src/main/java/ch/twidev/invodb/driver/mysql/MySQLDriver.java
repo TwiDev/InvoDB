@@ -41,12 +41,12 @@ public class MySQLDriver extends InvoDriver<HikariDataSource> {
 
 
     @Override
-    public ElementSet find(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
+    public ElementSet<?> find(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
         return null;
     }
 
     @Override
-    public CompletableFuture<ElementSet> findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
+    public CompletableFuture<ElementSet<?>> findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
         return null;
     }
 

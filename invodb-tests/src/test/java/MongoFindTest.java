@@ -22,7 +22,7 @@ public class MongoFindTest {
     public void find() {
         try {
             try (MongoConnection connection = new MongoCluster(new URLMongoConfigBuilder("mongodb://localhost:27017/").build()).connectSession("main")) {
-                CompletableFuture<ElementSet> elementSet = InvoQuery.find("users")
+                CompletableFuture<ElementSet<?>> elementSet = InvoQuery.find("users")
                         .where(or(eq("name", "TwyDev"),eq("name","test")))
                         .runAsync(connection);
 

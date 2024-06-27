@@ -4,6 +4,8 @@ import ch.twidev.invodb.bridge.contexts.Attributes;
 import ch.twidev.invodb.bridge.documents.ElementSet;
 import ch.twidev.invodb.bridge.operations.FindContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
+import ch.twidev.invodb.bridge.session.DriverSession;
+import ch.twidev.invodb.common.query.CacheableQuery;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.operations.AttributeOperation;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
@@ -11,8 +13,9 @@ import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.common.query.operations.SearchOperation;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public class FindOperationBuilder extends InvoQuery<ElementSet<?>> implements FindContext, AttributeOperation<FindOperationBuilder>, SearchOperation<FindOperationBuilder> {
+public class FindOperationBuilder extends CacheableQuery<ElementSet<?>> implements FindContext, AttributeOperation<FindOperationBuilder>, SearchOperation<FindOperationBuilder> {
 
     private final Attributes attributes = new Attributes();
     private SearchFilter searchFilter = SearchFilter.all();
@@ -81,5 +84,15 @@ public class FindOperationBuilder extends InvoQuery<ElementSet<?>> implements Fi
                 this.getAttributes().hashCode() +
                 this.getSearchFilter().getTotalHashCode() +
                 this.getContexts().hashCode() + this.getPlaceHolder().hashCode());
+    }
+
+    @Override
+    protected ElementSet<?> execute(DriverSession<?> driverSession, PlaceholderContext placeholderContext) {
+        return driverSession.find(this, placeholderContext);
+    }
+
+    @Override
+    protected CompletableFuture<ElementSet<?>> executeAsync(DriverSession<?> driverSession, PlaceholderContext placeholderContext) {
+        return driverSession.findAsync(this, placeholderContext);
     }
 }

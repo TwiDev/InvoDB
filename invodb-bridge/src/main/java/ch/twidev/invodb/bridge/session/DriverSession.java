@@ -14,10 +14,10 @@ import java.util.concurrent.CompletableFuture;
 
 public interface DriverSession<Session> extends Closeable {
 
-    ElementSet find(FindContext findOperationBuilder,
+    ElementSet<?> find(FindContext findOperationBuilder,
                     PlaceholderContext placeholderContext);
 
-    CompletableFuture<ElementSet> findAsync(FindContext findOperationBuilder,
+    CompletableFuture<ElementSet<?>> findAsync(FindContext findOperationBuilder,
                                             PlaceholderContext placeholderContext);
 
     OperationResult update(UpdateContext updateContext,

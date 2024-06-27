@@ -47,7 +47,7 @@ public class MongoConnection implements DriverSession<MongoDatabase> {
     }
 
     @Override
-    public ElementSet find(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
+    public ElementSet<?> find(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
         Bson searchFilter = BsonFilter.toBson(findOperationBuilder, placeholderContext);
 
         MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(findOperationBuilder.getCollection());
@@ -57,7 +57,7 @@ public class MongoConnection implements DriverSession<MongoDatabase> {
     }
 
     @Override
-    public CompletableFuture<ElementSet> findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
+    public CompletableFuture<ElementSet<?>> findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
         return CompletableFuture.supplyAsync(() -> this.find(findOperationBuilder, placeholderContext), executor);
     }
 

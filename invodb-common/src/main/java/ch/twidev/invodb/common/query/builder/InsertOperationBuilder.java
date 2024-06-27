@@ -4,12 +4,14 @@ import ch.twidev.invodb.bridge.contexts.FieldMap;
 import ch.twidev.invodb.bridge.documents.OperationResult;
 import ch.twidev.invodb.bridge.operations.InsertContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
+import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.operations.FieldsOperation;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class InsertOperationBuilder extends InvoQuery<OperationResult> implements InsertContext, FieldsOperation<InsertOperationBuilder> {
 
@@ -63,5 +65,15 @@ public class InsertOperationBuilder extends InvoQuery<OperationResult> implement
     @Override
     public int operationHashCode() {
         return this.hashCode();
+    }
+
+    @Override
+    protected OperationResult execute(DriverSession<?> driverSession, PlaceholderContext placeholderContext) {
+        return driverSession.insert(this, placeholderContext);
+    }
+
+    @Override
+    protected CompletableFuture<OperationResult> executeAsync(DriverSession<?> driverSession, PlaceholderContext placeholderContext) {
+        return driverSession.insertAsync(this, placeholderContext);
     }
 }

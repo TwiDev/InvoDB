@@ -1,9 +1,11 @@
 package ch.twidev.invodb.common.query;
 
+import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.operations.OperationContext;
 import ch.twidev.invodb.bridge.operations.SearchContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.session.DriverSession;
+import ch.twidev.invodb.common.cache.QueryCache;
 import ch.twidev.invodb.common.query.builder.DeleteOperationBuilder;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
@@ -14,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
-public abstract class InvoQuery<Result> {
+public abstract class InvoQuery<Result> implements OperationContext{
 
     public static FindOperationBuilder find(String collection) {
         return new FindOperationBuilder(collection);
@@ -23,6 +25,7 @@ public abstract class InvoQuery<Result> {
     public static UpdateOperationBuilder update(String collection) {
         return new UpdateOperationBuilder(collection);
     }
+
     public static InsertOperationBuilder insert(String collection) {
         return new InsertOperationBuilder(collection);
     }
@@ -48,12 +51,15 @@ public abstract class InvoQuery<Result> {
     }
 
     public Result run(@NotNull DriverSession<?> driverConnection, PlaceholderContext placeholderContext) {
-        return DriverConnection.runQuery(driverConnection, this, placeholderContext);
+        return this.execute(driverConnection, placeholderContext);
     }
 
     public CompletableFuture<Result> runAsync(DriverSession<?> driverConnection, PlaceholderContext placeholderContext) {
         return DriverConnection.runQueryAsync(driverConnection, this, placeholderContext);
     }
+
+    protected abstract Result execute(DriverSession<?> driverSession, PlaceholderContext placeholderContext);
+    protected abstract CompletableFuture<Result> executeAsync(DriverSession<?> driverSession, PlaceholderContext placeholderContext);
 
     public QueryOperation getQueryOperation() {
         return queryOperation;
@@ -61,5 +67,16 @@ public abstract class InvoQuery<Result> {
 
     public String getCollection() {
         return collection;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <Session> QueryCache<Session> getQueryCache(DriverSession<Session> session) {
+        Cache<?,?> cache = session.getQueryCache();
+        if(cache == null) return null;
+        if(cache instanceof QueryCache<?> queryCache) {
+            return (QueryCache<Session>) queryCache;
+        }
+
+        return null;
     }
 }

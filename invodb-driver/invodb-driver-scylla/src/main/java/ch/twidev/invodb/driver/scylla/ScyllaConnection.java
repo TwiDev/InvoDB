@@ -97,9 +97,9 @@ public class ScyllaConnection implements DriverSession<Session> {
     }
 
     @Override
-    public CompletableFuture<ElementSet> findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
+    public CompletableFuture<ElementSet<?>> findAsync(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
         ISearchFilter searchFilter = findOperationBuilder.getSearchFilter();
-        CompletableFuture<ElementSet> completableFuture = new CompletableFuture<>();
+        CompletableFuture<ElementSet<?>> completableFuture = new CompletableFuture<>();
 
         try {
             String statement = "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())

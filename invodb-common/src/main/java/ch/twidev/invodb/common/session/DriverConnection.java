@@ -21,18 +21,18 @@ import java.util.concurrent.CompletableFuture;
 public class DriverConnection {
 
     public static <Session, R> R runQuery(DriverSession<Session> session, InvoQuery<R> invoQuery, PlaceholderContext placeholderContext) {
-        if(!(invoQuery instanceof OperationContext operationContext)) return null;
-
         if(placeholderContext == null) {
-            placeholderContext = operationContext.getPlaceHolder();
+            placeholderContext = invoQuery.getPlaceHolder();
         }
 
-        if(operationContext instanceof SearchContext searchContext) {
+        if(invoQuery instanceof SearchContext searchContext) {
             if (invoQuery.getQueryOperation().isCacheable()) {
                 ElementSet<?> cachedValue = findCachedValues(session, searchContext);
 
                 System.out.println("test1");
                 if(cachedValue != null) return (R) cachedValue;
+
+                // handle this in CacheableQuery
             }
         }
         System.out.println("test2");
@@ -46,7 +46,9 @@ public class DriverConnection {
             default -> throw new IllegalStateException("Unexpected value: " + invoQuery);
         };
 
-        if(operationContext instanceof SearchContext searchContext) {
+        if(invoQuery instanceof SearchContext searchContext) {
+            // handle this in CacheableQuery
+
             if(invoQuery.getQueryOperation().isCacheable()) {
                 if(!(result instanceof ElementSet<?> elementSet)) {
                     return null;
