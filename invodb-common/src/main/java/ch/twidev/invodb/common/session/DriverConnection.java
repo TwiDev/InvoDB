@@ -45,12 +45,15 @@ public class DriverConnection {
         };
 
         if(operationContext instanceof SearchContext searchContext) {
-            if(!(result instanceof ElementSet<?> elementSet)) {
-                return null;
-            }
-
             if(invoQuery.getQueryOperation().isCacheable()) {
+                if(!(result instanceof ElementSet<?> elementSet)) {
+                    return null;
+                }
+
                 putCachedValues(session, operationContext, searchContext, elementSet.getWrapper());
+
+                // Cause of exhausted iterator
+                return (R) findCachedValues(session, operationContext, searchContext);
             }else if(invoQuery.getQueryOperation().isInvalidateCache()) {
                 invalidateCachedValues(session, operationContext, searchContext);
             }

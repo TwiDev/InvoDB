@@ -95,14 +95,11 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
 
     @Override
     public <T> byte[] serialize(T value) {
-        long l = System.nanoTime();
-
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream oos = new ObjectOutputStream(bos)) {
 
             oos.writeObject(value);
             byte[] b = bos.toByteArray();
-            System.out.println("S1 " + (System.nanoTime() - l) / 1_000_000);
             return b;
         } catch (IOException e) {
             throw new RuntimeException(e);

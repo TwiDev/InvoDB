@@ -13,14 +13,11 @@ public abstract class ElementSet<Raw extends Elements> implements Iterator<Raw>,
     protected transient Iterator<Raw> iterator;
     protected ElementSetWrapper<Raw> wrapper;
 
+    private Class<? extends ElementSetWrapper<Raw>> wrapperClass;
+
     public ElementSet(Iterator<Raw> iterator, Class<? extends ElementSetWrapper<Raw>> wrapper) {
         this.iterator = iterator;
-
-        try {
-            this.wrapper = wrapper.getDeclaredConstructor(Iterator.class).newInstance(iterator);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
+        this.wrapperClass = wrapper;
     }
 
     public ElementSet(Iterator<Raw> iterator, ElementSetWrapper<Raw> wrapper) {
@@ -38,7 +35,11 @@ public abstract class ElementSet<Raw extends Elements> implements Iterator<Raw>,
     public abstract ElementSet<Raw> fromElements();
 
     public ElementSetWrapper<Raw> getWrapper() {
-        return wrapper;
+        try {
+            return wrapperClass.getDeclaredConstructor(Iterator.class).newInstance(iterator);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

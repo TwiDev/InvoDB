@@ -4,10 +4,13 @@ import ch.twidev.invodb.bridge.cache.CacheDriver;
 import ch.twidev.invodb.bridge.cache.CachingStrategy;
 import ch.twidev.invodb.bridge.cache.EvictionPolicy;
 import ch.twidev.invodb.bridge.documents.ElementSet;
+import ch.twidev.invodb.bridge.documents.ElementSetWrapper;
+import ch.twidev.invodb.bridge.documents.Elements;
+import ch.twidev.invodb.common.documents.ResultSet;
 
 import java.util.concurrent.CompletionStage;
 
-public class AsyncQueryCache<Driver> extends AsyncStreamCacheProvider<Integer, ElementSet<?>, Driver> {
+public class AsyncQueryCache<Driver> extends AsyncStreamCacheProvider<Integer, ElementSetWrapper<? extends Elements>, Driver> {
     public AsyncQueryCache(CacheDriver<Driver> driver, CachingStrategy cachingStrategy, String keyname, int capacity) {
         super(driver, cachingStrategy, keyname, capacity);
     }
@@ -17,7 +20,13 @@ public class AsyncQueryCache<Driver> extends AsyncStreamCacheProvider<Integer, E
     }
 
     @Override
-    public CompletionStage<ElementSet<?>> get(Integer key) {
-        return super.get(key).thenApply(ElementSet::fromElements); /* TODO: FIND A BETTER WAY */
+    public CompletionStage<ElementSetWrapper<? extends Elements>> get(Integer key) {
+        return super.get(key);
+    }
+
+    public CompletionStage<ResultSet> getSet(Integer key) {
+        CompletionStage<ElementSetWrapper<? extends Elements>> wrapper = super.get(key);
+
+        return wrapper.thenApply(elementSetWrapper -> new ResultSet(elementSetWrapper.getElements(), elementSetWrapper));
     }
 }

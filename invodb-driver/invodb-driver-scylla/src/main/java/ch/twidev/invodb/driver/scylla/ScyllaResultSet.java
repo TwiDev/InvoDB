@@ -28,7 +28,6 @@ public class ScyllaResultSet extends ElementSet<ScyllaResultSet.ScyllaElements> 
         this.resultSet = resultSet;
 
         this.isEmpty = resultSet.isExhausted();
-        System.out.println(resultSet.all().toString());
 
         try {
             this.first = new ScyllaElements(resultSet.one());
@@ -42,10 +41,6 @@ public class ScyllaResultSet extends ElementSet<ScyllaResultSet.ScyllaElements> 
 
         this.isEmpty = iterator.hasNext();
         this.resultSet = null;
-    }
-
-    public ResultSet getResultSet() {
-        return resultSet;
     }
 
     @Override
@@ -93,7 +88,6 @@ public class ScyllaResultSet extends ElementSet<ScyllaResultSet.ScyllaElements> 
                 while (true) {
                     try {
                         Object obj = ois.readObject();
-                        System.out.println(obj.toString());
 
                         if (obj instanceof ScyllaElements row) {
                             rows.add(row);
@@ -102,9 +96,6 @@ public class ScyllaResultSet extends ElementSet<ScyllaResultSet.ScyllaElements> 
                         break;
                     }
                 }
-
-                System.out.println(rows.toString());
-
 
                 elements = rows.iterator();
             } catch (Exception e) {
