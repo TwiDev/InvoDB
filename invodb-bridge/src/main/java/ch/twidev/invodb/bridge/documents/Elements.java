@@ -1,6 +1,8 @@
 package ch.twidev.invodb.bridge.documents;
 
-public interface Elements {
+import java.io.Serializable;
+
+public interface Elements extends Serializable {
 
     boolean isValid();
 

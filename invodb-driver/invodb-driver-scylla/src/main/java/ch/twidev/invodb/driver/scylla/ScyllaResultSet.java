@@ -5,13 +5,11 @@ import ch.twidev.invodb.bridge.documents.Elements;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 
-import java.util.Iterator;
-
 public class ScyllaResultSet extends ElementSet<ResultSet> {
 
     private final boolean isEmpty;
-    private final ResultSet resultSet;
-    private final Elements first;
+    private final transient ResultSet resultSet;
+    private final transient Elements first;
 
     public ScyllaResultSet(ResultSet resultSet) {
         super(resultSet.all()
@@ -53,7 +51,7 @@ public class ScyllaResultSet extends ElementSet<ResultSet> {
 
     public static class ScyllaElements implements Elements {
 
-        private final Row row;
+        private final transient Row row;
 
         public ScyllaElements(Row row) {
             this.row = row;

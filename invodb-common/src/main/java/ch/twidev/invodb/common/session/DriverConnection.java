@@ -111,7 +111,7 @@ public class DriverConnection {
 
         final int searchCode = searchContext.getSearchFilter().getTotalHashCode();
 
-        if(!cache.has(searchCode)) {
+        if(cache.has(searchCode)) {
            return cache.get(searchCode);
         }
 
