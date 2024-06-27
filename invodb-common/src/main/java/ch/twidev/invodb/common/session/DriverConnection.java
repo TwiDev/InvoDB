@@ -2,13 +2,12 @@ package ch.twidev.invodb.common.session;
 
 import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.documents.ElementSet;
-import ch.twidev.invodb.bridge.documents.OperationResult;
+import ch.twidev.invodb.bridge.documents.ElementSetWrapper;
+import ch.twidev.invodb.bridge.documents.Elements;
 import ch.twidev.invodb.bridge.operations.OperationContext;
 import ch.twidev.invodb.bridge.operations.SearchContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.session.DriverSession;
-import ch.twidev.invodb.bridge.util.ResultCallback;
-
 import ch.twidev.invodb.common.cache.QueryCache;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.DeleteOperationBuilder;
@@ -16,7 +15,6 @@ import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
 import ch.twidev.invodb.common.query.builder.UpdateOperationBuilder;
 
-import java.io.Serializable;
 import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings("unchecked")
@@ -52,7 +50,7 @@ public class DriverConnection {
             }
 
             if(invoQuery.getQueryOperation().isCacheable()) {
-                putCachedValues(session, operationContext, searchContext, elementSet);
+                putCachedValues(session, operationContext, searchContext, elementSet.getWrapper());
             }else if(invoQuery.getQueryOperation().isInvalidateCache()) {
                 invalidateCachedValues(session, operationContext, searchContext);
             }
@@ -71,7 +69,7 @@ public class DriverConnection {
 
         if(operationContext instanceof SearchContext searchContext) {
             if (invoQuery.getQueryOperation().isCacheable()) {
-                ElementSet cachedValue = findCachedValues(session, operationContext, searchContext);
+                ElementSet<?> cachedValue = findCachedValues(session, operationContext, searchContext);
 
                 if(cachedValue != null) return CompletableFuture.completedFuture((R) cachedValue);
             }
@@ -90,12 +88,12 @@ public class DriverConnection {
             completableFuture.whenComplete((result, throwable) -> {
                 if(throwable != null) return;
 
-                if(!(result instanceof ElementSet elementSet)) {
+                if(!(result instanceof ElementSet<?> elementSet)) {
                     return;
                 }
 
                 if(invoQuery.getQueryOperation().isCacheable()) {
-                    putCachedValues(session, operationContext, searchContext, elementSet);
+                    putCachedValues(session, operationContext, searchContext, elementSet.getWrapper());
                 }else if(invoQuery.getQueryOperation().isInvalidateCache()){
                     invalidateCachedValues(session, operationContext, searchContext);
                 }
@@ -112,13 +110,13 @@ public class DriverConnection {
         final int searchCode = searchContext.getSearchFilter().getTotalHashCode();
 
         if(cache.has(searchCode)) {
-           return cache.get(searchCode);
+           return cache.getSet(searchCode);
         }
 
         return null;
     }
 
-    public static <Session> void putCachedValues(DriverSession<Session> session, OperationContext operationContext, SearchContext searchContext, ElementSet value) {
+    public static <Session> void putCachedValues(DriverSession<Session> session, OperationContext operationContext, SearchContext searchContext, ElementSetWrapper<? extends Elements> value) {
         QueryCache<Session> cache = getQueryCache(session);
         if(cache == null) return;
         if(value == null) return;

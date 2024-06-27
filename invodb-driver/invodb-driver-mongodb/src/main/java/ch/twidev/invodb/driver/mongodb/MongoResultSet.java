@@ -1,6 +1,7 @@
 package ch.twidev.invodb.driver.mongodb;
 
 import ch.twidev.invodb.bridge.documents.ElementSet;
+import ch.twidev.invodb.bridge.documents.ElementSetWrapper;
 import ch.twidev.invodb.bridge.documents.Elements;
 import com.mongodb.client.MongoCursor;
 import org.bson.Document;
@@ -8,7 +9,7 @@ import org.bson.Document;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
-public class MongoResultSet extends ElementSet<MongoCursor<Document>> {
+public class MongoResultSet extends ElementSet<Elements> {
 
     private final int capacity;
 
@@ -16,7 +17,7 @@ public class MongoResultSet extends ElementSet<MongoCursor<Document>> {
         super(StreamSupport.stream(Spliterators.spliteratorUnknownSize(cursor, 0), false)
                 .map(MongoElements::new)
                 .map(Elements.class::cast)
-                .iterator(), cursor);
+                .iterator(), (Class<? extends ElementSetWrapper<Elements>>) null);
 
         this.capacity = cursor.available();
     }
@@ -32,8 +33,8 @@ public class MongoResultSet extends ElementSet<MongoCursor<Document>> {
     }
 
     @Override
-    public ElementSet<MongoCursor<Document>> fromElements() {
-        return new MongoResultSet(this.getElements());
+    public ElementSet<Elements> fromElements() {
+        return null;
     }
 
     @Override

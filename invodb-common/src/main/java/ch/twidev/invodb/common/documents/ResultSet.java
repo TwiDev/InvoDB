@@ -1,14 +1,16 @@
 package ch.twidev.invodb.common.documents;
 
 import ch.twidev.invodb.bridge.documents.ElementSet;
+import ch.twidev.invodb.bridge.documents.ElementSetWrapper;
 import ch.twidev.invodb.bridge.documents.Elements;
 
 import java.util.Iterator;
 
+@SuppressWarnings("unchecked")
 public class ResultSet extends ElementSet<Elements> {
 
-    public ResultSet(Iterator<Elements> iterator) {
-        super(iterator, iterator.next());
+    public ResultSet(Iterator<? extends Elements> iterator, ElementSetWrapper<? extends Elements> wrapper) {
+        super((Iterator<Elements>) iterator, (ElementSetWrapper<Elements>) wrapper);
     }
 
     @Override
@@ -17,28 +19,18 @@ public class ResultSet extends ElementSet<Elements> {
     }
 
     @Override
-    public boolean hasNext() {
-        return false;
-    }
-
-    @Override
-    public Elements next() {
-        return null;
-    }
-
-    @Override
     public boolean isEmpty() {
-        return false;
+        return this.hasNext();
     }
 
     @Override
     public Elements first() {
-        return null;
+        return iterator.next();
     }
 
     @Override
     public ElementSet<Elements> fromElements() {
-        return null;
+        return new ResultSet(wrapper.getElements(), wrapper);
     }
 
 }

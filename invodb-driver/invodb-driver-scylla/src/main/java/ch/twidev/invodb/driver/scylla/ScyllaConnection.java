@@ -78,7 +78,7 @@ public class ScyllaConnection implements DriverSession<Session> {
     }
 
     @Override
-    public ElementSet find(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
+    public ElementSet<?> find(FindContext findOperationBuilder, PlaceholderContext placeholderContext) {
         ISearchFilter searchFilter = findOperationBuilder.getSearchFilter();
 
         try {
@@ -89,7 +89,6 @@ public class ScyllaConnection implements DriverSession<Session> {
             ResultSet resultSet = searchFilter.isRequired() ?
                     session.execute(statement, searchFilter.getContexts().toArray(new Object[0])) :
                     session.execute(statement);
-
 
             return new ScyllaResultSet(resultSet);
         } catch (Exception exception) {

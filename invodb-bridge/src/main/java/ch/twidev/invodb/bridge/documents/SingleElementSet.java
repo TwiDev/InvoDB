@@ -2,13 +2,9 @@ package ch.twidev.invodb.bridge.documents;
 
 import java.util.Iterator;
 
-public class SingleElementSet extends ElementSet<Object> {
+public class SingleElementSet extends ElementSet<Elements> {
 
     public Elements elements;
-
-    public SingleElementSet(Iterator<Elements> iterator, Object elements) {
-        super(iterator, elements);
-    }
 
 
     @Override
@@ -37,7 +33,7 @@ public class SingleElementSet extends ElementSet<Object> {
     }
 
     @Override
-    public ElementSet<Object> fromElements() {
+    public ElementSet<Elements> fromElements() {
         return null;
     }
 }
