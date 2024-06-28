@@ -5,19 +5,17 @@ import ch.twidev.invodb.bridge.documents.OperationResult;
 import ch.twidev.invodb.bridge.operations.UpdateContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.session.DriverSession;
-import ch.twidev.invodb.common.query.InvoQuery;
+import ch.twidev.invodb.common.query.InvalidateQuery;
 import ch.twidev.invodb.common.query.operations.FieldsOperation;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
-import ch.twidev.invodb.common.query.operations.SearchOperation;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class UpdateOperationBuilder extends InvoQuery<OperationResult> implements UpdateContext, FieldsOperation<UpdateOperationBuilder>, SearchOperation<UpdateOperationBuilder> {
+public class UpdateOperationBuilder extends InvalidateQuery<OperationResult, UpdateOperationBuilder> implements UpdateContext, FieldsOperation<UpdateOperationBuilder> {
 
     private final FieldMap fieldMap = new FieldMap();
-    private SearchFilter searchFilter = SearchFilter.all();
     private PlaceholderContext placeholderContext = new PlaceholderContext();
 
     public UpdateOperationBuilder(String collection) {
@@ -36,11 +34,6 @@ public class UpdateOperationBuilder extends InvoQuery<OperationResult> implement
         this.placeholderContext = placeholderContext;
 
         return this;
-    }
-
-    @Override
-    public SearchFilter getSearchFilter() {
-        return searchFilter;
     }
 
     @Override

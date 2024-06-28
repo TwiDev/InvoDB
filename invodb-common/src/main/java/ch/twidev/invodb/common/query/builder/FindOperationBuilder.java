@@ -15,11 +15,10 @@ import ch.twidev.invodb.common.query.operations.SearchOperation;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class FindOperationBuilder extends CacheableQuery<ElementSet<?>> implements FindContext, AttributeOperation<FindOperationBuilder>, SearchOperation<FindOperationBuilder> {
+public class FindOperationBuilder extends CacheableQuery<FindOperationBuilder>
+        implements FindContext, AttributeOperation<FindOperationBuilder> {
 
     private final Attributes attributes = new Attributes();
-    private SearchFilter searchFilter = SearchFilter.all();
-    private PlaceholderContext placeholderContext = new PlaceholderContext();
 
     public FindOperationBuilder(String collection) {
         super(collection, QueryOperation.FIND);
@@ -37,11 +36,6 @@ public class FindOperationBuilder extends CacheableQuery<ElementSet<?>> implemen
         this.placeholderContext = placeholderContext;
 
         return this;
-    }
-
-    @Override
-    public SearchFilter getSearchFilter() {
-        return searchFilter;
     }
 
     @Override
@@ -87,12 +81,12 @@ public class FindOperationBuilder extends CacheableQuery<ElementSet<?>> implemen
     }
 
     @Override
-    protected ElementSet<?> execute(DriverSession<?> driverSession, PlaceholderContext placeholderContext) {
+    public ElementSet<?> handleExecute(DriverSession<?> driverSession, PlaceholderContext placeholderContext) {
         return driverSession.find(this, placeholderContext);
     }
 
     @Override
-    protected CompletableFuture<ElementSet<?>> executeAsync(DriverSession<?> driverSession, PlaceholderContext placeholderContext) {
+    public CompletableFuture<ElementSet<?>> handleExecuteAsync(DriverSession<?> driverSession, PlaceholderContext placeholderContext) {
         return driverSession.findAsync(this, placeholderContext);
     }
 }
