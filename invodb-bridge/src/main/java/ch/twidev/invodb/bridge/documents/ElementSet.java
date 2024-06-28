@@ -22,9 +22,11 @@ public abstract class ElementSet<Raw extends Elements> implements Iterator<Raw>,
         this.wrapperClass = wrapper;
     }
 
+    @SuppressWarnings("unchecked")
     public ElementSet(Iterator<Raw> iterator, ElementSetWrapper<Raw> wrapper) {
         this.iterator = iterator;
         this.wrapper = wrapper;
+        this.wrapperClass = (Class<? extends ElementSetWrapper<Raw>>) wrapper.getClass();
     }
 
     public ElementSet() {

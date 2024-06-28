@@ -2,7 +2,6 @@ package ch.twidev.invodb.common.query;
 
 import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.operations.OperationContext;
-import ch.twidev.invodb.bridge.operations.SearchContext;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 import ch.twidev.invodb.bridge.session.DriverSession;
 import ch.twidev.invodb.common.cache.QueryCache;
@@ -11,7 +10,6 @@ import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
 import ch.twidev.invodb.common.query.builder.UpdateOperationBuilder;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
-import ch.twidev.invodb.common.session.DriverConnection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;

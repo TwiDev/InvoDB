@@ -45,7 +45,8 @@ public abstract class CacheableQuery<Query> extends SearchQuery<ElementSet<?>, Q
 
         this.putCachedValues(queryCache, result.getWrapper());
 
-        return super.handleResult(driverSession, result);
+        return super.handleResult(driverSession,
+                this.findCachedValues(queryCache));
     }
 
     public ElementSet<?> findCachedValues(QueryCache<?> cache) {
