@@ -1,13 +1,20 @@
 package ch.twidev.invodb.bridge.cache;
 
-public interface MapCache {
+public interface MapCache<K>{
+    <V> void put(K key, V value);
+    <V> V get(K key, Class<V> v);
 
-    Cache<String, Object> getMap(String key);
+    default String getString(K key) {
+        return this.get(key,String.class);
+    }
 
-    void removeMap(String key);
+    default int getInt(K key) {
+        return this.get(key,Integer.class);
+    }
 
-    boolean isMapExists(String key);
+    void delete();
+
+    boolean has(K key);
 
     String getKeyname();
-
 }

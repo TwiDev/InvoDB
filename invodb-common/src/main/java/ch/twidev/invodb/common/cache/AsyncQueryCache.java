@@ -11,7 +11,7 @@ import java.util.concurrent.CompletionStage;
 
 public class AsyncQueryCache<Driver> extends AsyncStreamCacheProvider<Integer, ElementSetWrapper<? extends Elements>, Driver> {
     public AsyncQueryCache(CacheDriver<Driver> driver, CachingStrategy cachingStrategy, String keyname, int capacity) {
-        super(driver, cachingStrategy, keyname, capacity);
+        super(driver, null, keyname, capacity);
     }
 
     public AsyncQueryCache(CacheDriver<Driver> driver, EvictionPolicy<Integer, Driver> evictionPolicy, String keyname, int capacity) {

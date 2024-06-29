@@ -20,15 +20,6 @@ public abstract class AsyncStreamCacheProvider<K extends Serializable, V extends
     private final int capacity;
     private final Class<V> valueClass;
 
-    public AsyncStreamCacheProvider(CacheDriver<Driver> driver, CachingStrategy cachingStrategy, String keyname, int capacity) {
-        this(
-                driver,
-                driver.getEvictionPolicy(cachingStrategy, keyname, capacity),
-                keyname,
-                capacity
-        );
-    }
-
     @SuppressWarnings("unchecked")
     public AsyncStreamCacheProvider(CacheDriver<Driver> driver, EvictionPolicy<K, Driver> evictionPolicy, String keyname, int capacity) {
         this.evictionPolicy = evictionPolicy;

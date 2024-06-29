@@ -5,6 +5,7 @@ import ch.twidev.invodb.bridge.cache.CacheDriver;
 import ch.twidev.invodb.bridge.cache.CachingStrategy;
 import ch.twidev.invodb.bridge.cache.EvictionPolicy;
 import com.google.common.reflect.TypeToken;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.*;
 
@@ -18,7 +19,7 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
     private final int capacity;
     private final Class<V> valueClass;
 
-    public StreamCacheProvider(CacheDriver<Driver> driver, CachingStrategy cachingStrategy, String keyname, int capacity) {
+    public StreamCacheProvider(CacheDriver<Driver> driver, @NonNull CachingStrategy cachingStrategy, String keyname, int capacity) {
         this(
                 driver,
                 driver.getEvictionPolicy(cachingStrategy, keyname, capacity),
@@ -37,6 +38,8 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
         this.driver = cacheDriver.getConn();
 
         this.valueClass = (Class<V>) new TypeToken<V>(this.getClass()){}.getRawType();
+
+        this.evictionPolicy.initEviction(false);
     }
 
     @Override

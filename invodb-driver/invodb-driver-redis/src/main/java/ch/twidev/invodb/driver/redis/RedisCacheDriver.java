@@ -1,5 +1,6 @@
 package ch.twidev.invodb.driver.redis;
 
+import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.cache.CacheDriver;
 import ch.twidev.invodb.bridge.cache.CachingStrategy;
 import ch.twidev.invodb.bridge.cache.EvictionPolicy;
@@ -10,6 +11,7 @@ import org.redisson.api.RMapAsync;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
+import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 public class RedisCacheDriver implements CacheDriver<RedissonClient> {
@@ -62,6 +64,21 @@ public class RedisCacheDriver implements CacheDriver<RedissonClient> {
     }
 
     @Override
+    public <K,V> Map<K, V> getMap(String key) {
+        return redisson.getMap(key);
+    }
+
+    @Override
+    public void removeMap(String key) {
+        redisson.getMap(key).delete();
+    }
+
+    @Override
+    public boolean isMapExists(String key) {
+        return redisson.getMap(key).isExists();
+    }
+
+    @Override
     public <K> boolean has(String path, K key) {
         return redisson.getMap(path).containsKey(CacheDriver.serialize(key));
     }
@@ -79,9 +96,9 @@ public class RedisCacheDriver implements CacheDriver<RedissonClient> {
     }
 
     @Override
-    public <K> EvictionPolicy<K, RedissonClient> getEvictionPolicy(CachingStrategy cachingStrategy, String cacheKey, int capacity) {
+    public <K> EvictionPolicy<K, RedissonClient> getEvictionPolicy(CachingStrategy cachingStrategy, String cacheKey, int capacity, boolean isMap) {
         return switch (cachingStrategy) {
-            case LRU -> new RedisLRUCache<>(redisson, cacheKey, capacity);
+            case LRU -> new RedisLRUCache<>(redisson, cacheKey, capacity, isMap);
             default -> throw new IllegalStateException("Unexpected eviction policy: " + cachingStrategy);
         };
     }
