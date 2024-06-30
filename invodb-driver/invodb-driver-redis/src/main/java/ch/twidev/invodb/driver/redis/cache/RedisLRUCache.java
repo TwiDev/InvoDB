@@ -51,6 +51,17 @@ public class RedisLRUCache<K> extends RedisCacheStrategy<K> {
     }
 
     @Override
+    public void clear() {
+        if(isMap()) {
+            accessOrderSet.forEach(s -> redissonClient.getMap(s).delete());
+        }else{
+            cacheMap.delete();
+        }
+
+        accessOrderSet.delete();
+    }
+
+    @Override
     public CompletionStage<Boolean> onPutAsync(K key) {
         return accessOrderSet.addAsync(System.nanoTime(), serialize(key));
     }

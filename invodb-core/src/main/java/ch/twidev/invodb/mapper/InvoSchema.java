@@ -8,7 +8,6 @@ import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.builder.DeleteOperationBuilder;
 import ch.twidev.invodb.common.query.builder.UpdateOperationBuilder;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
-import ch.twidev.invodb.exception.SchemaException;
 import ch.twidev.invodb.exception.runtime.PopulateSchemaException;
 import ch.twidev.invodb.exception.runtime.QuerySchemaException;
 import ch.twidev.invodb.mapper.annotations.Primitive;
@@ -26,12 +25,14 @@ public abstract class InvoSchema {
 
     private boolean exists = false;
 
+    private boolean cached = false;
+
     private DriverSession<?> driverSession = null;
     public String getCollection() {
         return collection;
     }
 
-    public boolean isExists() {
+    public boolean exists() {
         return exists && driverSession.isConnected() && collection != null;
     }
 
@@ -52,7 +53,13 @@ public abstract class InvoSchema {
                 }
 
                 fields.put(declaredField.getName(),
-                        new FieldMapper(this, declaredField.getName(), fieldName, primitive, declaredField));
+                        new FieldMapper(this,
+                                declaredField.getName(),
+                                fieldName,
+                                annotation.cacheKey().isEmpty() ? fieldName : annotation.cacheKey(),
+                                primitive,
+                                declaredField)
+                );
             }
         }
     }
@@ -89,6 +96,12 @@ public abstract class InvoSchema {
         });
 
         this.exists = true;
+
+        this.onPopulated();
+    }
+
+    public void onPopulated(){
+
     }
 
     public void save(SearchFilter searchFilter) {
@@ -108,7 +121,7 @@ public abstract class InvoSchema {
     }
 
     private UpdateOperationBuilder saveQuery(SearchFilter searchFilter) {
-        if(!this.isExists()) {
+        if(!this.exists()) {
             throw new QuerySchemaException("Schema isn't populate cannot save it");
         }
 
@@ -123,7 +136,7 @@ public abstract class InvoSchema {
     }
 
     private DeleteOperationBuilder deleteQuery(SearchFilter searchFilter) {
-        if(!this.isExists()) {
+        if(!this.exists()) {
             throw new QuerySchemaException("Schema isn't populate cannot save it");
         }
 
@@ -149,5 +162,13 @@ public abstract class InvoSchema {
 
     public HashMap<String, FieldMapper> getFields() {
         return fields;
+    }
+
+    public boolean isCached() {
+        return cached;
+    }
+
+    public void setCached(boolean cached) {
+        this.cached = cached;
     }
 }

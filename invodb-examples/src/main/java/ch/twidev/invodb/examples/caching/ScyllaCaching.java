@@ -1,6 +1,5 @@
 package ch.twidev.invodb.examples.caching;
 
-import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.cache.CachingStrategy;
 import ch.twidev.invodb.bridge.cache.EvictionPolicy;
 import ch.twidev.invodb.bridge.cache.MapCache;
@@ -12,6 +11,7 @@ import ch.twidev.invodb.bridge.driver.config.DriverConfig;
 import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
 import ch.twidev.invodb.common.cache.MapCacheProvider;
 import ch.twidev.invodb.common.cache.QueryCache;
+import ch.twidev.invodb.cache.SchemaCacheProvider;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.common.util.Monitoring;
@@ -82,7 +82,6 @@ public class ScyllaCaching {
                     mapCache.getInt("test2")
             );
         }
-
 
     }
 

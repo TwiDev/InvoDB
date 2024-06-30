@@ -4,6 +4,7 @@ import ch.twidev.invodb.bridge.cache.Cache;
 import ch.twidev.invodb.bridge.cache.CacheDriver;
 import ch.twidev.invodb.bridge.cache.CachingStrategy;
 import ch.twidev.invodb.bridge.cache.EvictionPolicy;
+import ch.twidev.invodb.common.util.Monitoring;
 import com.google.common.reflect.TypeToken;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -53,11 +54,13 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
 
     @Override
     public V get(K key) {
+        Monitoring monitoring = new Monitoring("#2");
         V value = this.deserialize(
                 cacheDriver.get(keyname, key), valueClass);
 
         if (value != null) {
             evictionPolicy.onGet(key);
+            monitoring.done();
             return value;
         }
 
@@ -73,7 +76,15 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
 
     @Override
     public boolean has(K key) {
-        return cacheDriver.has(keyname, key);
+        Monitoring monitoring = new Monitoring("#1");
+        boolean b = cacheDriver.has(keyname, key);
+        monitoring.done();
+        return b;
+    }
+
+    @Override
+    public void clear() {
+        evictionPolicy.clear();
     }
 
     @Override
@@ -87,10 +98,13 @@ public abstract class StreamCacheProvider<K extends Serializable, V extends Seri
 
     @Override
     public <T> T deserialize(byte[] value, Class<T> clazz) {
+        Monitoring monitoring = new Monitoring("#3 - Mid");
         try (ByteArrayInputStream bis = new ByteArrayInputStream(value);
              ObjectInputStream ois = new ObjectInputStream(bis)) {
 
-            return clazz.cast(ois.readObject());
+            T t = clazz.cast(ois.readObject());
+            monitoring.done();
+            return t;
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

@@ -7,6 +7,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.plaf.BorderUIResource;
+import java.util.Map;
 
 public class MapCacheProvider<Driver> implements MapCache<String> {
 
@@ -65,7 +66,7 @@ public class MapCacheProvider<Driver> implements MapCache<String> {
     }
 
     @Override
-    public void delete() {
+    public void clear() {
         cacheDriver.removeMap(keyname);
 
         if(evictionPolicy != null) {
@@ -76,6 +77,16 @@ public class MapCacheProvider<Driver> implements MapCache<String> {
     @Override
     public boolean has(String key) {
         return cacheDriver.getMap(keyname).containsKey(key);
+    }
+
+    @Override
+    public void remove(String key) {
+        cacheDriver.getMap(keyname).remove(key);
+    }
+
+    @Override
+    public Map<String, Object> getMap() {
+        return cacheDriver.getMap(keyname);
     }
 
     @Override

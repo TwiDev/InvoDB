@@ -7,15 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Field {
-
-    String name() default "";
-
-    String cacheKey() default "";
-
-    boolean caseSensitive() default false;
-
-    // add column type
-
-    boolean isNullable() default true;
+public @interface Uncacheable {
 }

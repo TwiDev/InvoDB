@@ -6,7 +6,7 @@ import ch.twidev.invodb.mapper.annotations.Primitive;
 
 import java.lang.reflect.Field;
 
-public record FieldMapper(InvoSchema invoSchema, String name, String queryName, Primitive primitive, Field field) {
+public record FieldMapper(InvoSchema invoSchema, String name, String queryName, String cacheName, Primitive primitive, Field field) {
 
     public boolean hasFormatter() {
         return primitive != null;

@@ -10,6 +10,7 @@ import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
 import ch.twidev.invodb.common.query.builder.UpdateOperationBuilder;
 import ch.twidev.invodb.common.query.operations.QueryOperation;
+import ch.twidev.invodb.common.util.Monitoring;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;

@@ -1,6 +1,5 @@
 package ch.twidev.invodb.mapper.handler;
 
-import ch.twidev.invodb.bridge.util.ResultCallback;
 import ch.twidev.invodb.common.query.InvoQuery;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.exception.InvalidRepositoryQueryException;
@@ -13,7 +12,6 @@ import ch.twidev.invodb.mapper.field.FieldMapper;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings("unchecked")
 public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema) implements InvocationHandler {
@@ -74,7 +72,7 @@ public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema) implements I
             throw new InvalidRepositoryQueryException("You need to define annotation arguments in the method to define repository functions");
         }
 
-        if(!invoSchema.isExists()) {
+        if(!invoSchema.exists()) {
             throw new InvalidSchemaException("Cannot change aspect of " + invoSchema.getCollection() + " schema because it isn't populate");
         }
     }

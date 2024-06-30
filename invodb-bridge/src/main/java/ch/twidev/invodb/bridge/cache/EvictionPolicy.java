@@ -14,6 +14,8 @@ public interface EvictionPolicy<K, Driver> {
     void onRemove(K key);
     void evictIfNecessary();
 
+    void clear();
+
     CompletionStage<Boolean> onPutAsync(K key);
     CompletionStage<Boolean> onGetAsync(K key);
     CompletionStage<Boolean> onRemoveAsync(K key);
