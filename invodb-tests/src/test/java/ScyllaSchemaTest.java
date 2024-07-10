@@ -111,10 +111,6 @@ public class ScyllaSchemaTest {
         @Primitive(formatter = UUIDFormatter.class)
         private UUID uuid = UUID.randomUUID();
 
-        public ScyllaUserSchema() {
-            super(ScyllaUserSchemaAspect.class, "id");
-        }
-
         @Override
         public void setEmailAsync(String email) {
             this.email = email;
@@ -123,11 +119,6 @@ public class ScyllaSchemaTest {
         @Override
         public void setUuid(UUID uuid) {
             this.uuid = uuid;
-        }
-
-        @Override
-        public Integer getPrimaryValue() {
-            return id;
         }
 
         public String getName() {

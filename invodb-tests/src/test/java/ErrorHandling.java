@@ -68,18 +68,9 @@ public class ErrorHandling {
         @Field
         private String name;
 
-        public ScyllaUserSchema() {
-            super(ScyllaUserSchemaAspect.class, "id");
-        }
-
         @Override
         public void setEmailAsync(String email) {
             this.email = email;
-        }
-
-        @Override
-        public Integer getPrimaryValue() {
-            return id;
         }
 
         public String getName() {
