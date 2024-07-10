@@ -9,9 +9,7 @@ public abstract class AspectInvoSchema<Aspect, PrimaryKey> extends IndexedInvoSc
 
     private final Aspect aspect;
 
-    public AspectInvoSchema(Class<Aspect> aspectInterface, String primaryKey) {
-        super(primaryKey);
-
+    public AspectInvoSchema(Class<Aspect> aspectInterface) {
         if(!aspectInterface.isInterface()) {
             throw new IllegalArgumentException("Aspect provided isn't an interface");
         }
@@ -20,13 +18,17 @@ public abstract class AspectInvoSchema<Aspect, PrimaryKey> extends IndexedInvoSc
             throw new IllegalArgumentException("This schema isn't implemented by this aspect");
         }*/
 
-        SchemaAspectHandler schemaAspectHandler = new SchemaAspectHandler(this);
+        SchemaAspectHandler schemaAspectHandler = new SchemaAspectHandler(this, this.getPrimaryValues());
 
         this.aspect = (Aspect) Proxy.newProxyInstance(
                 this.getClass().getClassLoader(),
                 new Class[]{aspectInterface},
                 schemaAspectHandler);
 
+    }
+
+    public AspectInvoSchema() {
+        this.aspect = null;
     }
 
     public Aspect getAspect() {

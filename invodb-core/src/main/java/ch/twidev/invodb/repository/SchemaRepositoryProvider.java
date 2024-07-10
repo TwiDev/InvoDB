@@ -1,12 +1,14 @@
 package ch.twidev.invodb.repository;
 
 import ch.twidev.invodb.bridge.session.DriverSession;
+import ch.twidev.invodb.mapper.AspectInvoSchema;
 import ch.twidev.invodb.mapper.InvoSchema;
 import ch.twidev.invodb.mapper.annotations.PrimaryField;
 import ch.twidev.invodb.repository.handler.SchemaRepositoryHandler;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 
 @SuppressWarnings("unchecked")
@@ -18,6 +20,7 @@ public abstract class SchemaRepositoryProvider<Session, Schema extends InvoSchem
 
     private final String collection;
     private String primaryField = null;
+    private AspectInvoSchema<?,?> blankSchema = null;
 
     public SchemaRepositoryProvider(DriverSession<Session> driverSession, String collection, Class<Provider> classInterface) {
         this.driverSession = driverSession;
@@ -35,6 +38,26 @@ public abstract class SchemaRepositoryProvider<Session, Schema extends InvoSchem
                 ch.twidev.invodb.mapper.annotations.Field field = declaredField.getAnnotation(ch.twidev.invodb.mapper.annotations.Field.class);
                 primaryField = field.name().isEmpty() ? declaredField.getName() : field.name();
                 break;
+            }
+        }
+
+        if(schemaClass.getSuperclass().isAssignableFrom(AspectInvoSchema.class)) {
+            if(primaryField == null) {
+                throw new NullPointerException("Cannot find any primary field for aspect schema " + schemaClass);
+            }
+
+            try {
+                this.blankSchema = (AspectInvoSchema<?, ?>) schemaClass.getConstructor().newInstance();
+
+                this.blankSchema.setCollection(collection);
+                this.blankSchema.setDriverSession(driverSession);
+                this.blankSchema.setExists(true);
+
+                this.blankSchema.load();
+
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -64,5 +87,9 @@ public abstract class SchemaRepositoryProvider<Session, Schema extends InvoSchem
 
     public String getPrimaryField() {
         return primaryField;
+    }
+
+    public AspectInvoSchema<?, ?> getBlankSchema() {
+        return blankSchema;
     }
 }

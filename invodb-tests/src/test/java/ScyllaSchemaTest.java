@@ -15,6 +15,7 @@ import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.annotations.Find;
 import ch.twidev.invodb.repository.annotations.FindOrInsert;
 import ch.twidev.invodb.repository.annotations.Insert;
+import ch.twidev.invodb.repository.annotations.Update;
 import ch.twidev.invodb.tests.Monitoring;
 
 import org.junit.jupiter.api.Test;

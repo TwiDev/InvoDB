@@ -1,4 +1,4 @@
-package ch.twidev.invodb.mapper.annotations;
+package ch.twidev.invodb.repository.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

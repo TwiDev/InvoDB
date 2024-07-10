@@ -9,24 +9,20 @@ import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.common.util.Monitoring;
 import ch.twidev.invodb.exception.InvalidRepositoryQueryException;
+import ch.twidev.invodb.mapper.AspectInvoSchema;
 import ch.twidev.invodb.mapper.InvoSchema;
 import ch.twidev.invodb.mapper.annotations.Async;
-import ch.twidev.invodb.mapper.annotations.Get;
 import ch.twidev.invodb.mapper.annotations.Primitive;
 import ch.twidev.invodb.mapper.field.FieldMapper;
-import ch.twidev.invodb.repository.SchemaRepositoryProvider;
+import ch.twidev.invodb.mapper.handler.SchemaAspectHandler;
 import ch.twidev.invodb.repository.SchemaRepository;
-import ch.twidev.invodb.repository.annotations.Find;
-import ch.twidev.invodb.repository.annotations.FindAll;
-import ch.twidev.invodb.repository.annotations.Insert;
-import com.google.common.reflect.TypeToken;
+import ch.twidev.invodb.repository.SchemaRepositoryProvider;
+import ch.twidev.invodb.repository.annotations.*;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.*;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Spliterators;
 import java.util.concurrent.CompletableFuture;
@@ -37,6 +33,10 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if(method.isAnnotationPresent(Aspect.class)) {
+            return handleAspect(method, args);
+        }
+
         CompletableFuture<?> schemaCompletableFuture = this.handleQuery(method, args);
 
         if(schemaCompletableFuture != null) {
@@ -240,6 +240,22 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
         });
 
         return schemaCompletableFuture;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <A> A handleAspect(Method method, Object[] args) throws InvalidRepositoryQueryException {
+        Class<?> aspect = (Class<?>) ((ParameterizedType) schemaRepository.getClassInterface().getGenericInterfaces()[0])
+                .getActualTypeArguments()[1];
+
+        if(schemaRepository.getBlankSchema() == null) {
+            throw new InvalidRepositoryQueryException("Cannot get aspect of mutable schema because the schema doesn't extend from AspectInvoSchema");
+        }
+
+        return (A) Proxy.newProxyInstance(
+                aspect.getClassLoader(),
+                new Class[]{aspect},
+                new SchemaAspectHandler(schemaRepository.getBlankSchema(), args));
+
     }
 
     @SuppressWarnings("unchecked")

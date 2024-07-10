@@ -7,14 +7,14 @@ import ch.twidev.invodb.exception.InvalidSchemaException;
 import ch.twidev.invodb.exception.SchemaException;
 import ch.twidev.invodb.mapper.AspectInvoSchema;
 import ch.twidev.invodb.mapper.annotations.Async;
-import ch.twidev.invodb.mapper.annotations.Update;
+import ch.twidev.invodb.repository.annotations.Update;
 import ch.twidev.invodb.mapper.field.FieldMapper;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 @SuppressWarnings("unchecked")
-public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema) implements InvocationHandler {
+public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema, Object... primaryValues) implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -43,10 +43,13 @@ public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema) implements I
     public InvoQuery<?> parseQuery(Method method, Object[] args) throws SchemaException {
         String collection = invoSchema.getCollection();
 
-        SearchFilter searchFilter = SearchFilter.eq(
-                invoSchema.getPrimaryKey(),
-                invoSchema.getPrimaryValue()
-        );
+        SearchFilter searchFilter;
+
+        if(args[0] instanceof SearchFilter filter) {
+            searchFilter = filter;
+        }else{
+            searchFilter = invoSchema.getPrimaryFilters(primaryValues);
+        }
 
         if (method.isAnnotationPresent(Update.class)) {
             this.checkQuery(args);

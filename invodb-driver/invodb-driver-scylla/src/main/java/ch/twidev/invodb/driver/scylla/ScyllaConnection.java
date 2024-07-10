@@ -137,10 +137,14 @@ public class ScyllaConnection implements DriverSession<Session> {
             FieldMap fields = updateContext.getFields().getFormattedFields(placeholderContext);
 
             String statement = "UPDATE %s SET %s ".formatted(updateContext.getCollection(), fields.toString())
-                    + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) : "");
+                    + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " IF EXISTS" : "");
+
+            System.out.println(statement);
 
             List<Object> context = new ArrayList<>(fields.values());
             context.addAll(updateContext.getContexts());
+
+            System.out.println(context);
 
             ResultSet resultSet = searchFilter.isRequired() ?
                     session.execute(statement, context.toArray(new Object[0])) :

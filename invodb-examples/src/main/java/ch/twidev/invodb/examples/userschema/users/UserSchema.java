@@ -35,15 +35,6 @@ public class UserSchema extends AspectInvoSchema<UserSchemaAspect, String>
     @Primitive(formatter = JsonFormatter.class)
     private UserData userSchema = new UserData();
 
-    public UserSchema() {
-        super(UserSchemaAspect.class, "uuid");
-    }
-
-    @Override
-    public String getPrimaryValue() {
-        return uuid.toString();
-    }
-
     public UserData getUserData() {
         return userSchema;
     }

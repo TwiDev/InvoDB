@@ -33,4 +33,8 @@ public record FieldMapper(InvoSchema invoSchema, String name, String queryName, 
 
         return value;
     }
+
+    public String getQueryName() {
+        return queryName.isEmpty() ? name : queryName;
+    }
 }

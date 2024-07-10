@@ -17,10 +17,12 @@ public class MessageSchema extends AspectInvoSchema<MessageAspect, Long> impleme
     @Immutable
     private long messageId;
 
+    @PrimaryField
     @Field(name = "channel_id")
     @Immutable
     private long channelId;
 
+    @PrimaryField
     @Field
     @Immutable
     private int bucket;
@@ -32,21 +34,6 @@ public class MessageSchema extends AspectInvoSchema<MessageAspect, Long> impleme
     @Field(name = "content")
     private String content = null;
 
-
-    public MessageSchema() {
-        super(MessageAspect.class, "message_id");
-    }
-
-    @Override
-    public void onPopulated() {
-
-    }
-
-    @Override
-    public Long getPrimaryValue() {
-        return messageId;
-    }
-
     @Override
     public String toString() {
         return "MessageSchema{" +
@@ -56,5 +43,10 @@ public class MessageSchema extends AspectInvoSchema<MessageAspect, Long> impleme
                 ", authorId=" + authorId +
                 ", content='" + content + '\'' +
                 '}';
+    }
+
+    @Override
+    public void setContent(String msg) {
+        this.content = msg;
     }
 }

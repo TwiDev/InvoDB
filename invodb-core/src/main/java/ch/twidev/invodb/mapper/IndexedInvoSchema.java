@@ -1,43 +1,69 @@
 package ch.twidev.invodb.mapper;
 
 import ch.twidev.invodb.bridge.documents.OperationResult;
-import ch.twidev.invodb.common.query.builder.UpdateOperationBuilder;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
+import ch.twidev.invodb.mapper.annotations.PrimaryField;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public abstract class IndexedInvoSchema<PrimaryKey> extends InvoSchema {
 
-    private final String primaryKey;
+    private final LinkedHashMap<String, Field> primaryKeys = new LinkedHashMap<>();
 
-    public IndexedInvoSchema(String primaryKey) {
-
-        this.primaryKey = primaryKey;
+    public IndexedInvoSchema() {
+        for (Field declaredField : this.getClass().getDeclaredFields()) {
+            if(declaredField.isAnnotationPresent(PrimaryField.class)) {
+                ch.twidev.invodb.mapper.annotations.Field field = declaredField.getAnnotation(ch.twidev.invodb.mapper.annotations.Field.class);
+                primaryKeys.put(field.name().isEmpty() ? declaredField.getName() : field.name(), declaredField);
+            }
+        }
     }
 
-    public String getPrimaryKey() {
-        return primaryKey;
+    public String[] getPrimaryKeys() {
+        return primaryKeys.keySet().toArray(new String[0]);
     }
 
-    public abstract PrimaryKey getPrimaryValue();
+    public Object[] getPrimaryValues() {
+        return this.primaryKeys.values()
+                .stream()
+                .map(field -> this.getFields().get(field.getName()).getFormattedValue()).toArray(Object[]::new);
+    }
 
     public void save() {
-        this.save(this.getPrimaryFilter());
+        this.save(this.getPrimaryFilters());
     }
 
     public CompletableFuture<OperationResult> saveAsync() {
-        return this.saveAsync(this.getPrimaryFilter());
+        return this.saveAsync(this.getPrimaryFilters());
     }
 
     public void delete() {
-        this.delete(this.getPrimaryFilter());
+        this.delete(this.getPrimaryFilters());
     }
 
     public void deleteAsync() {
-        this.delete(this.getPrimaryFilter());
+        this.delete(this.getPrimaryFilters());
     }
 
-    private SearchFilter getPrimaryFilter(){
-        return SearchFilter.eq(primaryKey, this.getPrimaryValue());
+    public SearchFilter getPrimaryFilters(){
+        return this.getPrimaryFilters(this.getPrimaryValues());
+    }
+
+    public SearchFilter getPrimaryFilters(Object[] primaryValues){
+        final String[] primaryKeys = this.getPrimaryKeys();
+
+        SearchFilter searchFilter = SearchFilter.eq(primaryKeys[0], primaryValues[0]);
+
+        for (int i = 1; i < primaryKeys.length; i++) {
+            searchFilter = SearchFilter.and(searchFilter, SearchFilter.eq(primaryKeys[i], primaryValues[i]));
+        }
+
+        return searchFilter;
     }
 }

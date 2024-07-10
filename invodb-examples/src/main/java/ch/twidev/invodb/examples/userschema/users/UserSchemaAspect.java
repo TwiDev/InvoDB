@@ -3,7 +3,7 @@ package ch.twidev.invodb.examples.userschema.users;
 import ch.twidev.invodb.common.format.JsonFormatter;
 import ch.twidev.invodb.mapper.annotations.Async;
 import ch.twidev.invodb.mapper.annotations.Primitive;
-import ch.twidev.invodb.mapper.annotations.Update;
+import ch.twidev.invodb.repository.annotations.Update;
 
 public interface UserSchemaAspect {
 

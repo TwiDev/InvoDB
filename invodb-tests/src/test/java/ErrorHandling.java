@@ -14,6 +14,7 @@ import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.annotations.Find;
 import ch.twidev.invodb.repository.annotations.FindOrInsert;
 import ch.twidev.invodb.repository.annotations.Insert;
+import ch.twidev.invodb.repository.annotations.Update;
 import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;

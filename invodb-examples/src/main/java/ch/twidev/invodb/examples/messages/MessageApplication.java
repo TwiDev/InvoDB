@@ -15,6 +15,7 @@ import ch.twidev.invodb.repository.SchemaRepositoryProvider;
 import com.datastax.driver.core.Session;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
@@ -73,14 +74,14 @@ public class MessageApplication<S> {
         Channel mainChannel = new Channel(1249761829889052672L);
 
         messageApplication.sendAsync(mainChannel, loggedId, "Hello World !").thenAccept(messageSchema -> {
-            logger.info("Message sent ! ID: " + messageSchema.getPrimaryValue());
+            logger.info("Message sent ! ID: " + Arrays.toString(messageSchema.getPrimaryValues()));
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
 
             return null;
         });
 
-        Iterator<MessageSchema> iterator = messageApplication.getMessagesInBucket(mainChannel, 4966109);
+        Iterator<MessageSchema> iterator = messageApplication.getMessagesInBucket(mainChannel, 5009584);
 
         logger.info("Found messages !");
 
@@ -91,9 +92,17 @@ public class MessageApplication<S> {
         }
 
         Monitoring monitoring = new Monitoring("Get Content");
-        messageApplication.getMessageRepository().getContent(1249762319070728192L).thenAccept(s -> {
+        messageApplication.getMessageRepository().getContent(1260703284896317440L).thenAccept(s -> {
             monitoring.done();
             logger.info("Content: " + s);
+
+            Monitoring monitoring2 = new Monitoring("Update content");
+            messageApplication.getMessageRepository().getAspect(1260703284896317440L, mainChannel.getChannelId(),5009584).setContent("Hi, Hello !");
+            monitoring2.done();
+
+            messageApplication.getMessageRepository().getContent(1260703284896317440L).thenAccept(s2 -> {
+                logger.info("Content updated: " + s2);
+            });
         });
 
     }
