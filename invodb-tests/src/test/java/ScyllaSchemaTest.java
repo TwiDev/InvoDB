@@ -10,8 +10,8 @@ import ch.twidev.invodb.driver.scylla.ScyllaConnection;
 import ch.twidev.invodb.mapper.AspectInvoSchema;
 import ch.twidev.invodb.mapper.annotations.*;
 import ch.twidev.invodb.mapper.handler.SchemaOperationHandler;
-import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.SchemaRepositoryProvider;
+import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.annotations.Find;
 import ch.twidev.invodb.repository.annotations.FindOrInsert;
 import ch.twidev.invodb.repository.annotations.Insert;
@@ -39,7 +39,7 @@ public class ScyllaSchemaTest {
         try {
             ScyllaConnection scyllaCluster = new ScyllaCluster(driverConfig).connectSession("main");
 
-            ScyllaUserRepository scyllaUserRepository = new SchemaRepository<>(scyllaCluster, "users", ScyllaUserRepository.class){}.build();
+            ScyllaUserRepository scyllaUserRepository = new SchemaRepositoryProvider<>(scyllaCluster, "users", ScyllaUserRepository.class){}.build();
 
             // Find user
             {
@@ -174,7 +174,7 @@ public class ScyllaSchemaTest {
 
     }
 
-    public interface ScyllaUserRepository extends SchemaRepositoryProvider<ScyllaUserSchema> {
+    public interface ScyllaUserRepository extends SchemaRepository<ScyllaUserSchema> {
 
         @Find(by = "id")
         @Async

@@ -11,28 +11,29 @@ import ch.twidev.invodb.common.util.Monitoring;
 import ch.twidev.invodb.exception.InvalidRepositoryQueryException;
 import ch.twidev.invodb.mapper.InvoSchema;
 import ch.twidev.invodb.mapper.annotations.Async;
+import ch.twidev.invodb.mapper.annotations.Get;
 import ch.twidev.invodb.mapper.annotations.Primitive;
 import ch.twidev.invodb.mapper.field.FieldMapper;
-import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.SchemaRepositoryProvider;
+import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.annotations.Find;
 import ch.twidev.invodb.repository.annotations.FindAll;
 import ch.twidev.invodb.repository.annotations.Insert;
+import com.google.common.reflect.TypeToken;
 
-import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.util.Iterator;
 import java.util.Spliterators;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.StreamSupport;
 
-public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provider extends SchemaRepositoryProvider<Schema>>(
-        SchemaRepository<Session, Schema, Provider> schemaRepository) implements InvocationHandler {
+public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provider extends SchemaRepository<Schema>>(
+        SchemaRepositoryProvider<Session, Schema, Provider> schemaRepository) implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -71,6 +72,10 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
             return handleFindAll(method, args);
         }
 
+        if(method.isAnnotationPresent(Get.class)) {
+            return handleGet(method, method.getReturnType(), args);
+        }
+
         if(method.isAnnotationPresent(Insert.class)) {
             return handleInsert(method, args);
         }
@@ -96,8 +101,14 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
             findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
                     .where(searchFilter);
         }else {
-            if(findAll.by().isEmpty()) {
-                throw new InvalidRepositoryQueryException("No searched field specified in the find annotation for " + method.getName());
+            String by = findAll.by();
+
+            if(by.isEmpty()) {
+                if(this.schemaRepository.getPrimaryField() != null) {
+                    by = this.schemaRepository.getPrimaryField();
+                }else {
+                    throw new InvalidRepositoryQueryException("No searched field specified in the find annotation for " + method.getName());
+                }
             }
 
             Object searchedValue = args[0];
@@ -109,7 +120,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
             }
 
             findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
-                    .where(SearchFilter.eq(findAll.by(), searchedValue));
+                    .where(SearchFilter.eq(by, searchedValue));
         }
 
         if(method.isAnnotationPresent(Async.class)) {
@@ -136,7 +147,6 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
                 return;
             }
 
-            long t = System.nanoTime();
             Iterator<Schema> iterator = StreamSupport.stream(Spliterators.spliteratorUnknownSize(elementSet, 0), false)
                     .map(elements -> {
                         try {
@@ -175,8 +185,14 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
             findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
                     .where(searchFilter);
         }else {
-            if(find.by().isEmpty()) {
-                throw new InvalidRepositoryQueryException("No searched field specified in the find annotation for " + method.getName());
+            String by = find.by();
+
+            if(by.isEmpty()) {
+                if(this.schemaRepository.getPrimaryField() != null) {
+                    by = this.schemaRepository.getPrimaryField();
+                }else {
+                    throw new InvalidRepositoryQueryException("No searched field specified in the find annotation for " + method.getName());
+                }
             }
 
             Object searchedValue = args[0];
@@ -188,7 +204,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
             }
 
             findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
-                    .where(SearchFilter.eq(find.by(), searchedValue));
+                    .where(SearchFilter.eq(by, searchedValue));
         }
 
         if(method.isAnnotationPresent(Async.class)) {
@@ -225,6 +241,74 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
 
         return schemaCompletableFuture;
     }
+
+    @SuppressWarnings("unchecked")
+    public <Raw> CompletableFuture<Raw> handleGet(Method method, Class<Raw> rawClass, Object[] args) throws InvalidRepositoryQueryException {
+        Get find = method.getAnnotation(Get.class);
+        this.checkQuery(args);
+
+        final CompletableFuture<Raw> schemaCompletableFuture = new CompletableFuture<>();
+        final CompletableFuture<ElementSet<?>> completableFuture;
+        final FindOperationBuilder findOperationBuilder;
+
+        String field = find.field();
+
+        if(args[0] instanceof SearchFilter searchFilter) {
+            findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
+                    .attribute(field)
+                    .where(searchFilter);
+        }else {
+            String by = find.by();
+
+            if(by.isEmpty()) {
+                if(this.schemaRepository.getPrimaryField() != null) {
+                    by = this.schemaRepository.getPrimaryField();
+                }else {
+                    throw new InvalidRepositoryQueryException("No searched field specified in the find annotation for " + method.getName());
+                }
+            }
+
+            Object searchedValue = args[0];
+
+            if (method.isAnnotationPresent(Primitive.class)) {
+                Primitive primitive = method.getAnnotation(Primitive.class);
+
+                searchedValue = DataFormat.getPrimitive(searchedValue, primitive.formatter());
+            }
+
+            findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
+                    .attribute(field)
+                    .where(SearchFilter.eq(by, searchedValue));
+        }
+
+        if(method.isAnnotationPresent(Async.class)) {
+            completableFuture = findOperationBuilder.runAsync(schemaRepository.getDriverSession());
+
+            rawClass = (Class<Raw>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
+        }else{
+            completableFuture = CompletableFuture.completedFuture(
+                    findOperationBuilder.run(schemaRepository.getDriverSession()));
+        }
+
+        Class<Raw> finalRawClass = rawClass;
+        completableFuture.exceptionally(throwable -> {
+            schemaCompletableFuture.completeExceptionally(throwable);
+
+            return null;
+        }).thenAccept(elementSet -> {
+            if(elementSet == null) return;
+
+            if(elementSet.isEmpty()) {
+                schemaCompletableFuture.complete(null);
+                return;
+            }
+
+            schemaCompletableFuture.complete(elementSet.first().getObject(field, finalRawClass));
+        });
+
+        return schemaCompletableFuture;
+    }
+
 
     public CompletableFuture<Schema> handleInsert(Method method, Object[] args) throws InvalidRepositoryQueryException {
         Insert insert = method.getAnnotation(Insert.class);

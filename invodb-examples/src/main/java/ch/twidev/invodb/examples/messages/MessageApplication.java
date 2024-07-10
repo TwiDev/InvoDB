@@ -11,7 +11,7 @@ import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
 import ch.twidev.invodb.driver.scylla.ScyllaConnection;
 import ch.twidev.invodb.examples.messages.channel.Channel;
 import ch.twidev.invodb.examples.messages.snowflake.Snowflake;
-import ch.twidev.invodb.repository.SchemaRepository;
+import ch.twidev.invodb.repository.SchemaRepositoryProvider;
 import com.datastax.driver.core.Session;
 
 import java.net.InetSocketAddress;
@@ -48,7 +48,7 @@ public class MessageApplication<S> {
 
         logger.info("Loading message application with node id " + nodeId);
 
-        this.messageRepository = new SchemaRepository<>(
+        this.messageRepository = new SchemaRepositoryProvider<>(
                 driverSession,
                 "messages",
                 MessageRepository.class)
@@ -89,6 +89,12 @@ public class MessageApplication<S> {
 
             logger.info(message.toString());
         }
+
+        Monitoring monitoring = new Monitoring("Get Content");
+        messageApplication.getMessageRepository().getContent(1249762319070728192L).thenAccept(s -> {
+            monitoring.done();
+            logger.info("Content: " + s);
+        });
 
     }
 

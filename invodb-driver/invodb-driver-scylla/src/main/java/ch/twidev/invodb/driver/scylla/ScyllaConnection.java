@@ -105,7 +105,6 @@ public class ScyllaConnection implements DriverSession<Session> {
             String statement = "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
                     + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
 
-
             ResultSetFuture resultSet = searchFilter.isRequired() ?
                     session.executeAsync(statement, searchFilter.getContexts().toArray(new Object[0])) :
                     session.executeAsync(statement);

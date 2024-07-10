@@ -3,14 +3,14 @@ package ch.twidev.invodb.examples.userschema.users;
 import ch.twidev.invodb.common.format.UUIDFormatter;
 import ch.twidev.invodb.mapper.annotations.Async;
 import ch.twidev.invodb.mapper.annotations.Primitive;
-import ch.twidev.invodb.repository.SchemaRepositoryProvider;
+import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.annotations.Find;
 import ch.twidev.invodb.repository.annotations.Insert;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public interface UserSchemaProvider extends SchemaRepositoryProvider<UserSchema> {
+public interface UserSchemaProvider extends SchemaRepository<UserSchema> {
 
     @Find(by = "uuid")
     @Async

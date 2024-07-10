@@ -17,7 +17,6 @@ public class ScyllaResultSet extends ElementSet<ScyllaResultSet.ScyllaElements> 
 
     private final boolean isEmpty;
     private final transient ResultSet resultSet;
-    private transient Elements first;
 
     public ScyllaResultSet(ResultSet resultSet) {
         super(resultSet.all()
@@ -27,13 +26,7 @@ public class ScyllaResultSet extends ElementSet<ScyllaResultSet.ScyllaElements> 
 
         this.resultSet = resultSet;
 
-        this.isEmpty = resultSet.isExhausted();
-
-        try {
-            this.first = new ScyllaElements(resultSet.one());
-        } catch (NoSuchElementException ignore) {
-            this.first = null;
-        }
+        this.isEmpty = !hasNext();
     }
 
     public ScyllaResultSet(Iterator<ScyllaElements> iterator) {
@@ -55,7 +48,7 @@ public class ScyllaResultSet extends ElementSet<ScyllaResultSet.ScyllaElements> 
 
     @Override
     public Elements first() {
-        return first;
+        return iterator.next();
     }
 
     @Override

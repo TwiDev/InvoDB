@@ -17,12 +17,10 @@ public class MessageSchema extends AspectInvoSchema<MessageAspect, Long> impleme
     @Immutable
     private long messageId;
 
-    @PrimaryField
     @Field(name = "channel_id")
     @Immutable
     private long channelId;
 
-    @PrimaryField
     @Field
     @Immutable
     private int bucket;

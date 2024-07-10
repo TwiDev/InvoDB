@@ -4,5 +4,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PrimaryField {
+public @interface Get {
+
+    String field() default "";
+
+    String by() default "";
+
 }
