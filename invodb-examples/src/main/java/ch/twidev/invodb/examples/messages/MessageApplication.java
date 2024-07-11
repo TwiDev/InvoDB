@@ -105,6 +105,14 @@ public class MessageApplication<S> {
             });
         });
 
+        try {
+            Thread.sleep(2000L);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        connection.close();
+
     }
 
     public CompletableFuture<MessageSchema> sendAsync(Channel channel, long authorId, String content) {
