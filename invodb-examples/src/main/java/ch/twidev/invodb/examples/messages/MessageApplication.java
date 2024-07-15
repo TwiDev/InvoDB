@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class MessageApplication<S> {
 
@@ -103,6 +104,10 @@ public class MessageApplication<S> {
             messageApplication.getMessageRepository().getContent(1260703284896317440L).thenAccept(s2 -> {
                 logger.info("Content updated: " + s2);
             });
+        });
+
+        messageApplication.getMessageRepository().findAllByBuckets(mainChannel.getChannelId(), IntStream.of(5011017,5009636)).forEachRemaining(messageSchema -> {
+            System.out.println(messageSchema.toString());
         });
 
         try {

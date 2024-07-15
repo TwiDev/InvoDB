@@ -42,13 +42,13 @@ public class ScyllaConnection implements DriverSession<Session> {
         put(SearchFilterType.OR, new SearchCompositeParameter("OR"));
         put(SearchFilterType.EQUAL, new SearchFieldParameter() {
             @Override
-            public String parse(String key) {
+            public String parse(String key, List<Object> context) {
                 return key + " = ?";
             }
         });
         put(SearchFilterType.NOT_EQUAL, new SearchFieldParameter() {
             @Override
-            public String parse(String key) {
+            public String parse(String key, List<Object> context) {
                 return key + " != ?";
             }
         });
@@ -85,6 +85,7 @@ public class ScyllaConnection implements DriverSession<Session> {
             String statement = "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
                             + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
 
+            System.out.println(statement);
 
             ResultSet resultSet = searchFilter.isRequired() ?
                     session.execute(statement, searchFilter.getContexts().toArray(new Object[0])) :

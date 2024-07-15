@@ -5,12 +5,13 @@
     <formats>
         <format>jar</format>
     </formats>
-    <includeBaseDirectory>false</includeBaseDirectory>
+    <includeBaseDirectory>true</includeBaseDirectory>
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>ch.twidev.invodb:invodb-bridge</include>
                 <include>ch.twidev.invodb:invodb-driver-*</include>
+                <include>com.datastax.driver.*</include>
             </includes>
             <unpack>true</unpack>
         </dependencySet>

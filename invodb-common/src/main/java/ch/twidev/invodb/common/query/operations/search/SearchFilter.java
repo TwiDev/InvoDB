@@ -48,11 +48,15 @@ public abstract class SearchFilter implements ISearchFilter {
     }
 
     public static SearchFilter eq(String value, Object object) {
-        return new FieldSearchFilter(value, object, SearchFilterType.EQUAL, searchField -> searchField.get(value).equals(object));
+        return new FieldSearchFilter(value, SearchFilterType.EQUAL, searchField -> searchField.get(value).equals(object), object);
     }
 
     public static SearchFilter not_eq(String value, Object object) {
-        return new FieldSearchFilter(value, object, SearchFilterType.NOT_EQUAL, searchField -> !searchField.get(value).equals(object));
+        return new FieldSearchFilter(value, SearchFilterType.NOT_EQUAL, searchField -> !searchField.get(value).equals(object),object);
+    }
+
+    public static SearchFilter in(String value, Object... object) {
+        return new FieldSearchFilter(value, SearchFilterType.IN, searchField -> Arrays.asList(object).contains(searchField.get(value)),object);
     }
 
     private final SearchCondition searchCondition;

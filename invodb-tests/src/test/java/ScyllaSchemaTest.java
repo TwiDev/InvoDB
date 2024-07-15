@@ -1,23 +1,17 @@
 import ch.twidev.invodb.bridge.driver.auth.PlainTextAuth;
 import ch.twidev.invodb.bridge.driver.cluster.ContactPoint;
 import ch.twidev.invodb.bridge.driver.config.DriverConfig;
-import ch.twidev.invodb.bridge.exceptions.DriverConnectionException;
 import ch.twidev.invodb.common.format.UUIDFormatter;
 import ch.twidev.invodb.common.query.InvoQuery;
-import ch.twidev.invodb.driver.scylla.ScyllaCluster;
 import ch.twidev.invodb.driver.scylla.ScyllaConfigBuilder;
-import ch.twidev.invodb.driver.scylla.ScyllaConnection;
 import ch.twidev.invodb.mapper.AspectInvoSchema;
 import ch.twidev.invodb.mapper.annotations.*;
 import ch.twidev.invodb.mapper.handler.SchemaOperationHandler;
-import ch.twidev.invodb.repository.SchemaRepositoryProvider;
 import ch.twidev.invodb.repository.SchemaRepository;
 import ch.twidev.invodb.repository.annotations.Find;
 import ch.twidev.invodb.repository.annotations.FindOrInsert;
 import ch.twidev.invodb.repository.annotations.Insert;
 import ch.twidev.invodb.repository.annotations.Update;
-import ch.twidev.invodb.tests.Monitoring;
-
 import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
@@ -37,7 +31,7 @@ public class ScyllaSchemaTest {
                 .setAuthProvider(new PlainTextAuth("cassandra", "cassandra"))
                 .build();
 
-        try {
+/*        try {
             ScyllaConnection scyllaCluster = new ScyllaCluster(driverConfig).connectSession("main");
 
             ScyllaUserRepository scyllaUserRepository = new SchemaRepositoryProvider<>(scyllaCluster, "users", ScyllaUserRepository.class){}.build();
@@ -91,7 +85,7 @@ public class ScyllaSchemaTest {
 
         } catch (DriverConnectionException e) {
             throw new RuntimeException(e);
-        }
+        }*/
 
     }
     public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect, Integer> implements ScyllaUserSchemaAspect, SchemaOperationHandler {

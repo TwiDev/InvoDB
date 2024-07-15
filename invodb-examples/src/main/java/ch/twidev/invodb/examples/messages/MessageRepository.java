@@ -12,6 +12,7 @@ import ch.twidev.invodb.repository.annotations.Insert;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
 
 import static ch.twidev.invodb.common.query.operations.search.SearchFilter.*;
 
@@ -32,6 +33,16 @@ public interface MessageRepository extends MutableSchemaRepository<MessageSchema
             and(eq("bucket", bucket), eq("channel_id", channelId))
         );
     }
+
+    default Iterator<MessageSchema> findAllByBuckets(long channelId, IntStream bucket) {
+        SearchFilter[] searchFilter = bucket.mapToObj(o -> eq("bucket",o)).toArray(SearchFilter[]::new);
+
+
+        return findAllByBucket(
+                and(or(searchFilter), eq("channel_id", channelId))
+        );
+    }
+
 
     @Aspect
     MessageAspect getAspect(long channelId, long messageId, int bucketId);

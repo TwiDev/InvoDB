@@ -1,6 +1,7 @@
 package ch.twidev.invodb.bridge.contexts;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class SearchDictionary extends HashMap<SearchFilterType, SearchDictionary.SearchParameter> {
 
@@ -35,7 +36,7 @@ public class SearchDictionary extends HashMap<SearchFilterType, SearchDictionary
 
     public static abstract class SearchFieldParameter implements SearchParameter {
 
-        public abstract String parse(String key);
+        public abstract String parse(String key, List<Object> context);
 
     }
 }

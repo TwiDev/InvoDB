@@ -7,18 +7,19 @@ import ch.twidev.invodb.bridge.search.IFieldSearchFilter;
 import ch.twidev.invodb.bridge.search.SearchCondition;
 import ch.twidev.invodb.bridge.placeholder.PlaceholderContext;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class FieldSearchFilter extends SearchFilter implements IFieldSearchFilter {
 
     private final String value;
-    private Object object;
+    private final List<Object> object;
 
-    public FieldSearchFilter(String value, Object object, SearchFilterType searchFilterType, SearchCondition searchCondition) {
+    public FieldSearchFilter(String value, SearchFilterType searchFilterType, SearchCondition searchCondition, Object... object) {
         super(searchFilterType, searchCondition);
         this.value = value;
-        this.object = object;
+        this.object = Arrays.asList(object);
     }
 
     @Override
@@ -33,12 +34,18 @@ public class FieldSearchFilter extends SearchFilter implements IFieldSearchFilte
 
     @Override
     public String toQuery(SearchDictionary searchDictionary, PlaceholderContext placeholderContext) {
-        if(object instanceof QueryPlaceholder queryPlaceholder && placeholderContext != null) {
-            this.object = placeholderContext.get(queryPlaceholder);
-        }
+        for (int i = 0; i < object.size(); i++) {
+            Object o = object.get(i);
 
+            if(o instanceof QueryPlaceholder queryPlaceholder && placeholderContext != null) {
+                o = placeholderContext.get(queryPlaceholder);
+            }
+
+            object.set(i, o);
+
+        }
         return searchDictionary.getField(this.getSearchFilterType())
-                .parse(value);
+                .parse(value, object);
     }
 
     @Override
@@ -48,7 +55,7 @@ public class FieldSearchFilter extends SearchFilter implements IFieldSearchFilte
 
     @Override
     public List<Object> getContexts() {
-        return Collections.singletonList(object);
+        return object;
     }
 
     @Override

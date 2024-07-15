@@ -6,7 +6,8 @@ public enum SearchFilterType {
     AND(3),
     OR(4),
     EQUAL(5),
-    NOT_EQUAL(6);
+    NOT_EQUAL(6),
+    IN(7);
 
     private final int queryCode;
 
