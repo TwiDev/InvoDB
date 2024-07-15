@@ -11,7 +11,6 @@
             <includes>
                 <include>ch.twidev.invodb:invodb-bridge</include>
                 <include>ch.twidev.invodb:invodb-driver-*</include>
-                <include>com.datastax.driver.*</include>
             </includes>
             <unpack>true</unpack>
         </dependencySet>

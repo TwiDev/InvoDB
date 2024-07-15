@@ -36,7 +36,7 @@ public class ScyllaConnection implements DriverSession<Session> {
 
     private static final ExecutorService QUERY_EXECUTOR = Executors.newCachedThreadPool();
 
-    private static final SearchDictionary searchDictionary = new SearchDictionary(){{
+    public static SearchDictionary searchDictionary = new SearchDictionary(){{
         put(SearchFilterType.ALL, new SearchCompositeParameter("*"));
         put(SearchFilterType.AND, new SearchCompositeParameter("AND"));
         put(SearchFilterType.OR, new SearchCompositeParameter("OR"));
@@ -50,6 +50,13 @@ public class ScyllaConnection implements DriverSession<Session> {
             @Override
             public String parse(String key, List<Object> context) {
                 return key + " != ?";
+            }
+        });
+        put(SearchFilterType.IN, new SearchFieldParameter() {
+            @Override
+            public String parse(String key, List<Object> context) {
+                String sub = ("?,".repeat(context.size()));
+                return key + " in(" + sub.substring(0, sub.length() - 1) + ")";
             }
         });
     }};
