@@ -99,6 +99,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
 
         if(args[0] instanceof SearchFilter searchFilter) {
             findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
+                    .limit(findAll.limit())
                     .where(searchFilter);
         }else {
             String by = findAll.by();
@@ -120,6 +121,7 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
             }
 
             findOperationBuilder = InvoQuery.find(schemaRepository.getCollection())
+                    .limit(findAll.limit())
                     .where(SearchFilter.eq(by, searchedValue));
         }
 

@@ -90,7 +90,8 @@ public class ScyllaConnection implements DriverSession<Session> {
 
         try {
             String statement = "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
-                            + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
+                    + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) : "")
+                    + (findOperationBuilder.hasLimit() ? " LIMIT " + findOperationBuilder.getLimit() : "");
 
             System.out.println(statement);
 
@@ -111,7 +112,8 @@ public class ScyllaConnection implements DriverSession<Session> {
 
         try {
             String statement = "SELECT %s FROM %s ".formatted(findOperationBuilder.getAttributes().toString(), findOperationBuilder.getCollection())
-                    + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) + " ALLOW FILTERING" : "");
+                    + (searchFilter.isRequired() ? "WHERE " + searchFilter.toQuery(searchDictionary, placeholderContext) : "")
+                    + (findOperationBuilder.hasLimit() ? " LIMIT " + findOperationBuilder.getLimit() : "");
 
             ResultSetFuture resultSet = searchFilter.isRequired() ?
                     session.executeAsync(statement, searchFilter.getContexts().toArray(new Object[0])) :

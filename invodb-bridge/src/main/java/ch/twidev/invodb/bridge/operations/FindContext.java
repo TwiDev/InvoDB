@@ -7,4 +7,10 @@ public interface FindContext extends OperationContext, SearchContext {
 
     Attributes getAttributes();
 
+    int getLimit();
+
+    default boolean hasLimit() {
+        return this.getLimit() != 1;
+    }
+
 }

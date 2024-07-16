@@ -19,6 +19,7 @@ public class FindOperationBuilder extends CacheableQuery<FindOperationBuilder>
         implements FindContext, AttributeOperation<FindOperationBuilder> {
 
     private final Attributes attributes = new Attributes();
+    private int limit = -1;
 
     public FindOperationBuilder(String collection) {
         super(collection, QueryOperation.FIND);
@@ -58,6 +59,11 @@ public class FindOperationBuilder extends CacheableQuery<FindOperationBuilder>
     }
 
     @Override
+    public int getLimit() {
+        return limit;
+    }
+
+    @Override
     public FindOperationBuilder attribute(String attribute) {
         attributes.add(attribute);
 
@@ -67,6 +73,12 @@ public class FindOperationBuilder extends CacheableQuery<FindOperationBuilder>
     @Override
     public List<Object> getContexts() {
         return searchFilter.getContexts();
+    }
+
+    public FindOperationBuilder limit(int limit) {
+        this.limit = limit;
+
+        return this;
     }
 
     @Override
