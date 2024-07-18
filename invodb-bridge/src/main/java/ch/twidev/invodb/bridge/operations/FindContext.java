@@ -10,7 +10,7 @@ public interface FindContext extends OperationContext, SearchContext {
     int getLimit();
 
     default boolean hasLimit() {
-        return this.getLimit() != 1;
+        return this.getLimit() != -1;
     }
 
 }
