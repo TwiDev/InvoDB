@@ -5,7 +5,7 @@ import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.exception.InvalidRepositoryQueryException;
 import ch.twidev.invodb.exception.InvalidSchemaException;
 import ch.twidev.invodb.exception.SchemaException;
-import ch.twidev.invodb.mapper.AspectInvoSchema;
+import ch.twidev.invodb.mapper.IndexedInvoSchema;
 import ch.twidev.invodb.mapper.annotations.Async;
 import ch.twidev.invodb.repository.annotations.Update;
 import ch.twidev.invodb.mapper.field.FieldMapper;
@@ -14,7 +14,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 @SuppressWarnings("unchecked")
-public record SchemaAspectHandler(AspectInvoSchema<?,?> invoSchema, Object... primaryValues) implements InvocationHandler {
+public record SchemaAspectHandler(IndexedInvoSchema invoSchema, Object... primaryValues) implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

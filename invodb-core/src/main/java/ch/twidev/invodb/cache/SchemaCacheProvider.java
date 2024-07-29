@@ -12,7 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
-public class SchemaCacheProvider<Driver, Schema extends IndexedInvoSchema<PrimaryKey>, PrimaryKey> extends MapCacheProvider<Driver> implements SchemaCache<Schema, PrimaryKey>{
+public class SchemaCacheProvider<Driver, Schema extends IndexedInvoSchema, PrimaryKey> extends MapCacheProvider<Driver> implements SchemaCache<Schema>{
 
     private final String collection;
 

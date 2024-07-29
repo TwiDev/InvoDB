@@ -55,7 +55,7 @@ public class ErrorHandling {
         }
     }
 
-    public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect, Integer> implements ScyllaUserSchemaAspect, SchemaOperationHandler {
+    public static class ScyllaUserSchema extends AspectInvoSchema<ScyllaUserSchemaAspect> implements ScyllaUserSchemaAspect, SchemaOperationHandler {
 
         @Field
         @PrimaryField

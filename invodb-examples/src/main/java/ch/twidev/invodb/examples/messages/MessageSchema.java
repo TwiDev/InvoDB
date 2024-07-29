@@ -1,16 +1,11 @@
 package ch.twidev.invodb.examples.messages;
 
-import ch.twidev.invodb.cache.SchemaCache;
-import ch.twidev.invodb.cache.SchemaCacheProvider;
 import ch.twidev.invodb.mapper.AspectInvoSchema;
 import ch.twidev.invodb.mapper.annotations.Field;
 import ch.twidev.invodb.mapper.annotations.Immutable;
 import ch.twidev.invodb.mapper.annotations.PrimaryField;
-import org.redisson.api.RedissonClient;
 
-import java.util.logging.Logger;
-
-public class MessageSchema extends AspectInvoSchema<MessageAspect, Long> implements MessageAspect {
+public class MessageSchema extends AspectInvoSchema<MessageAspect> implements MessageAspect {
 
     @PrimaryField
     @Field(name = "message_id")

@@ -13,7 +13,7 @@ import ch.twidev.invodb.mapper.handler.SchemaOperationHandler;
 
 import java.util.UUID;
 
-public class UserSchema extends AspectInvoSchema<UserSchemaAspect, String>
+public class UserSchema extends AspectInvoSchema<UserSchemaAspect>
         implements UserSchemaAspect, SchemaOperationHandler {
 
     @PrimaryField

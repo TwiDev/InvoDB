@@ -5,7 +5,7 @@ import ch.twidev.invodb.mapper.handler.SchemaAspectHandler;
 import java.lang.reflect.Proxy;
 
 @SuppressWarnings("unchecked")
-public abstract class AspectInvoSchema<Aspect, PrimaryKey> extends IndexedInvoSchema<PrimaryKey> {
+public abstract class AspectInvoSchema<Aspect> extends IndexedInvoSchema {
 
     private final Aspect aspect;
 

@@ -5,14 +5,10 @@ import ch.twidev.invodb.common.query.operations.search.SearchFilter;
 import ch.twidev.invodb.mapper.annotations.PrimaryField;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
-public abstract class IndexedInvoSchema<PrimaryKey> extends InvoSchema {
+public abstract class IndexedInvoSchema extends InvoSchema {
 
     private final LinkedHashMap<String, Field> primaryKeys = new LinkedHashMap<>();
 

@@ -1,7 +1,7 @@
 package ch.twidev.invodb.repository;
 
 import ch.twidev.invodb.bridge.session.DriverSession;
-import ch.twidev.invodb.mapper.AspectInvoSchema;
+import ch.twidev.invodb.mapper.IndexedInvoSchema;
 import ch.twidev.invodb.mapper.InvoSchema;
 import ch.twidev.invodb.mapper.annotations.PrimaryField;
 import ch.twidev.invodb.repository.handler.SchemaRepositoryHandler;
@@ -20,7 +20,7 @@ public abstract class SchemaRepositoryProvider<Session, Schema extends InvoSchem
 
     private final String collection;
     private String primaryField = null;
-    private AspectInvoSchema<?,?> blankSchema = null;
+    private IndexedInvoSchema blankSchema = null;
 
     public SchemaRepositoryProvider(DriverSession<Session> driverSession, String collection, Class<Provider> classInterface) {
         this.driverSession = driverSession;
@@ -41,13 +41,13 @@ public abstract class SchemaRepositoryProvider<Session, Schema extends InvoSchem
             }
         }
 
-        if(schemaClass.getSuperclass().isAssignableFrom(AspectInvoSchema.class)) {
+        if(schemaClass.getSuperclass().isAssignableFrom(IndexedInvoSchema.class)) {
             if(primaryField == null) {
                 throw new NullPointerException("Cannot find any primary field for aspect schema " + schemaClass);
             }
 
             try {
-                this.blankSchema = (AspectInvoSchema<?, ?>) schemaClass.getConstructor().newInstance();
+                this.blankSchema = (IndexedInvoSchema) schemaClass.getConstructor().newInstance();
 
                 this.blankSchema.setCollection(collection);
                 this.blankSchema.setDriverSession(driverSession);
@@ -89,7 +89,7 @@ public abstract class SchemaRepositoryProvider<Session, Schema extends InvoSchem
         return primaryField;
     }
 
-    public AspectInvoSchema<?, ?> getBlankSchema() {
+    public IndexedInvoSchema getBlankSchema() {
         return blankSchema;
     }
 }
