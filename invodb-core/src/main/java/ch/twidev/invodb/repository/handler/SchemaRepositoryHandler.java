@@ -1,6 +1,7 @@
 package ch.twidev.invodb.repository.handler;
 
 import ch.twidev.invodb.bridge.documents.ElementSet;
+import ch.twidev.invodb.bridge.documents.Elements;
 import ch.twidev.invodb.bridge.documents.OperationResult;
 import ch.twidev.invodb.common.format.DataFormat;
 import ch.twidev.invodb.common.query.InvoQuery;
@@ -381,7 +382,11 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
 
                 return null;
             }).thenAccept(elementSet -> {
-                if(elementSet == null) return;
+                if(elementSet == null || elementSet == OperationResult.Err) {
+                    schemaCompletableFuture.complete(null);
+
+                    return;
+                };
 
                 schema.setExists(true);
                 schema.setDriverSession(schemaRepository.getDriverSession());

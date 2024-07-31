@@ -207,13 +207,17 @@ public class ScyllaConnection implements DriverSession<Session> {
         try {
             FieldMap fields = updateContext.getFields().getFormattedFields(placeholderContext);
 
-            String statement = "INSERT INTO %s (%s) VALUES (%s)".formatted(
+            String statement = "INSERT INTO %s (%s) VALUES (%s) IF NOT EXISTS".formatted(
                     updateContext.getCollection(),
                     fields.getKeysString(),
                     fields.getUnbounded());
 
             ResultSet resultSet = session.execute(statement,
                     fields.values().toArray(new Object[0]));
+
+            if(!resultSet.wasApplied()) {
+                return OperationResult.Err;
+            }
 
             return OperationResult.Ok;
         } catch (Exception exception) {
@@ -228,7 +232,7 @@ public class ScyllaConnection implements DriverSession<Session> {
         try {
             FieldMap fields = updateContext.getFields().getFormattedFields(placeholderContext);
 
-            String statement = "INSERT INTO %s (%s) VALUES (%s)".formatted(
+            String statement = "INSERT INTO %s (%s) VALUES (%s) IF NOT EXISTS".formatted(
                     updateContext.getCollection(),
                     fields.getKeysString(),
                     fields.getUnbounded());
@@ -239,6 +243,12 @@ public class ScyllaConnection implements DriverSession<Session> {
             Futures.addCallback(resultSet, new FutureCallback<>() {
                 @Override
                 public void onSuccess(ResultSet rows) {
+                    if(!rows.wasApplied()) {
+                        completableFuture.complete(
+                                OperationResult.Err
+                        );
+                    }
+
                     completableFuture.complete(
                             OperationResult.Ok
                     );
