@@ -5,6 +5,7 @@ import ch.twidev.invodb.bridge.documents.Elements;
 import ch.twidev.invodb.bridge.documents.OperationResult;
 import ch.twidev.invodb.common.format.DataFormat;
 import ch.twidev.invodb.common.query.InvoQuery;
+import ch.twidev.invodb.common.query.builder.DeleteOperationBuilder;
 import ch.twidev.invodb.common.query.builder.FindOperationBuilder;
 import ch.twidev.invodb.common.query.builder.InsertOperationBuilder;
 import ch.twidev.invodb.common.query.operations.search.SearchFilter;
@@ -79,6 +80,10 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
 
         if(method.isAnnotationPresent(Insert.class)) {
             return handleInsert(method, args);
+        }
+
+        if(method.isAnnotationPresent(Delete.class)) {
+            return handleDelete(method, args);
         }
 
         return null;
@@ -259,6 +264,50 @@ public record SchemaRepositoryHandler<Session, Schema extends InvoSchema, Provid
                 new Class[]{aspect},
                 new SchemaAspectHandler(schemaRepository.getBlankSchema(), args));
 
+    }
+
+
+    public CompletableFuture<OperationResult> handleDelete(Method method, Object[] args) throws InvalidRepositoryQueryException {
+        Delete find = method.getAnnotation(Delete.class);
+        this.checkQuery(args);
+
+        final CompletableFuture<OperationResult> completableFuture;
+        final DeleteOperationBuilder deleteOperationBuilder;
+
+        if(args[0] instanceof SearchFilter searchFilter) {
+            deleteOperationBuilder = InvoQuery.delete(schemaRepository.getCollection())
+                    .where(searchFilter);
+        }else {
+            String by = find.by();
+
+            if(by.isEmpty()) {
+                if(this.schemaRepository.getPrimaryField() != null) {
+                    by = this.schemaRepository.getPrimaryField();
+                }else {
+                    throw new InvalidRepositoryQueryException("No searched field specified in the find annotation for " + method.getName());
+                }
+            }
+
+            Object searchedValue = args[0];
+
+            if (method.isAnnotationPresent(Primitive.class)) {
+                Primitive primitive = method.getAnnotation(Primitive.class);
+
+                searchedValue = DataFormat.getPrimitive(searchedValue, primitive.formatter());
+            }
+
+            deleteOperationBuilder = InvoQuery.delete(schemaRepository.getCollection())
+                    .where(SearchFilter.eq(by, searchedValue));
+        }
+
+        if(method.isAnnotationPresent(Async.class)) {
+            completableFuture = deleteOperationBuilder.runAsync(schemaRepository.getDriverSession());
+        }else{
+            completableFuture = CompletableFuture.completedFuture(
+                    deleteOperationBuilder.run(schemaRepository.getDriverSession()));
+        }
+
+        return completableFuture;
     }
 
     @SuppressWarnings("unchecked")
